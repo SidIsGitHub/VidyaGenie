@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Mentorship App</title>
+    <style>
+        /* --- PROFILE CIRCLE & REQUESTS ICON STYLES --- */
+
+/* Replicate Profile Circle's size and shape */
+.requests-icon-style {
+    width: 40px;
+    height: 40px;
+    /* Ensure background is white and text is the primary blue */
+    background-color: #ffffff; 
+    color: var(--primary-color);         
+    border-radius: 50%;
+    
+    /* Fix: Ensure perfect vertical and horizontal center alignment */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.5);
+    transition: all 0.2s ease; 
+    user-select: none;
+}
+
+/* Apply the same hover effect as the Profile Circle */
+.profile-circle:hover,
+.requests-icon-style:hover {
+    transform: scale(1.1);
+    background-color: #ffffff;;
+    box-shadow: 0 0 10px rgba(255,255,255,0.5);
+}
+    .requests-icon-style {
+    margin-right: 15px;
+}
+
+/* Ensure the Profile Circle still has its hover effect (it should already have this, but verify) */
+.profile-circle:hover {
+    transform: scale(1.1);
+    background-color: var(--text-color);
+    box-shadow: 0 0 10px rgba(255,255,255,0.5);
+}
+        /* --- RESET & VARIABLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { 
+            --primary-color: #2196F3; 
+            --secondary-color: #4CAF50; 
+            --danger-color: #f44336; 
+            --light-bg: #f5f5f5; 
+            --text-color: #333; 
+            --border-color: #ddd; 
+        }
+        body { font-family: 'San Francisco', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--light-bg); color: var(--text-color); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        /* --- NAVBAR --- */
+        .navbar { 
+            background: var(--primary-color); 
+            color: white; 
+            padding: 15px 20px; 
+            margin-bottom: 20px; 
+            border-radius: 8px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand h1 { font-size: 22px; margin: 0; }
+        .navbar-brand p { font-size: 12px; opacity: 0.9; margin-top: 4px; }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Circular Profile Icon */
+        .profile-circle {
+            width: 40px;
+            height: 40px;
+            background-color: white;
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.5);
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            user-select: none;
+        }
+        .profile-circle:hover {
+            transform: scale(1.1);
+            background-color: #f0f0f0;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        .btn-logout { 
+            padding: 8px 16px; 
+            background: rgba(255,255,255,0.2); 
+            color: white; 
+            border: 1px solid rgba(255,255,255,0.3); 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .btn-logout:hover { background: rgba(255,255,255,0.3); }
+
+        /* --- TABS --- */
+        .tabs { display: flex; 
+    gap: 10px; 
+    margin-bottom: 20px; 
+    border-bottom: 2px solid var(--border-color); 
+    overflow-x: auto; 
+    /* ---- NEW CENTERING CODE BELOW ---- */
+    justify-content: center; /* Centers the tabs horizontally */ }
+        .tab-button { padding: 12px 20px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-weight: 500; color: #666; white-space: nowrap; }
+        .tab-button.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- FORMS & GENERAL --- */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 500; }
+        input, textarea, select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; font-family: inherit; font-size: 14px; }
+        .btn { padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 14px; }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-secondary { background: var(--secondary-color); color: white; }
+        .btn-danger { background: var(--danger-color); color: white; }
+        
+        /* --- CARDS --- */
+        .card { background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card-header { font-size: 18px; font-weight: 600; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .card-footer { margin-top: 15px; display: flex; gap: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        
+        /* --- BADGES --- */
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+        .badge-pending { background: #fff3cd; color: #856404; }
+        .badge-accepted { background: #d4edda; color: #155724; }
+        .badge-rejected { background: #f8d7da; color: #721c24; }
+        .badge-verified { background: #d1ecf1; color: #0c5460; }
+
+        /* --- UTILS --- */
+        .hidden { display: none !important; }
+        .auth-container { max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .auth-toggle { text-align: center; margin-top: 15px; font-size: 14px; }
+        .auth-toggle button { background: none; border: none; color: var(--primary-color); cursor: pointer; text-decoration: underline; }
+
+        /* --- MODALS --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
+        .modal-header { font-size: 20px; font-weight: bold; margin-bottom: 20px; }
+        .modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="authScreen" class="auth-container">
+        <div id="loginForm">
+            <h2 style="text-align:center; margin-bottom:20px;">Login</h2>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Password:</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+            <div class="auth-toggle">
+                Don't have an account? <button onclick="switchToSignup()">Sign Up</button>
+            </div>
+        </div>
+
+        <div id="signupForm" class="hidden">
+            <h2 style="text-align:center; margin-bottom:20px;">Create Account</h2>
+            <form onsubmit="handleSignup(event)">
+                <div class="form-group">
+                    <label>Full Name:</label>
+                    <input type="text" id="signupName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="signupEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Password:</label>
+                    <input type="password" id="signupPassword" required>
+                </div>
+                <div class="form-group">
+                    <label>Account Type:</label>
+                    <select id="signupRole" required>
+                        <option value="">Select Type</option>
+                        <option value="student">Student</option>
+                        <option value="mentor">Mentor</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>College:</label>
+                    <input type="text" id="signupCollege" required>
+                </div>
+                <div id="studentFields" class="hidden">
+                    <div class="form-group">
+                        <label>Year:</label>
+                        <select id="signupYear">
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="mentorFields" class="hidden">
+                    <div class="form-group">
+                        <label>Expertise (comma-separated):</label>
+                        <input type="text" id="signupExpertise" placeholder="React, Firebase, Node.js">
+                    </div>
+                    <div class="form-group">
+                        <label>Availability:</label>
+                        <input type="text" id="signupAvailability" placeholder="Weekends 2-5 PM">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+            </form>
+            <div class="auth-toggle">
+                Already have an account? <button onclick="switchToLogin()">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="appScreen" class="hidden">
+        <div class="container">
+            <div class="navbar">
+                <div class="navbar-brand">
+                    <h1 style = "font-size: 40px;"> VidyaGenie</h1>
+                    <p id="userInfo"></p>
+                </div>
+                <div class="navbar-right">
+                    <div 
+        id="requestsIcon"
+        onclick="switchTab(event, 'requests')" 
+        title="Mentorship Requests"
+        class="requests-icon-style"
+    >
+        <span style="font-size: 20px; position: relative; top: -3px;">👥</span>
+    </div>
+                    <div class="profile-circle" id="profileIcon" onclick="switchTab(null, 'profile')" title="My Profile">
+                        </div>
+                </div>
+            </div>
+
+            <div class="tabs">         
+                <button class="tab-button" onclick="switchTab(event, 'chats')">Chats</button>
+                <button class="tab-button" onclick="switchTab(event, 'community')">Community</button>
+                <button class="tab-button" onclick="switchTab(event, 'reviews')">Reviews</button>              
+            </div>
+
+            <div id="mentors" class="tab-content">
+                <div id="mentorsList" class="grid"></div>
+            </div>
+
+            <div id="requests" class="tab-content">
+                <div id="requestsList"></div>
+            </div>
+
+            <div id="chats" class="tab-content">
+    
+    <div style="display: flex; gap: 20px; height: 70vh;">
+        
+        <div id="activeChatsList" style="flex: 0 0 300px; background: white; border: 1px solid var(--border-color); border-radius: 8px; overflow-y: auto;">
+            <h4 style="padding: 15px; border-bottom: 1px solid var(--border-color);">Active Conversations</h4>
+            <div id="chatsListContent">Loading...</div>
+        </div>
+
+        <div id="messageView" style="flex: 1; background: white; border: 1px solid var(--border-color); border-radius: 8px; display: flex; flex-direction: column;">
+            
+            <div id="chatHeader" style="padding: 15px; border-bottom: 1px solid var(--border-color); font-weight: bold;">
+                Select a chat to begin messaging.
+            </div>
+
+            <div id="messagesContainer" style="flex: 1; overflow-y: auto; padding: 20px;">
+                </div>
+
+            <form id="sendMessageForm" onsubmit="handleSendMessage(event)" class="hidden" style="padding: 15px; border-top: 1px solid var(--border-color); display: flex; gap: 10px;">
+                <input type="hidden" id="selectedChatId">
+                <textarea id="messageText" placeholder="Type your message..." required style="flex-grow: 1; resize: none;"></textarea>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Send</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+            <div id="reviews" class="tab-content">
+                <div id="reviewsList"></div>
+            </div>
+
+            <div id="community" class="tab-content">
+                <div class="card">
+    <div class="card-header">Create a New Discussion Post</div>
+    <div class="card-body">
+        <div class="form-group">
+            <label>Post Title:</label>
+            <input type="text" id="communityPostTitle" placeholder="Ask a question or share something (e.g., How do I start with React?)" required>
+        </div>
+        <div class="form-group">
+            <label>Post Details:</label>
+            <textarea id="communityPostBody" placeholder="Write details here..." required></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="createCommunityPost()">Post to Community</button>
+    </div>
+</div>
+<div id="communityPostsList" style="margin-top: 20px;"></div>
+</div>
+
+
+                <div id="communityPostsList"></div>
+            </div>
+
+            <div id="profile" class="tab-content">
+    <div class="card">
+        <div class="card-header">My Profile</div>
+        <div id="profileContent" class="card-body">
+            </div>
+        
+        <div class="card-footer" style="justify-content: flex-start;">
+            <button class="btn btn-danger" onclick="logout()">Logout</button> 
+        </div>
+        
+    </div>
+</div>
+        </div>
+    </div>
+
+    <div id="mentorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Send Mentorship Request</div>
+            <form onsubmit="handleMentorshipRequest(event)">
+                <input type="hidden" id="selectedMentorId">
+                <div class="form-group">
+                    <label>What do you want to learn?</label>
+                    <input type="text" id="requestSubject" placeholder="e.g., Learn React" required>
+                </div>
+                <div class="form-group">
+                    <label>Tell the mentor about yourself:</label>
+                    <textarea id="requestMessage" placeholder="Your message..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Duration:</label>
+                    <input type="text" id="requestDuration" placeholder="e.g., 3 months" required>
+                </div>
+                <div class="form-group">
+                    <label>Goals (comma-separated):</label>
+                    <textarea id="requestGoals" placeholder="Goal 1, Goal 2, Goal 3" required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeMentorModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="chatModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header" id="chatHeader">Send Message</div> 
+        
+        <div id="messagesContainer" style="height: 300px; overflow-y: auto; border: 1px solid var(--border-color); padding: 10px; margin-bottom: 15px; background: var(--light-bg); border-radius: 4px;">
+            <p style="text-align: center; color: #777;">Loading messages...</p>
+        </div>
+        
+        <form onsubmit="handleSendMessage(event)">
+            <input type="hidden" id="selectedChatId">
+            <div class="form-group">
+                <textarea id="messageText" placeholder="Type your message..." required></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="closeChatModal()">Close</button>
+                <button type="submit" class="btn btn-primary">Send</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+    <div id="reviewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Leave a Review</div>
+            <form onsubmit="handleLeaveReview(event)">
+                <input type="hidden" id="selectedReviewMentorId">
+                <div class="form-group">
+                    <label>Rating:</label>
+                    <select id="reviewRating" required>
+                        <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                        <option value="4">⭐⭐⭐⭐ Good</option>
+                        <option value="3">⭐⭐⭐ Average</option>
+                        <option value="2">⭐⭐ Poor</option>
+                        <option value="1">⭐ Very Poor</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Title:</label>
+                    <input type="text" id="reviewTitle" placeholder="e.g., Great Mentor!" required>
+                </div>
+                <div class="form-group">
+                    <label>Comment:</label>
+                    <textarea id="reviewComment" placeholder="Share your experience..." required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeReviewModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <script>
+
+        const firebaseConfig = {
+  apiKey: "AIzaSyBFivNpSRGK87SDxzi3wWJAl3Pia_vrezo",
+  authDomain: "college-mentorship--app.firebaseapp.com",
+  projectId: "college-mentorship--app",
+  storageBucket: "college-mentorship--app.firebasestorage.app",
+  messagingSenderId: "842851012332",
+  appId: "1:842851012332:web:37ff1cbf9b7b90977c1fc9",
+  measurementId: "G-G6MN80S4LM"
+};
+
+        let app, auth, db;
+        let currentUser = null;
+        let currentUserData = null;
+
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.firestore();
+            console.log("Firebase initialized");
+        } catch (error) {
+            console.error("Firebase config error:", error);
+            alert("⚠️ Please update the 'firebaseConfig' object in the code with your own keys.");
+        }
+
+        // --- Auth Logic ---
+
+        function switchToSignup() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('signupForm').classList.remove('hidden');
+        }
+
+        function switchToLogin() {
+            document.getElementById('signupForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            auth.signInWithEmailAndPassword(email, password).catch(e => alert(e.message));
+        }
+
+        function handleSignup(event) {
+            event.preventDefault();
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const role = document.getElementById('signupRole').value;
+            const college = document.getElementById('signupCollege').value;
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((cred) => {
+                    const userData = {
+                        userId: cred.user.uid,
+                        name: name,
+                        email: email,
+                        role: role,
+                        college: college,
+                        isVerified: false,
+                        averageRating: 0,
+                        totalReviews: 0,
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    };
+
+                    if (role === 'student') {
+                        userData.year = parseInt(document.getElementById('signupYear').value);
+                    } else if (role === 'mentor') {
+                        userData.expertise = document.getElementById('signupExpertise').value.split(',').map(e => e.trim());
+                        userData.availability = document.getElementById('signupAvailability').value;
+                    }
+
+                    return db.collection('users').doc(cred.user.uid).set(userData);
+                })
+                .then(() => alert("Account created!"))
+                .catch(e => alert(e.message));
+        }
+
+        function logout() {
+            auth.signOut().then(() => {
+                window.location.reload();
+            });
+        }
+
+        // --- Core App Loading ---
+
+        // auth.onAuthStateChanged((user) => {
+        //     if (user) {
+        //         currentUser = user;
+        //         loadUserData();
+        //     } else {
+        //         document.getElementById('authScreen').classList.remove('hidden');
+        //         document.getElementById('appScreen').classList.add('hidden');
+        //     }
+        // });
+        // --- TEMPORARY LOGIN BYPASS ---
+
+// Step 1: Manually create a mock user object and mock data
+const MOCK_USER_ID = "MOCK_STUDENT_ID_123";
+
+currentUser = { uid: MOCK_USER_ID };
+
+currentUserData = {
+    userId: MOCK_USER_ID,
+    name: "Mock Student",
+    email: "mock@vit.com",
+    role: "student", // Set this to 'mentor' if you want to see the mentor view
+    college: "VIT",
+    isVerified: true,
+    averageRating: 4.5,
+    totalReviews: 10,
+};
+
+// Step 2: Force the app to load the main UI immediately
+document.getElementById('authScreen').classList.add('hidden'); // Hide Login
+document.getElementById('appScreen').classList.remove('hidden'); // Show App
+
+// Step 3: Run the setup functions that normally run after login
+updateUserInfo();
+seedTopics();
+
+// Step 4: Manually switch to the first tab (Find Mentors)
+switchTab(null, 'community');
+
+// --- END TEMPORARY LOGIN BYPASS ---
+
+        function loadUserData() {
+            db.collection('users').doc(currentUser.uid).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        currentUserData = doc.data();
+                        document.getElementById('authScreen').classList.add('hidden');
+                        document.getElementById('appScreen').classList.remove('hidden');
+                        updateUserInfo();
+                        // Pre-load essential data
+                        seedTopics();
+                        loadMentors();
+                    }
+                });
+        }
+
+        function updateUserInfo() {
+            if (currentUserData) {
+                // Update Name Text
+                document.getElementById('userInfo').textContent = `${currentUserData.name} (${currentUserData.role.toUpperCase()})`;
+                // Update Circle Icon with First Initial
+                const initial = currentUserData.name.charAt(0).toUpperCase();
+                document.getElementById('profileIcon').textContent = initial;
+            }
+        }
+
+        // --- Navigation ---
+
+        function switchTab(event, tabName) {
+            // Hide all contents
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            // Remove active state from all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected content
+            document.getElementById(tabName).classList.add('active');
+            
+            // If clicked via a button (event exists), set that button to active
+            // If clicked via profile circle (event is null), no tab button is active
+            if(event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
+
+            if (tabName === 'mentors') loadMentors();
+            if (tabName === 'requests') loadRequests();
+            if (tabName === 'chats') loadChats();
+            if (tabName === 'reviews') loadReviews();
+            if (tabName === 'community') loadCommunity();
+            if (tabName === 'profile') loadProfile();
+        }
+
+
+        // --- Mentors ---
+        function loadMentors() {
+            if (currentUserData.role !== 'student') {
+                document.getElementById('mentorsList').innerHTML = '<p>Only students can view mentors.</p>';
+                return;
+            }
+            db.collection('users').where('role', '==', 'mentor').get().then((snapshot) => {
+                let html = '';
+                snapshot.forEach((doc) => {
+                    const mentor = doc.data();
+                    html += `
+                        <div class="card">
+                            <div class="card-header">${mentor.name} ${mentor.isVerified ? '<span class="badge badge-verified">Verified</span>' : ''}</div>
+                            <div class="card-body">
+                                <p><strong>College:</strong> ${mentor.college}</p>
+                                <p><strong>Expertise:</strong> ${(mentor.expertise || []).join(', ')}</p>
+                                <p><strong>Rating:</strong> ${mentor.averageRating || 0} ⭐ (${mentor.totalReviews || 0} reviews)</p>
+                            </div>
+                            <div class="card-footer">
+                                <button class="btn btn-primary" onclick="openMentorModal('${doc.id}', '${mentor.name}')">Request Mentorship</button>
+                                <button class="btn btn-secondary" onclick="openReviewModal('${doc.id}')">Leave Review</button>
+                            </div>
+                        </div>`;
+                });
+                document.getElementById('mentorsList').innerHTML = html || '<p>No mentors found.</p>';
+            });
+        }
+
+        // --- Mentorship Requests ---
+        function openMentorModal(id) {
+            document.getElementById('selectedMentorId').value = id;
+            document.getElementById('mentorModal').classList.add('active');
+        }
+        function closeMentorModal() { document.getElementById('mentorModal').classList.remove('active'); }
+
+        function handleMentorshipRequest(event) {
+            event.preventDefault();
+            const mentorId = document.getElementById('selectedMentorId').value;
+            db.collection('users').doc(mentorId).get().then(doc => {
+                const mentorData = doc.data();
+                return db.collection('mentorship_requests').add({
+                    studentId: currentUser.uid,
+                    studentName: currentUserData.name,
+                    mentorId: mentorId,
+                    mentorName: mentorData.name,
+                    status: 'pending',
+                    subject: document.getElementById('requestSubject').value,
+                    message: document.getElementById('requestMessage').value,
+                    duration: document.getElementById('requestDuration').value,
+                    goals: document.getElementById('requestGoals').value.split(','),
+                    createdAt: new Date()
+                });
+            }).then(() => {
+                alert('Request sent!');
+                closeMentorModal();
+                switchTab(null, 'requests');
+            });
+        }
+
+        function loadRequests() {
+            const listEl = document.getElementById('requestsList');
+            listEl.innerHTML = 'Loading...';
+            let query = db.collection('mentorship_requests');
+            
+            if (currentUserData.role === 'student') query = query.where('studentId', '==', currentUser.uid);
+            else query = query.where('mentorId', '==', currentUser.uid);
+
+            query.get().then(snapshot => {
+                let html = '';
+                snapshot.forEach(doc => {
+                    const req = doc.data();
+                    html += `
+                        <div class="card">
+                            <div class="card-header">
+                                ${currentUserData.role === 'student' ? 'To: ' + req.mentorName : 'From: ' + req.studentName}
+                                <span class="badge badge-${req.status}">${req.status}</span>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Subject:</strong> ${req.subject}</p>
+                                <p><strong>Message:</strong> ${req.message}</p>
+                            </div>
+                            ${req.status === 'pending' && currentUserData.role === 'mentor' ? `
+                            <div class="card-footer">
+                                <button class="btn btn-secondary" onclick="updateRequest('${doc.id}', 'accepted', '${req.studentId}')">Accept</button>
+                                <button class="btn btn-danger" onclick="updateRequest('${doc.id}', 'rejected')">Reject</button>
+                            </div>` : ''}
+                        </div>`;
+                });
+                listEl.innerHTML = html || '<p>No requests found.</p>';
+            });
+        }
+function deletePost(postId) {
+    if (!confirm("Are you sure you want to delete this post? This cannot be undone.")) {
+        return;
+    }
+
+    db.collection('posts').doc(postId).delete().then(() => {
+        alert("Post successfully deleted!");
+        // Refresh the community list immediately
+        loadCommunity(); 
+    }).catch((error) => {
+        console.error("Error removing document: ", error);
+        alert("Failed to delete post. Check console.");
+    });
+}
+        function updateRequest(id, status, studentId) {
+            db.collection('mentorship_requests').doc(id).update({ status: status }).then(() => {
+                if(status === 'accepted') createChat(studentId);
+                loadRequests();
+            });
+        }
+
+        // --- Chats ---
+        function createChat(studentId) {
+            const chatId = [currentUser.uid, studentId].sort().join('_');
+            db.collection('chats').doc(chatId).set({
+                participants: [currentUser.uid, studentId],
+                lastMessage: 'Chat started',
+                updatedAt: new Date()
+            }, { merge: true });
+        }
+
+    let unsubscribeFromMessages = null;
+    function openChatModal(chatId) {
+    document.getElementById('selectedChatId').value = chatId;
+    document.getElementById('chatModal').classList.add('active');
+    
+    // 1. Get the other participant's ID
+    db.collection('chats').doc(chatId).get().then(doc => {
+        const chat = doc.data();
+        const otherId = chat.participants.find(id => id !== currentUser.uid);
+        
+        // Fetch the other user's name to display in the header
+        return db.collection('users').doc(otherId).get();
+    }).then(userDoc => {
+        const otherName = userDoc.data().name;
+        document.getElementById('chatHeader').textContent = `Chat with ${otherName}`;
+    });
+
+
+    // 2. Start the REAL-TIME LISTENER
+    const messagesRef = db.collection('chats').doc(chatId).collection('messages').orderBy('timestamp', 'asc');
+
+    // Use onSnapshot to listen for changes in real-time
+    unsubscribeFromMessages = messagesRef.onSnapshot(snapshot => {
+        const messagesContainer = document.getElementById('messagesContainer');
+        let html = '';
+        
+        snapshot.forEach(doc => {
+            const message = doc.data();
+            const sender = message.senderId === currentUser.uid ? 'You' : message.senderName;
+            const isMe = message.senderId === currentUser.uid;
+
+            // Simple styling for message bubble
+            html += `
+                <div style="margin-bottom: 10px; text-align: ${isMe ? 'right' : 'left'};">
+                    <span style="font-size: 11px; color: #777;">${sender}:</span>
+                    <div style="display: inline-block; padding: 8px 12px; border-radius: 18px; max-width: 80%; background-color: ${isMe ? 'var(--primary-color)' : '#eee'}; color: ${isMe ? 'white' : 'var(--text-color)'};">
+                        ${message.text}
+                    </div>
+                </div>
+            `;
+        });
+        
+        messagesContainer.innerHTML = html;
+        
+        // Auto-scroll to the bottom of the chat
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }, error => {
+        console.error("Error listening to messages:", error);
+    });
+}
+        function closeChatModal() { 
+    document.getElementById('chatModal').classList.remove('active');
+    
+    // Stop the real-time listener if it's active
+    if (unsubscribeFromMessages) {
+        unsubscribeFromMessages();
+        unsubscribeFromMessages = null;
+    }
+}
+
+        function handleSendMessage(e) {
+    e.preventDefault();
+    const chatId = document.getElementById('selectedChatId').value;
+    const textEl = document.getElementById('messageText');
+    const text = textEl.value;
+    
+    if (!text.trim()) return; // Don't send empty messages
+
+    db.collection('chats').doc(chatId).collection('messages').add({
+        senderId: currentUser.uid,
+        senderName: currentUserData.name,
+        text: text,
+        timestamp: new Date()
+    }).then(() => {
+        // Update the main chat record with the last message
+        db.collection('chats').doc(chatId).update({ lastMessage: text, updatedAt: new Date() });
+        
+        // 🔑 CLEAR the input field, but DO NOT close the modal
+        textEl.value = ''; 
+    }).catch(e => {
+        alert("Failed to send message: " + e.message);
+    });
+}
+
+        // --- Reviews ---
+        function openReviewModal(mentorId) {
+            document.getElementById('selectedReviewMentorId').value = mentorId;
+            document.getElementById('reviewModal').classList.add('active');
+        }
+        function closeReviewModal() { document.getElementById('reviewModal').classList.remove('active'); }
+
+        function handleLeaveReview(event) {
+            event.preventDefault();
+            const mentorId = document.getElementById('selectedReviewMentorId').value;
+            const rating = parseInt(document.getElementById('reviewRating').value);
+            const title = document.getElementById('reviewTitle').value;
+            const comment = document.getElementById('reviewComment').value;
+
+            db.collection('reviews').add({
+                mentorId: mentorId,
+                studentId: currentUser.uid,
+                studentName: currentUserData.name,
+                rating: rating,
+                title: title,
+                comment: comment,
+                createdAt: new Date()
+            }).then(() => {
+                // Update Mentor Stats
+                return db.collection('users').doc(mentorId).get();
+            }).then(doc => {
+                const mentor = doc.data();
+                const currentTotal = mentor.totalReviews || 0;
+                const currentAvg = mentor.averageRating || 0;
+                const newTotal = currentTotal + 1;
+                const newAvg = ((currentAvg * currentTotal) + rating) / newTotal;
+                
+                return db.collection('users').doc(mentorId).update({
+                    totalReviews: newTotal,
+                    averageRating: parseFloat(newAvg.toFixed(1))
+                });
+            }).then(() => {
+                alert('Review submitted!');
+                closeReviewModal();
+                switchTab(null, 'mentors');
+            });
+        }
+
+        function loadReviews() {
+            let query = db.collection('reviews');
+            if(currentUserData.role === 'mentor') query = query.where('mentorId', '==', currentUser.uid);
+
+            query.get().then(snapshot => {
+                let html = '';
+                snapshot.forEach(doc => {
+                    const r = doc.data();
+                    html += `<div class="card">
+                        <div class="card-header">${r.studentName} - ${r.rating} ⭐</div>
+                        <div class="card-body"><p><strong>${r.title}</strong></p><p>${r.comment}</p></div>
+                    </div>`;
+                });
+                document.getElementById('reviewsList').innerHTML = html || '<p>No reviews found.</p>';
+            });
+        }
+
+        // --- Community ---
+        function seedTopics() {
+            db.collection('topics').get().then(snap => {
+                if(snap.empty) {
+                    ['General', 'Career Advice', 'Tech Help', 'Interview Prep'].forEach(topic => {
+                        db.collection('topics').add({ name: topic });
+                    });
+                }
+            });
+        }
+
+        function loadCommunity() {
+    // ... (query and snapshot logic) ...
+
+    db.collection('posts').orderBy('createdAt', 'desc').limit(20).get().then(snap => {
+        const listEl = document.getElementById('communityPostsList');
+        let html = '';
+        
+        snap.forEach(doc => {
+            const p = doc.data();
+            const dateStr = p.createdAt ? p.createdAt.toDate().toLocaleDateString() : 'N/A';
+            const roleColor = p.authorRole === 'mentor' ? '#2196F3' : '#4CAF50';
+            const roleText = p.authorRole === 'mentor' ? 'MENTOR' : 'STUDENT';
+            
+            // CRITICAL: Check if the current user is the author
+            const isAuthor = currentUser && currentUser.uid === p.authorId; 
+
+            html += `
+                <div class="card">
+                    <div class="card-header">
+                        ${p.title} 
+                        <span style="font-size: 12px; font-weight: 500; color: ${roleColor}; border: 1px solid ${roleColor}; padding: 3px 8px; border-radius: 4px;">
+                            ${roleText}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <p>${p.body}</p>
+                    </div>
+                    <div class="card-footer" style="justify-content: space-between; align-items: center;">
+                        <small>Posted by ${p.authorName} on ${dateStr}</small>
+                        
+                        <div style="display: flex; gap: 10px;">
+                            ${isAuthor ? `
+                                <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="deletePost('${doc.id}')">
+                                    Delete
+                                </button>
+                            ` : ''}
+
+                            <button class="btn btn-secondary" style="padding: 6px 12px;" onclick="upvote('${doc.id}')">
+                                Upvote (${p.upvotes || 0})
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+        });
+        
+        listEl.innerHTML = html || '<p>No posts yet. Be the first to start a discussion!</p>';
+    }).catch(error => {
+        console.error("Error loading community:", error);
+        document.getElementById('communityPostsList').innerHTML = '<p style="color: red;">Failed to load community posts.</p>';
+    });
+}
+
+        function createCommunityPost() {
+    const title = document.getElementById('communityPostTitle').value;
+    const body = document.getElementById('communityPostBody').value;
+    
+    // Simple validation
+    if (!title || !body) return alert("Please fill in both the Title and the Post Details.");
+    
+    // Write data to the 'posts' collection
+    db.collection('posts').add({
+        title, 
+        body,
+        authorId: currentUser.uid,
+        authorName: currentUserData.name,
+        authorRole: currentUserData.role,
+        upvotes: 0,
+        // CRITICAL for the unique upvote feature
+        upvoters: [], 
+        createdAt: new Date()
+    }).then(() => {
+        // Clear the form fields after successful post
+        document.getElementById('communityPostTitle').value = '';
+        document.getElementById('communityPostBody').value = '';
+        
+        // Immediately refresh the list to show the new post
+        loadCommunity();
+    }).catch(error => {
+        console.error("Error creating post:", error);
+        alert("Failed to create post. Please check your console and Firestore Rules.");
+    });
+}
+
+       function upvote(postId) {
+    // 1. Get a reference to the post
+    const postRef = db.collection('posts').doc(postId);
+
+    // 2. Fetch the current post data to check for existing upvote
+    postRef.get().then(doc => {
+        if (!doc.exists) {
+            console.error("Post does not exist.");
+            return;
+        }
+        
+        const postData = doc.data();
+        // Ensure upvoters is an array, defaulting to empty if null/undefined
+        const currentUpvoters = postData.upvoters || [];
+        
+        // Check if the current user has ALREADY upvoted
+        if (currentUpvoters.includes(currentUser.uid)) {
+            // User has already upvoted -> Downvote (undo upvote)
+            
+            // Remove the user's ID from the array
+            const newUpvoters = currentUpvoters.filter(uid => uid !== currentUser.uid);
+            
+            // Update the post: decrement the count and update the array
+            return postRef.update({
+                upvotes: firebase.firestore.FieldValue.increment(-1),
+                upvoters: newUpvoters
+            });
+            
+        } else {
+            // User has NOT upvoted -> Upvote
+            
+            // Add the user's ID to the array
+            const newUpvoters = [...currentUpvoters, currentUser.uid];
+            
+            // Update the post: increment the count and update the array
+            return postRef.update({
+                upvotes: firebase.firestore.FieldValue.increment(1),
+                upvoters: newUpvoters
+            });
+        }
+    }).then(() => {
+        // Reload the community to show the updated count/status
+        loadCommunity();
+    }).catch(error => {
+        console.error("Upvote failed:", error);
+        alert("Action failed. Check console for details.");
+    });
+}
+
+        // --- Profile ---
+        function loadProfile() {
+            const p = document.getElementById('profileContent');
+            p.innerHTML = `
+                <p><strong>Name:</strong> ${currentUserData.name}</p>
+                <p><strong>Email:</strong> ${currentUserData.email}</p>
+                <p><strong>College:</strong> ${currentUserData.college}</p>
+                <p><strong>Role:</strong> ${currentUserData.role}</p>
+            `;
+        }
+
+        // Init UI Logic
+        document.getElementById('signupRole').addEventListener('change', (e) => {
+            document.getElementById('studentFields').classList.toggle('hidden', e.target.value !== 'student');
+            document.getElementById('mentorFields').classList.toggle('hidden', e.target.value !== 'mentor');
+        });
+    </script>
+</body>
+</html>
