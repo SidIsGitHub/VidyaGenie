@@ -146,10 +146,10 @@
                 </div>
             </div>
 
-            <div class="tabs">         
-                <button class="tab-button" onclick="switchTab(event, 'mentors')">Explore</button> 
+            <div class="tabs">                        
+                <button class="tab-button" onclick="switchTab(event, 'chats')">Messages</button>
                 <button class="tab-button" onclick="switchTab(event, 'community')">Community</button>
-                <button class="tab-button" onclick="switchTab(event, 'chats')">Chats</button>            
+                <button class="tab-button" onclick="switchTab(event, 'mentors')">Explore</button>           
             </div>
 
             <div id="mentors" class="tab-content">
@@ -273,31 +273,57 @@
             console.log("Firebase initialized");
         } catch (error) { console.error(error); }
 
-        // --- TEMPORARY LOGIN BYPASS (Mock Data) ---
-        // UPDATED: Using the Real ID from your database
-        const MOCK_USER_ID = "rZTJaAZXbVml1SpAzsdz"; 
+        // --- TEMPORARY LOGIN BYPASS (Multi-User Switcher) ---
+
+        // 🟢 STEP 1: UNCOMMENT THE ID OF THE USER YOU WANT TO BE:
+        
+         const MOCK_USER_ID = "rZTJaAZXbVml1SpAzsdz"; // SELVA (Student)
+        //const MOCK_USER_ID = "4UvojVrHYVFBiOtRbHoD"; // JANE SMITH (Mentor)
+
+        // ---------------------------------------------------------
 
         currentUser = { uid: MOCK_USER_ID };
-        currentUserData = {
-            userId: MOCK_USER_ID,
-            name: "Mock Student",
-            email: "mock@vit.com",
-            role: "student", // CRITICAL: Set to student to view mentors
-            college: "VIT",
-            isVerified: true
+
+        const MOCK_USERS = {
+            "rZTJaAZXbVml1SpAzsdz": {
+                userId: "rZTJaAZXbVml1SpAzsdz",
+                name: "selva",
+                email: "selva@vit.com",
+                role: "student",
+                college: "VIT",
+                year: "3rd Year",
+                isVerified: true
+            },
+            "4UvojVrHYVFBiOtRbHoD": {
+                userId: "4UvojVrHYVFBiOtRbHoD",
+                name: "jane smith",
+                email: "jane@college.com",
+                role: "mentor",
+                college: "Vidyalankar Poly",
+                bio: "CSE Alumni, Expert in Web Development",
+                expertise: ["React", "Firebase"],
+                isVerified: true
+            }
         };
 
-        // Initialize App View
+        // 🟢 STEP 3: AUTOMATICALLY SELECT DATA
+        currentUserData = MOCK_USERS[MOCK_USER_ID];
+
+        // Force App Start
         document.getElementById('authScreen').classList.add('hidden');
         document.getElementById('appScreen').classList.remove('hidden');
         updateUserInfo();
         
-        // Start on Community Tab
-        switchTab(null, 'community'); 
+        // Start on Requests Tab (Convenient for testing invites)
+        switchTab(null, 'requests'); 
 
         function updateUserInfo() {
-            document.getElementById('userInfo').textContent = `${currentUserData.name} (${currentUserData.role.toUpperCase()})`;
-            document.getElementById('profileIcon').textContent = currentUserData.name.charAt(0).toUpperCase();
+            if (currentUserData) {
+                // Capitalize name for display
+                const displayName = currentUserData.name.charAt(0).toUpperCase() + currentUserData.name.slice(1);
+                document.getElementById('userInfo').textContent = `${displayName} (${currentUserData.role.toUpperCase()})`;
+                document.getElementById('profileIcon').textContent = displayName.charAt(0);
+            }
         }
 
         // --- NAVIGATION ---
@@ -320,7 +346,7 @@
             const listEl = document.getElementById('searchResultsList');
             listEl.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">Loading all available connections...</p>';
             
-            // Query all mentors. You can remove the where clause to see ALL users if you prefer.
+            // Query all mentors. 
             db.collection('users').where('role', '==', 'mentor').get().then(snap => {
                 renderUserResults(snap);
             }).catch(e => {
@@ -440,25 +466,52 @@
         }
 
         function loadChats() {
-            const listEl = document.getElementById('chatsListContent');
-            listEl.innerHTML = 'Loading chats...';
-            db.collection('chats').where('participants', 'array-contains', currentUser.uid)
-              .orderBy('updatedAt', 'desc').get().then(async snap => {
-                let html = '';
-                for(const doc of snap.docs) {
-                    const chat = doc.data();
-                    const otherId = chat.participants.find(id => id !== currentUser.uid);
-                    const userSnap = await db.collection('users').doc(otherId).get();
-                    const otherName = userSnap.exists ? userSnap.data().name : 'Unknown';
-                    
-                    html += `
-                        <div class="card" onclick="openInlineChat('${doc.id}', '${otherName}')" style="cursor:pointer; padding: 10px; margin-bottom: 5px;">
-                            <strong>${otherName}</strong><br><small>${chat.lastMessage}</small>
-                        </div>`;
-                }
-                listEl.innerHTML = html || 'No active chats.';
-            }).catch(e => { console.error(e); listEl.innerHTML = '<p style="color:red">Error loading chats. (Requires Index)</p>'; });
+    const listEl = document.getElementById('chatsListContent');
+    listEl.innerHTML = 'Loading chats...';
+    db.collection('chats').where('participants', 'array-contains', currentUser.uid)
+      .orderBy('updatedAt', 'desc').get().then(async snap => {
+        let html = '';
+        for(const doc of snap.docs) {
+            const chat = doc.data();
+            const otherId = chat.participants.find(id => id !== currentUser.uid);
+            const userSnap = await db.collection('users').doc(otherId).get();
+            const otherName = userSnap.exists ? userSnap.data().name : 'Unknown';
+            const role = userSnap.exists ? userSnap.data().role.toUpperCase() : '';
+            
+            // UPDATED HTML: Added flex display and the delete button
+            html += `
+                <div class="card chat-item" onclick="openInlineChat('${doc.id}', '${otherName}')" style="cursor:pointer; padding: 10px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 600;">${otherName} (${role})</div>
+                        <small style="color: #777;">${chat.lastMessage}</small>
+                    </div>
+                    <button class="btn btn-danger" style="padding: 2px 8px; font-size: 12px;" onclick="deleteChat('${doc.id}', event)">X</button>
+                </div>`;
         }
+        listEl.innerHTML = html || 'No active chats.';
+    }).catch(e => { console.error(e); listEl.innerHTML = '<p style="color:red">Error loading chats. (Requires Index)</p>'; });
+}
+function deleteChat(chatId, event) {
+    // Critical: Stop the click from bubbling up to the card and opening the chat
+    event.stopPropagation(); 
+    
+    if(confirm("Are you sure you want to delete this conversation?")) {
+        db.collection('chats').doc(chatId).delete().then(() => {
+            // Refresh the list
+            loadChats();
+            
+            // If the user currently has this specific chat open, clear the view
+            if(document.getElementById('selectedChatId').value === chatId) {
+                document.getElementById('chatHeader').textContent = "Select a chat to begin.";
+                document.getElementById('messagesContainer').innerHTML = "";
+                document.getElementById('sendMessageForm').classList.add('hidden');
+            }
+        }).catch(error => {
+            console.error("Error deleting chat:", error);
+            alert("Failed to delete chat.");
+        });
+    }
+}
 
         let msgUnsub;
         function openInlineChat(chatId, name) {
@@ -636,11 +689,29 @@
         }
 
         // --- PROFILE ---
+        // --- PROFILE ---
         function loadProfile() {
-            document.getElementById('profileContent').innerHTML = `
-                <p><strong>Name:</strong> ${currentUserData.name}</p>
-                <p><strong>Role:</strong> ${currentUserData.role}</p>
-                <p><strong>College:</strong> ${currentUserData.college}</p>
+            const p = document.getElementById('profileContent');
+            
+            // formatting name
+            const displayName = currentUserData.name.charAt(0).toUpperCase() + currentUserData.name.slice(1);
+            const displayIcon = displayName.charAt(0);
+
+            p.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                    <div style="width: 80px; height: 80px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; margin-bottom: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                        ${displayIcon}
+                    </div>
+                    <h2 style="margin: 0;">${displayName}</h2>
+                    <span class="badge badge-verified" style="margin-top: 5px;">${currentUserData.role.toUpperCase()}</span>
+                </div>
+                
+                <div style="background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #eee;">
+                    <p style="margin-bottom: 10px; font-size: 16px;"><strong>📧 Email:</strong> ${currentUserData.email}</p>
+                    <p style="margin-bottom: 10px; font-size: 16px;"><strong>🎓 College:</strong> ${currentUserData.college}</p>
+                    <p style="margin-bottom: 10px; font-size: 16px;"><strong>📅 Year:</strong> ${currentUserData.year}</p>
+                    
+                </div>
             `;
         }
         function handleLogin(e) { e.preventDefault(); alert("Mock Login Successful"); }
