@@ -6,50 +6,98 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VidyaGenie</title>
     <style>
-        /* --- CHAT IMAGE STYLES --- */
-        .chat-image {
-            max-width: 200px;
-            max-height: 200px;
-            border-radius: 12px;
-            margin-top: 5px;
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.1);
-            display: block;
+        /* --- COMPLETE CHAT STYLES (Alignment + Visuals) --- */
+        
+        /* 1. The Row Container: Handles Left/Right Alignment */
+        .chat-message-row {
+            display: flex;
+            width: 100%;
+            margin-bottom: 12px;
         }
-        .chat-image:hover { opacity: 0.9; }
+        
+        /* Align Right if 'me' */
+        .chat-message-row.me {
+            justify-content: flex-end;
+        }
+        
+        /* Align Left if 'them' */
+        .chat-message-row.them {
+            justify-content: flex-start;
+        }
+        /* --- RESTORED CAMERA & BUTTON STYLES --- */
         .btn-circle {
             width: 45px;
             height: 45px;
             min-width: 45px; /* Prevents squishing */
             min-height: 45px;
             border-radius: 50%;
-            padding: 0; /* crucial for perfect circles */
+            padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             line-height: 1;
-            flex-shrink: 0; /* Prevents flexbox compression */
+            flex-shrink: 0;
         }
-        
+
         .chat-upload-btn {
             background: transparent;
-            border: 1px solid var(--glass-border);
-            color: var(--text-muted);
+            /* Fallback to white border if var doesn't exist */
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            color: #ccc;
             cursor: pointer; 
             transition: all 0.2s ease;
             font-size: 20px;
-            /* 🚨 VISUAL FIX: Nudge the emoji up to look centered */
-            padding-bottom: 4.5px; 
+            padding-bottom: 3px; /* Visual centering for emoji */
         }
-        .chat-upload-btn:hover { background: rgba(255,255,255,0.1); color: white; }
         
-        .card-avatar {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--border-color);
-            flex-shrink: 0; /* Prevents squishing */
+        .chat-upload-btn:hover { 
+            background: rgba(255, 255, 255, 0.1); 
+            color: white; 
+            border-color: white;
+        }
+
+        /* 2. The Bubble: Handles Background, Color, Shape */
+        .msg-bubble {
+            padding: 12px 18px;
+            border-radius: 18px;
+            font-size: 15px;
+            max-width: 75%; /* Don't span full width */
+            line-height: 1.5;
+            position: relative;
+            word-wrap: break-word;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Style for MY messages */
+        .msg-me {
+            background: var(--gradient-primary); /* Neon Gradient */
+            color: white;
+            border-bottom-right-radius: 4px; /* Distinct edge */
+        }
+
+        /* Style for THEIR messages */
+        .msg-them {
+            background: rgba(255,255,255,0.1); /* Glassy Grey */
+            color: #e2e8f0;
+            border-bottom-left-radius: 4px; /* Distinct edge */
+            border: 1px solid var(--glass-border);
+        }
+
+        /* 3. Images inside bubbles */
+        .chat-image {
+            max-width: 100%; /* Fit inside the bubble */
+            border-radius: 12px;
+            cursor: pointer;
+            display: block;
+            margin-top: 5px;
+        }
+        
+        /* 4. Ensure the container handles scrolling correctly */
+        #messagesContainer {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
         }
         /* --- PREMIUM DARK THEME VARIABLES --- */
         :root {
@@ -1065,7 +1113,7 @@ function handleChatImageSelect(input) {
 
         function loadConnections() {
             const listEl = document.getElementById('connectionsModalList');
-            listEl.innerHTML = '<p style="text-align:center; color:var(--text-secondary);">Loading connections...</p>';
+            listEl.innerHTML = '<p style="text-align:center; color:var(--text-secondary); margin-top:20px;">Loading...</p>';
 
             const sentPromise = db.collection('connection_requests').where('senderId', '==', currentUser.uid).where('status', '==', 'accepted').get();
             const receivedPromise = db.collection('connection_requests').where('recipientId', '==', currentUser.uid).where('status', '==', 'accepted').get();
@@ -1075,7 +1123,7 @@ function handleChatImageSelect(input) {
                 const allDocs = [...sentSnap.docs, ...receivedSnap.docs];
 
                 if (allDocs.length === 0) {
-                    listEl.innerHTML = '<p style="text-align:center; color:var(--text-secondary);">No connections yet.</p>';
+                    listEl.innerHTML = '<p style="text-align:center; color:var(--text-secondary); margin-top:20px;">No connections yet.</p>';
                     return;
                 }
 
@@ -1095,18 +1143,18 @@ function handleChatImageSelect(input) {
                     if(!otherName || otherName === 'undefined') otherName = "Unknown User";
                     const displayName = otherName.charAt(0).toUpperCase() + otherName.slice(1);
                     
-                    // 🚨 SAFE STRING FOR HTML: Escape single quotes to prevent broken buttons
-                    const safeName = displayName.replace(/'/g, "\\'");
+                    // 🚨 FIX: Encode name to prevent button breakage
+                    const safeNameEncoded = encodeURIComponent(displayName);
 
                     html += `
-                    <div class="card" style="margin-bottom: 10px; border: 1px solid var(--border-color);">
-                        <div class="card-header" style="font-size: 15px;">
+                    <div class="card" style="margin-bottom: 15px; padding: 15px;">
+                        <div class="card-header" style="font-size: 15px; margin-bottom:5px;">
                             ${displayName} 
                             <span class="badge badge-verified">Connected</span>
                         </div>
-                        <div class="card-footer" style="margin-top: 10px; padding-top: 10px; gap: 8px;">
-                            <button class="btn btn-primary" style="background: var(--success-color); font-size: 12px; padding: 6px 12px;" onclick="goToChatFromModal('${otherId}', '${safeName}')">Message</button>
-                            <button class="btn btn-danger" style="font-size: 12px; padding: 6px 12px;" onclick="unfriend('${otherId}', '${doc.id}')">Unfriend</button>
+                        <div style="display:flex; gap:10px;">
+                            <button class="btn btn-primary" style="flex:1; padding:8px;" onclick="goToChatFromModal('${otherId}', '${safeNameEncoded}')">Message</button>
+                            <button class="btn btn-danger" style="padding:8px;" onclick="unfriend('${otherId}', '${doc.id}')">Unfriend</button>
                         </div>
                     </div>`;
                 });
@@ -1118,11 +1166,14 @@ function handleChatImageSelect(input) {
             });
         }
 
-        function goToChatFromModal(userId, userName) {
+        function goToChatFromModal(userId, encodedName) {
             // Close the connections popup
             document.getElementById('connectionsModal').classList.remove('active');
             
-            // Trigger the robust chat logic (Create if missing -> Open tab)
+            // Decode the name back to normal
+            const userName = decodeURIComponent(encodedName);
+            
+            // Open the chat
             goToChat(userId, userName);
         }
 
@@ -1487,6 +1538,7 @@ function handleChatImageSelect(input) {
         }
 
         let msgUnsub;
+
         function openInlineChat(id, name) {
             if(msgUnsub) msgUnsub();
             document.getElementById('selectedChatId').value = id;
@@ -1500,20 +1552,24 @@ function handleChatImageSelect(input) {
                     const m = doc.data();
                     const me = m.senderId === currentUser.uid;
                     
-                    // Render Content: Image OR Text
+                    // Determine Content (Image or Text)
                     let contentHtml = '';
                     if (m.imageUrl) {
                         contentHtml = `<img src="${m.imageUrl}" class="chat-image" onclick="window.open(this.src)">`;
                     } else {
-                        contentHtml = m.text;
+                        contentHtml = m.text || "";
                     }
 
-                    html += `
-                    <div style="text-align:${me?'right':'left'}; margin-bottom:15px;">
-                        <div class="msg-bubble ${me?'msg-me':'msg-them'}">
-                            ${contentHtml}
-                        </div>
-                    </div>`;
+                    // Only render if there is content
+                    if(contentHtml) {
+                        // 🚨 Structure: Row (Alignment) -> Bubble (Visuals) -> Content
+                        html += `
+                        <div class="chat-message-row ${me ? 'me' : 'them'}">
+                            <div class="msg-bubble ${me ? 'msg-me' : 'msg-them'}">
+                                ${contentHtml}
+                            </div>
+                        </div>`;
+                    }
                 });
                 cont.innerHTML = html; 
                 cont.scrollTop = cont.scrollHeight;
