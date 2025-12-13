@@ -6,6 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VidyaGenie</title>
     <style>
+        .card-content-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .card-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border-color);
+            flex-shrink: 0; /* Prevents squishing */
+        }
         /* --- PREMIUM DARK THEME VARIABLES --- */
         :root {
             --bg-body: #000000;
@@ -1138,6 +1153,9 @@
             const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
             let html = '';
 
+            // Default "WhatsApp-style" Placeholder
+            const DEFAULT_PIC = "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png";
+
             snapshot.forEach(doc => {
                 const user = doc.data();
                 const targetUserId = doc.id;
@@ -1155,6 +1173,9 @@
                 
                 const roleText = (user.role || 'N/A').toUpperCase();
                 const details = (user.role === 'mentor') ? `Expertise: ${(user.expertise || []).join(', ')}` : `Year: ${user.year || 'N/A'}`;
+                
+                // Profile Picture Logic
+                const profileSrc = user.profilePic || DEFAULT_PIC;
 
                 // --- BUTTON STATE ---
                 let buttonHtml;
@@ -1173,8 +1194,7 @@
                     const status = reqData.status;
 
                     if (status === 'accepted') {
-                        // 🚨 FIX: If already connected, HIDE from Explore tab
-                        return; 
+                        return; // Hide connected users from Explore
                     } 
                     else if (status === 'pending') {
                         if (reqData.senderId === currentUser.uid) {
@@ -1187,19 +1207,33 @@
                             <button class="btn btn-danger" onclick="updateRequest('${existingRequestDocId}', 'rejected')">Decline</button>`;
                         }
                     } else {
-                        // Fallback logic
                         buttonHtml = `<button class="btn btn-primary" onclick="sendInstantConnectionRequest('${targetUserId}', this)">Connect</button>`;
                     }
                 } else {
-                    // No relation
                     buttonHtml = `<button class="btn btn-primary" onclick="sendInstantConnectionRequest('${targetUserId}', this)">Connect</button>`;
                 }
 
+                // New Card Layout with Image on Left
                 html += `
                 <div class="card">
-                    <div class="card-header">${displayName} <span class="badge badge-verified">${roleText}</span></div>
-                    <div class="card-body"><p><strong>College:</strong> ${user.college || 'N/A'}</p><p><strong>Details:</strong> ${details}</p></div>
-                    <div class="card-footer" style="gap: 10px;">${buttonHtml}</div>
+                    <div class="card-content-wrapper">
+                        <img src="${profileSrc}" class="card-avatar" alt="Profile">
+                        
+                        <div style="flex: 1; min-width: 0;">
+                            <div class="card-header" style="margin-bottom: 5px;">
+                                ${displayName} 
+                                <span class="badge badge-verified">${roleText}</span>
+                            </div>
+                            <div class="card-body" style="margin-bottom: 0;">
+                                <p style="margin-bottom: 4px;"><strong>College:</strong> ${user.college || 'N/A'}</p>
+                                <p style="margin-bottom: 0;"><strong>Details:</strong> ${details}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer" style="gap: 10px; margin-top: 0;">
+                        ${buttonHtml}
+                    </div>
                 </div>`;
             });
 
