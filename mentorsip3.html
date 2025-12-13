@@ -5,6 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>College Mentorship App</title>
     <style>
+        /* --- CRITICAL: Ensure the tab content is a positioning context --- */
+.tab-content { 
+    display: none; 
+    position: relative; /* CRITICAL: Contains the absolute icon */
+}
+.tab-content.active { 
+    display: block; 
+    animation: fadeIn 0.3s; 
+}
+
+/* --- NEW: CREATE POST ICON STYLES --- */
+/* --- NEW: CREATE POST ICON STYLES --- */
+.center-icon-wrapper {
+    /* Set padding and margin for visual space */
+    padding: 10px 0; 
+    margin: 10px 0; 
+    
+    /* We will center the icon using margin: auto on the icon itself, 
+       so we don't need text-align: center here. */
+}
+.create-icon-style {
+    /* ... existing styles for size, background, hover, etc. ... */
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary-color); 
+    color: white; 
+    border-radius: 50%;
+    
+    /* CRITICAL FIX: Change display to block or flex to enable margin auto */
+    display: flex; 
+    
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.8);
+    transition: all 0.2s ease; 
+    user-select: none;
+
+    /* CRITICAL FIX: Center the block element horizontally */
+    margin: 0 auto; 
+    
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
+}
+/* Ensure the hover maintains the new translation */
+.create-icon-style:hover {
+    /* Combine scale and translation for the hover state */
+    transform: scale(1.1) translateY(-1px); 
+    background-color: var(--primary-color); 
+    box-shadow: 0 0 10px var(--primary-color); 
+}
         /* --- PROFILE CIRCLE & REQUESTS ICON STYLES --- */
 
 /* Replicate Profile Circle's size and shape */
@@ -311,21 +362,15 @@
             </div>
 
             <div id="community" class="tab-content">
-                <div class="card">
-    <div class="card-header">Create a New Discussion Post</div>
-    <div class="card-body">
-        <div class="form-group">
-            <label>Post Title:</label>
-            <input type="text" id="communityPostTitle" placeholder="Ask a question or share something (e.g., How do I start with React?)" required>
+    
+    <div class="center-icon-wrapper">
+        <div id="createPostIcon" class="create-icon-style" onclick="openCreatePostModal()" title="Create New Post">
+            <span style="font-size: 24px; position: relative; top: -2px;">+</span> 
         </div>
-        <div class="form-group">
-            <label>Post Details:</label>
-            <textarea id="communityPostBody" placeholder="Write details here..." required></textarea>
-        </div>
-        <button class="btn btn-primary" onclick="createCommunityPost()">Post to Community</button>
     </div>
-</div>
-<div id="communityPostsList" style="margin-top: 20px;"></div>
+    
+    <div id="communityPostsList" style="margin-top: 20px; padding: 0 10px;">
+        </div>
 </div>
 
 
@@ -346,7 +391,27 @@
 </div>
         </div>
     </div>
-
+    <div id="createPostModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">Create a New Discussion Post</div>
+        
+        <form onsubmit="handleCreatePostSubmit(event)">
+            <div class="form-group">
+                <label>Post Title:</label>
+                <input type="text" id="communityPostTitle" placeholder="Ask a question or share something" required>
+            </div>
+            <div class="form-group">
+                <label>Post Details:</label>
+                <textarea id="communityPostBody" placeholder="Write details here..." required></textarea>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="closeCreatePostModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Post to Community</button>
+            </div>
+        </form>
+    </div>
+</div>
     <div id="mentorModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">Send Mentorship Request</div>
@@ -585,7 +650,46 @@ switchTab(null, 'community');
                 document.getElementById('profileIcon').textContent = initial;
             }
         }
+function openCreatePostModal() {
+    document.getElementById('createPostModal').classList.add('active');
+}
 
+function closeCreatePostModal() {
+    // Clear fields on close
+    document.getElementById('communityPostTitle').value = '';
+    document.getElementById('communityPostBody').value = '';
+    document.getElementById('createPostModal').classList.remove('active');
+}
+
+function handleCreatePostSubmit(event) {
+    event.preventDefault();
+    
+    // Use the input fields inside the modal
+    const title = document.getElementById('communityPostTitle').value;
+    const body = document.getElementById('communityPostBody').value;
+    
+    if (!title || !body) return alert("Please fill in both the Title and the Post Details.");
+    
+    db.collection('posts').add({
+        title, 
+        body,
+        authorId: currentUser.uid,
+        authorName: currentUserData.name,
+        authorRole: currentUserData.role,
+        upvotes: 0,
+        upvoters: [], 
+        createdAt: new Date()
+    }).then(() => {
+        closeCreatePostModal(); // Close the modal upon success
+        loadCommunity(); // Refresh the list
+    }).catch(error => {
+        console.error("Error creating post:", error);
+        alert("Failed to create post.");
+    });
+}
+
+// NOTE: You can now DELETE the old, simplified function: createCommunityPost() 
+// as handleCreatePostSubmit now handles submission via the modal.
         // --- Navigation ---
 
         function switchTab(event, tabName) {
@@ -941,37 +1045,6 @@ function deletePost(postId) {
     });
 }
 
-        function createCommunityPost() {
-    const title = document.getElementById('communityPostTitle').value;
-    const body = document.getElementById('communityPostBody').value;
-    
-    // Simple validation
-    if (!title || !body) return alert("Please fill in both the Title and the Post Details.");
-    
-    // Write data to the 'posts' collection
-    db.collection('posts').add({
-        title, 
-        body,
-        authorId: currentUser.uid,
-        authorName: currentUserData.name,
-        authorRole: currentUserData.role,
-        upvotes: 0,
-        // CRITICAL for the unique upvote feature
-        upvoters: [], 
-        createdAt: new Date()
-    }).then(() => {
-        // Clear the form fields after successful post
-        document.getElementById('communityPostTitle').value = '';
-        document.getElementById('communityPostBody').value = '';
-        
-        // Immediately refresh the list to show the new post
-        loadCommunity();
-    }).catch(error => {
-        console.error("Error creating post:", error);
-        alert("Failed to create post. Please check your console and Firestore Rules.");
-    });
-}
-
        function upvote(postId) {
     // 1. Get a reference to the post
     const postRef = db.collection('posts').doc(postId);
@@ -1039,5 +1112,4 @@ function deletePost(postId) {
         });
     </script>
 </body>
-
 </html>
