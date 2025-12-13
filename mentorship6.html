@@ -6,11 +6,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VidyaGenie</title>
     <style>
-       
-        
+        /* --- AUTH TOGGLE & SCROLLABLE FORM --- */
+        .auth-scroll-container {
+            max-height: 70vh;
+            /* Prevent form from being too tall */
+            overflow-y: auto;
+            padding-right: 10px;
+            /* Space for scrollbar */
+        }
+
+        .auth-toggle-text {
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .auth-link {
+            color: var(--neon-blue);
+            cursor: pointer;
+            font-weight: 700;
+            text-decoration: underline;
+        }
+
+        /* Dynamic Work Experience Rows */
+        .exp-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* Custom Scrollbar for the form */
+        .auth-scroll-container::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .auth-scroll-container::-webkit-scrollbar-thumb {
+            background: var(--glass-border);
+            border-radius: 4px;
+        }
+
+
         /* --- CHAT SCROLL FIX --- */
         #chats .tab-content {
-            height: 75vh; /* Fixed height for the whole tab */
+            height: 75vh;
+            /* Fixed height for the whole tab */
             display: flex;
             flex-direction: column;
         }
@@ -19,8 +58,10 @@
             flex: 1;
             display: flex;
             gap: 20px;
-            height: 100%; /* Fill the tab height */
-            min-height: 0; /* Critical for nested flex scrolling */
+            height: 100%;
+            /* Fill the tab height */
+            min-height: 0;
+            /* Critical for nested flex scrolling */
         }
 
         #messageView {
@@ -30,31 +71,50 @@
             background: var(--bg-card);
             border: 1px solid var(--glass-border);
             border-radius: var(--radius-xl);
-            overflow: hidden; /* Clip content that tries to leak */
-            height: 100%; /* Ensure it respects parent height */
+            overflow: hidden;
+            /* Clip content that tries to leak */
+            height: 100%;
+            /* Ensure it respects parent height */
         }
 
+        /* --- CHAT SCROLL & BUBBLE FIX --- */
+        /* --- CHAT SCROLL FIX --- */
         #messagesContainer {
-            flex: 1; /* Grow to fill available space */
-            overflow-y: auto; /* Enable scrollbar here */
-            min-height: 0; /* Critical flex fix */
-            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+            /* 🚨 FIX: Added extra padding on the right (25px) to prevent overlap with scrollbar */
+            padding: 20px 25px 20px 20px; 
             display: flex;
             flex-direction: column;
-            /* Ensure background persists during scroll */
-            background: radial-gradient(circle at center, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
+        }
+
+        .msg-bubble {
+            padding: 12px 18px;
+            border-radius: 18px;
+            font-size: 15px;
+            max-width: 75%;
+            line-height: 1.5;
+            position: relative;
+            word-wrap: break-word;
+            /* Prevents long text from overflowing */
+            word-break: break-word;
+            /* Force break for long words */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         #sendMessageForm {
-            flex-shrink: 0; /* Prevent input form from squishing */
-            background: rgba(0,0,0,0.2);
+            flex-shrink: 0;
+            /* Prevent input form from squishing */
+            background: rgba(0, 0, 0, 0.2);
             position: relative;
             z-index: 10;
         }
+
         /* --- EMOJI PICKER STYLES --- */
         .emoji-picker {
             position: absolute;
-            bottom: 80px; /* Sits above the input bar */
+            bottom: 80px;
+            /* Sits above the input bar */
             left: 20px;
             width: 300px;
             height: 200px;
@@ -64,10 +124,11 @@
             border-radius: 16px;
             padding: 15px;
             display: grid;
-            grid-template-columns: repeat(6, 1fr); /* 6 emojis per row */
+            grid-template-columns: repeat(6, 1fr);
+            /* 6 emojis per row */
             gap: 8px;
             overflow-y: auto;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             z-index: 100;
             animation: slideUp 0.2s ease-out;
         }
@@ -81,33 +142,35 @@
             transition: background 0.2s;
             padding: 5px;
         }
-        
+
         .emoji-btn:hover {
             background: rgba(255, 255, 255, 0.1);
             transform: scale(1.2);
         }
-        
+
         /* 1. The Row Container: Handles Left/Right Alignment */
         .chat-message-row {
             display: flex;
             width: 100%;
             margin-bottom: 12px;
         }
-        
+
         /* Align Right if 'me' */
         .chat-message-row.me {
             justify-content: flex-end;
         }
-        
+
         /* Align Left if 'them' */
         .chat-message-row.them {
             justify-content: flex-start;
         }
+
         /* --- RESTORED CAMERA & BUTTON STYLES --- */
         .btn-circle {
             width: 45px;
             height: 45px;
-            min-width: 45px; /* Prevents squishing */
+            min-width: 45px;
+            /* Prevents squishing */
             min-height: 45px;
             border-radius: 50%;
             padding: 0;
@@ -121,17 +184,18 @@
         .chat-upload-btn {
             background: transparent;
             /* Fallback to white border if var doesn't exist */
-            border: 1px solid rgba(255, 255, 255, 0.2); 
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: #ccc;
-            cursor: pointer; 
+            cursor: pointer;
             transition: all 0.2s ease;
             font-size: 20px;
-            padding-bottom: 3px; /* Visual centering for emoji */
+            padding-bottom: 3px;
+            /* Visual centering for emoji */
         }
-        
-        .chat-upload-btn:hover { 
-            background: rgba(255, 255, 255, 0.1); 
-            color: white; 
+
+        .chat-upload-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
             border-color: white;
         }
 
@@ -140,47 +204,58 @@
             padding: 12px 18px;
             border-radius: 18px;
             font-size: 15px;
-            max-width: 75%; /* Don't span full width */
+            max-width: 75%;
+            /* Don't span full width */
             line-height: 1.5;
             position: relative;
             word-wrap: break-word;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         /* Style for MY messages */
         .msg-me {
-            background: var(--gradient-primary); /* Neon Gradient */
+            background: var(--gradient-primary);
+            /* Neon Gradient */
             color: white;
-            border-bottom-right-radius: 4px; /* Distinct edge */
+            border-bottom-right-radius: 4px;
+            /* Distinct edge */
         }
 
         /* Style for THEIR messages */
         .msg-them {
-            background: rgba(255,255,255,0.1); /* Glassy Grey */
+            background: rgba(255, 255, 255, 0.1);
+            /* Glassy Grey */
             color: #e2e8f0;
-            border-bottom-left-radius: 4px; /* Distinct edge */
+            border-bottom-left-radius: 4px;
+            /* Distinct edge */
             border: 1px solid var(--glass-border);
         }
 
         /* 3. Images inside bubbles */
         .chat-image {
-            max-width: 350px; /* Increased from 200px */
-            width: auto;      /* Maintains aspect ratio */
-            height: auto;     /* Maintains aspect ratio */
-            
+            max-width: 350px;
+            /* Increased from 200px */
+            width: auto;
+            /* Maintains aspect ratio */
+            height: auto;
+            /* Maintains aspect ratio */
+
             border-radius: 12px;
             margin-top: 5px;
             cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             display: block;
-            
+
             /* Larger minimum size for placeholder */
-            min-width: 150px; 
+            min-width: 150px;
             min-height: 150px;
-            background-color: rgba(0,0,0,0.3); 
+            background-color: rgba(0, 0, 0, 0.3);
         }
-        .chat-image:hover { opacity: 0.9; }
-        
+
+        .chat-image:hover {
+            opacity: 0.9;
+        }
+
         /* 4. Ensure the container handles scrolling correctly */
         #messagesContainer {
             display: flex;
@@ -188,6 +263,7 @@
             padding: 20px;
             overflow-y: auto;
         }
+
         /* --- PREMIUM DARK THEME VARIABLES --- */
         :root {
             --bg-body: #000000;
@@ -822,39 +898,46 @@
             border: 1px solid var(--border-color);
             color: var(--text-main);
         }
+
         /* --- EXPLORE TAB: BIG CENTERED IMAGE, LEFT TEXT --- */
-        
+
         /* 1. Stack content vertically */
         #searchResultsList .card-content-wrapper {
             flex-direction: column !important;
             align-items: center !important;
             gap: 20px;
             margin-bottom: 20px;
-            text-align: center; /* Centers the image */
+            text-align: center;
+            /* Centers the image */
         }
 
         /* 2. Big Centered Profile Picture */
         #searchResultsList .card-avatar {
-            width: 130px !important;  /* Much Bigger */
+            width: 130px !important;
+            /* Much Bigger */
             height: 130px !important;
             min-width: 130px !important;
             border-width: 4px;
-            margin: 0 auto; /* Force Center */
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            margin: 0 auto;
+            /* Force Center */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
         }
 
         /* 3. Text Container: Force Left Alignment */
-        #searchResultsList .card-content-wrapper > div {
+        #searchResultsList .card-content-wrapper>div {
             width: 100%;
-            text-align: left !important; /* Align text to the left */
-            padding-left: 10px; /* Slight offset from edge */
+            text-align: left !important;
+            /* Align text to the left */
+            padding-left: 10px;
+            /* Slight offset from edge */
         }
 
         /* 4. Adjust Header Text Size */
         #searchResultsList .card-header {
-            font-size: 18px; 
+            font-size: 18px;
             margin-bottom: 8px;
-            justify-content: flex-start; /* Align Name & Badge to left */
+            justify-content: flex-start;
+            /* Align Name & Badge to left */
             gap: 10px;
         }
 
@@ -864,62 +947,173 @@
             color: var(--text-muted);
             margin-bottom: 4px;
         }
+
+        /* --- EXPLORE TAB: CIRCULAR & UNIFORM AVATARS --- */
+        #searchResultsList .card-avatar {
+            /* 1. Fixed Dimensions (Same Size) */
+            width: 120px !important;
+            height: 120px !important;
+            min-width: 120px !important;
+            /* Prevents squishing */
+            min-height: 120px !important;
+
+            /* 2. Perfect Circle */
+            border-radius: 50% !important;
+
+            /* 3. Image Handling */
+            object-fit: cover !important;
+            /* Prevents stretching/distortion */
+            object-position: center !important;
+
+            /* 4. Styling & Layout */
+            border: 4px solid var(--glass-border);
+            /* clean border */
+            margin: 0 auto;
+            /* Center horizontally */
+            display: block;
+            background-color: var(--bg-input);
+            /* Background for transparent PNGs */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
 
 <body>
 
-    <div id="authScreen" class="auth-container" style="max-width: 800px; margin: 100px auto; padding: 40px; background: var(--glass-bg); backdrop-filter: blur(30px); border-radius: 24px; border: 1px solid var(--glass-border);">
-        <h2 style="margin-bottom: 30px; font-size: 32px; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-align: center;">VidyaGenie Portal</h2>
-        
-        <div style="display: flex; gap: 40px; align-items: stretch; text-align: left;">
-            
-            <div style="flex: 1;">
-                <h3 style="margin-bottom: 15px; color: var(--text-main); font-size: 18px;">User Login</h3>
-                <form onsubmit="handleLogin(event)">
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="loginEmail" placeholder="Enter email..." value="selva@vit.com">
+    <div id="authScreen" class="auth-container"
+        style="max-width: 900px; margin: 60px auto; padding: 40px; background: var(--bg-card); border-radius: 24px; border: 1px solid var(--border-color);">
+        <h2
+            style="margin-bottom: 20px; font-size: 32px; background: var(--primary-color); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-align: center;">
+            VidyaGenie Portal</h2>
+
+        <div style="display: flex; gap: 40px; align-items: flex-start; text-align: left;">
+
+            <div style="flex: 1.2;">
+
+                <div id="loginSection">
+                    <h3 style="margin-bottom: 15px; color: var(--text-main); font-size: 20px;">Login</h3>
+                    <form onsubmit="handleLogin(event)">
+                        <div class="form-group">
+                            <label>College Email</label>
+                            <input type="email" id="loginEmail" placeholder="Enter email..." value="selva@vit.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="loginPassword" value="password">
+                        </div>
+                        <button type="submit" class="btn btn-primary"
+                            style="width: 100%; padding: 12px; margin-top: 10px;">Login</button>
+                    </form>
+                    <p class="auth-toggle-text">
+                        Don't have an account? <span class="auth-link" onclick="toggleAuthMode('register')">Register
+                        </span>
+                    </p>
+                </div>
+
+                <div id="registerSection" class="hidden">
+                    <h3 style="margin-bottom: 15px; color: var(--text-main); font-size: 20px;">Create Account</h3>
+
+                    <div class="auth-scroll-container">
+                        <form onsubmit="handleRegister(event)">
+                            <div class="form-group"><label>Full Name</label><input type="text" id="regName" required>
+                            </div>
+                            <div class="form-group"><label>College Email</label><input type="email" id="regEmail"
+                                    required>
+                            </div>
+                            <div class="form-group"><label>Password</label><input type="password" id="regPass" required>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div class="form-group">
+                                    <label>Age</label>
+                                    <input type="number" id="regAge" required min="16" max="99">
+                                </div>
+                                <div class="form-group">
+                                    <label>Gender</label>
+                                    <select id="regGender" required
+                                        style="width: 100%; padding: 14px; background: var(--bg-input); border: 1px solid var(--border-color); color: white; border-radius: 12px;">
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div class="form-group">
+                                    <label>Role</label>
+                                    <select id="regRole" required
+                                        style="width: 100%; padding: 14px; background: var(--bg-input); border: 1px solid var(--border-color); color: white; border-radius: 12px;">
+                                        <option value="student">Student</option>
+                                        <option value="mentor">Mentor</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Graduation Year</label>
+                                    <input type="number" id="regYear" placeholder="e.g. 2025" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group"><label>College / University</label><input type="text"
+                                    id="regCollege" required></div>
+
+                            <div class="form-group">
+                                <label>Profile Picture (Optional)</label>
+                                <input type="file" id="regFile" accept="image/*" style="display:none;"
+                                    onchange="document.getElementById('regFileName').innerText = this.files[0].name">
+                                <button type="button" class="btn btn-secondary"
+                                    onclick="document.getElementById('regFile').click()" style="width:100%">Upload
+                                    Photo</button>
+                                <small id="regFileName" style="color:var(--text-secondary);">No file chosen</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Work Experience</label>
+                                <div id="workExpContainer"></div>
+                                <button type="button" class="btn btn-secondary" onclick="addExperienceField()"
+                                    style="font-size: 12px; margin-top: 5px;">+ Add Experience</button>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary"
+                                style="width: 100%; padding: 12px; margin-top: 20px;">Register</button>
+                        </form>
                     </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="loginPassword" value="password" disabled style="opacity: 0.5; cursor: not-allowed;">
-                        <small style="color: var(--text-muted); font-size: 11px;">*OTP Disabled for Mock Mode</small>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 10px;">Login</button>
-                </form>
+                    <p class="auth-toggle-text">
+                        Already have an account? <span class="auth-link" onclick="toggleAuthMode('login')">Login
+                        </span>
+                    </p>
+                </div>
+
             </div>
 
-            <div style="width: 1px; background: var(--glass-border);"></div>
+            <div style="width: 1px; background: var(--border-color); align-self: stretch;"></div>
 
-            <div style="flex: 1;">
-                <h3 style="margin-bottom: 15px; color: var(--text-main); font-size: 18px;">Dev Switcher</h3>
+            <div style="flex: 0.8;">
+                <h3 style="margin-bottom: 15px; color: var(--text-main);">Dev Switcher</h3>
                 <div style="display: flex; flex-direction: column; gap: 10px;">
-                    
-                    <button class="btn btn-secondary" onclick="simulateLogin('rZTJaAZXbVml1SpAzsdz')" style="justify-content: flex-start; gap: 10px; border: 1px solid var(--success-color);">
+                    <button class="btn btn-secondary" onclick="simulateLogin('rZTJaAZXbVml1SpAzsdz')"
+                        style="justify-content: flex-start; gap: 10px; border: 1px solid var(--success-color);">
                         <span style="color: var(--success-color);">✔</span>
                         <div>
                             <div style="font-weight: 700; color: white;">Selva</div>
                             <div style="font-size: 10px; color: var(--success-color);">VERIFIED MENTOR</div>
                         </div>
                     </button>
-
-                    <button class="btn btn-secondary" onclick="simulateLogin('4UvojVrHYVFBiOtRbHoD')" style="justify-content: flex-start; gap: 10px;">
-                        <span>🎓</span> 
+                    <button class="btn btn-secondary" onclick="simulateLogin('4UvojVrHYVFBiOtRbHoD')"
+                        style="justify-content: flex-start; gap: 10px;">
+                        <span>🎓</span>
                         <div>
                             <div style="font-weight: 700; color: white;">Prajwal</div>
                             <div style="font-size: 10px; color: var(--text-muted);">STUDENT</div>
                         </div>
                     </button>
-
-                    <button class="btn btn-secondary" onclick="simulateLogin('new_user_andy_id')" style="justify-content: flex-start; gap: 10px; border: 1px solid var(--danger-color);">
-                        <span>⚠️</span> 
+                    <button class="btn btn-secondary" onclick="simulateLogin('new_user_andy_id')"
+                        style="justify-content: flex-start; gap: 10px; border: 1px solid var(--danger-color);">
+                        <span>⚠️</span>
                         <div>
                             <div style="font-weight: 700; color: white;">Andy</div>
                             <div style="font-size: 10px; color: var(--danger-color);">UNVERIFIED MENTOR</div>
                         </div>
                     </button>
-
                 </div>
             </div>
         </div>
@@ -955,13 +1149,12 @@
             </div>
 
             <div id="mentors" class="tab-content">
-                <div class="card" style="margin-bottom: 30px; border: 1px solid var(--primary-color);">
-                    <div class="card-header" style="color: var(--primary-color);">Search Users</div>
+                <div class="card" style="margin-bottom: 30px; border: 1px solid var(--border-color);">
+                    <div class="card-header" style="color: var(--text-main);">Search Users</div>
                     <div class="card-body">
                         <form id="userSearchForm" onsubmit="handleUserSearch(event)">
-                            <div class="form-group" style="display: flex; gap: 10px;">
-                                <input type="text" id="searchInput" placeholder="Search by Name (e.g., Jane)"
-                                    style="flex-grow: 1;">
+                            <div class="form-group" style="display: flex; gap: 10px; margin-bottom: 0;">
+                                <input type="text" id="searchInput" placeholder="Search by Name (e.g., Andy)" style="flex-grow: 1;">
                                 <button type="submit" class="btn btn-primary">Search</button>
                             </div>
                         </form>
@@ -986,22 +1179,30 @@
                         <div id="chatsListContent"></div>
                     </div>
                     <div id="messageView">
-                        <div id="chatHeader" style="padding: 20px 30px; font-weight: 800; font-size: 18px; border-bottom: 1px solid var(--glass-border); background: rgba(0,0,0,0.2);">Select a conversation</div>
-                        
+                        <div id="chatHeader"
+                            style="padding: 20px 30px; font-weight: 800; font-size: 18px; border-bottom: 1px solid var(--glass-border); background: rgba(0,0,0,0.2);">
+                            Select a conversation</div>
+
                         <div id="messagesContainer"></div>
-                        
-                        <form id="sendMessageForm" onsubmit="handleSendMessage(event)" class="hidden" style="position: relative; padding: 20px; border-top: 1px solid var(--glass-border); display: flex; gap: 12px; background: rgba(0,0,0,0.2); align-items: center;">
+
+                        <form id="sendMessageForm" onsubmit="handleSendMessage(event)" class="hidden"
+                            style="position: relative; padding: 20px; border-top: 1px solid var(--glass-border); display: flex; gap: 12px; background: rgba(0,0,0,0.2); align-items: center;">
                             <input type="hidden" id="selectedChatId">
-                            
+
                             <div id="emojiPicker" class="emoji-picker hidden"></div>
 
-                            <input type="file" id="chatFileInput" accept="image/*" style="display: none;" onchange="handleChatImageSelect(this)">
-                            <button type="button" class="chat-upload-btn btn-circle" onclick="document.getElementById('chatFileInput').click()" title="Send Image">📷</button>
-                            
-                            <button type="button" class="chat-upload-btn btn-circle" onclick="toggleEmojiPicker()" title="Add Emoji" style="padding-bottom: 0;">😀</button>
-                            
-                            <textarea id="messageText" placeholder="Type a message..." required style="flex-grow: 1; height: 45px; border-radius: 22px; padding: 12px 24px; resize: none; background: rgba(255,255,255,0.05); border:none;"></textarea>
-                            
+                            <input type="file" id="chatFileInput" accept="image/*" style="display: none;"
+                                onchange="handleChatImageSelect(this)">
+                            <button type="button" class="chat-upload-btn btn-circle"
+                                onclick="document.getElementById('chatFileInput').click()"
+                                title="Send Image">📷</button>
+
+                            <button type="button" class="chat-upload-btn btn-circle" onclick="toggleEmojiPicker()"
+                                title="Add Emoji" style="padding-bottom: 0;">😀</button>
+
+                            <textarea id="messageText" placeholder="Type a message..." required
+                                style="flex-grow: 1; height: 45px; border-radius: 22px; padding: 12px 24px; resize: none; background: rgba(255,255,255,0.05); border:none;"></textarea>
+
                             <button type="submit" class="btn btn-primary btn-circle" style="font-size: 18px;">➤</button>
                         </form>
                     </div>
@@ -1144,29 +1345,29 @@
 
         // --- MOCK USERS & DATA ---
         const MOCK_USERS = {
-            "rZTJaAZXbVml1SpAzsdz": { 
-                userId: "rZTJaAZXbVml1SpAzsdz", 
-                name: "selva", 
-                email: "selva@vit.com", 
-                role: "mentor", 
-                college: "VIT", 
-                year: "3rd Year", 
+            "rZTJaAZXbVml1SpAzsdz": {
+                userId: "rZTJaAZXbVml1SpAzsdz",
+                name: "selva",
+                email: "selva@vit.com",
+                role: "mentor",
+                college: "VIT",
+                year: "3rd Year",
                 isVerified: true // ✅ Verified Mentor (Green Tick)
             },
-            "4UvojVrHYVFBiOtRbHoD": { 
-                userId: "4UvojVrHYVFBiOtRbHoD", 
-                name: "prajwal", 
-                email: "prajwal@vit.com", 
-                role: "student", 
-                college: "Vidyalankar Poly", 
-                bio: "CSE Alumni", 
-                isVerified: false 
+            "4UvojVrHYVFBiOtRbHoD": {
+                userId: "4UvojVrHYVFBiOtRbHoD",
+                name: "prajwal",
+                email: "prajwal@vit.com",
+                role: "student",
+                college: "Vidyalankar Poly",
+                bio: "CSE Alumni",
+                isVerified: false
             },
             "new_user_andy_id": {
                 userId: "new_user_andy_id",
                 name: "Andy",
                 email: "andy@test.com",
-                role: "mentor", 
+                role: "mentor",
                 college: "MIT",
                 isVerified: false // ❌ Unverified Mentor (No Tick)
             }
@@ -1187,10 +1388,10 @@
         function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value.trim();
-            
+
             // Search MOCK_USERS for matching email
             const user = Object.values(MOCK_USERS).find(u => u.email === email);
-            
+
             if (user) {
                 simulateLogin(user.userId);
             } else {
@@ -1201,20 +1402,124 @@
         function simulateLogin(userId) {
             currentUser = { uid: userId };
             currentUserData = MOCK_USERS[userId];
-            
+
             // 1. Save user to DB (Syncing mock data to Firestore)
             db.collection('users').doc(userId).set(currentUserData, { merge: true })
-            .then(() => {
-                // 2. Switch UI
-                document.getElementById('authScreen').classList.add('hidden');
-                document.getElementById('appScreen').classList.remove('hidden');
-                updateUserInfo();
-                
-                // 3. Load Data specific to this user
-                switchTab('community');
-            }).catch(e => console.error("Login Error", e));
+                .then(() => {
+                    // 2. Switch UI
+                    document.getElementById('authScreen').classList.add('hidden');
+                    document.getElementById('appScreen').classList.remove('hidden');
+                    updateUserInfo();
+
+                    // 3. Load Data specific to this user
+                    switchTab('community');
+                }).catch(e => console.error("Login Error", e));
+        }
+        // --- AUTH: TOGGLE UI ---
+        function toggleAuthMode(mode) {
+            if (mode === 'register') {
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('registerSection').classList.remove('hidden');
+            } else {
+                document.getElementById('registerSection').classList.add('hidden');
+                document.getElementById('loginSection').classList.remove('hidden');
+            }
         }
 
+        // --- AUTH: WORK EXPERIENCE LOGIC ---
+        function addExperienceField() {
+            const container = document.getElementById('workExpContainer');
+            const div = document.createElement('div');
+            div.className = 'exp-row';
+            div.innerHTML = `
+                <input type="text" class="exp-input" placeholder="e.g. Intern at Google" style="flex-grow:1;">
+                <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()" style="padding: 0 12px;">X</button>
+            `;
+            container.appendChild(div);
+        }
+
+        // --- AUTH: REGISTER HANDLER ---
+        // --- AUTH: REGISTER HANDLER (FIXED) ---
+        function handleRegister(e) {
+            e.preventDefault();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            
+            submitBtn.textContent = "Creating Account...";
+            submitBtn.disabled = true;
+
+            // 1. Collect Data
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const age = document.getElementById('regAge').value;
+            const gender = document.getElementById('regGender').value;
+            const role = document.getElementById('regRole').value;
+            const college = document.getElementById('regCollege').value;
+            const gradYear = document.getElementById('regYear').value;
+            const fileInput = document.getElementById('regFile');
+
+            // 2. Collect Experience Array
+            const expertise = [];
+            document.querySelectorAll('.exp-input').forEach(input => {
+                if(input.value.trim()) expertise.push(input.value.trim());
+            });
+
+            // 3. Define Save Function
+            const performRegistration = (base64Pic) => {
+                // Generate a unique ID
+                const newUserId = "user_" + Date.now();
+
+                const newUser = {
+                    userId: newUserId,
+                    name: name,
+                    email: email,
+                    role: role,
+                    age: age,
+                    gender: gender,
+                    college: college,
+                    year: gradYear,
+                    expertise: expertise,
+                    profilePic: base64Pic || "",
+                    isVerified: false, 
+                    createdAt: new Date()
+                };
+
+                // Save to Firestore
+                db.collection('users').doc(newUserId).set(newUser)
+                .then(() => {
+                    // 🚨 SUCCESS: Manually Log In (Don't use simulateLogin here)
+                    currentUser = { uid: newUserId };
+                    currentUserData = newUser; // Use the object we just created
+                    
+                    alert("Account created successfully!");
+                    
+                    // Switch Screens
+                    document.getElementById('authScreen').classList.add('hidden');
+                    document.getElementById('appScreen').classList.remove('hidden');
+                    
+                    // Load App Data
+                    updateUserInfo();
+                    switchTab('community');
+                })
+                .catch(err => {
+                    console.error("Registration Error:", err);
+                    alert("Error creating account: " + err.message);
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                });
+            };
+
+            // 4. Handle Image Processing
+            if (fileInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    performRegistration(e.target.result);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                performRegistration(null);
+            }
+        }
         // Default Tab
         switchTab('community');
 
@@ -1266,10 +1571,10 @@
             removeBtn.style.display = 'none';
         }
 
-function handleChatImageSelect(input) {
+        function handleChatImageSelect(input) {
             if (input.files && input.files[0]) {
                 const file = input.files[0];
-                
+
                 // 1. Size Limit Check (Keep under ~800KB for Firestore document limits)
                 if (file.size > 800 * 1024) {
                     alert("Image too large. Please select an image under 800KB.");
@@ -1279,12 +1584,12 @@ function handleChatImageSelect(input) {
 
                 // 2. Read & Send
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     const base64 = e.target.result;
                     sendChatImage(base64);
                 };
                 reader.readAsDataURL(file);
-                
+
                 input.value = ""; // Reset input so same file can be selected again
             }
         }
@@ -1372,7 +1677,7 @@ function handleChatImageSelect(input) {
                 });
             }
         }
-        
+
 
         // --- CONNECTIONS MODAL ---
         function openConnectionsModal() {
@@ -1409,9 +1714,9 @@ function handleChatImageSelect(input) {
                     }
 
                     // Sanitize Name
-                    if(!otherName || otherName === 'undefined') otherName = "Unknown User";
+                    if (!otherName || otherName === 'undefined') otherName = "Unknown User";
                     const displayName = otherName.charAt(0).toUpperCase() + otherName.slice(1);
-                    
+
                     // 🚨 FIX: Encode name to prevent button breakage
                     const safeNameEncoded = encodeURIComponent(displayName);
 
@@ -1438,10 +1743,10 @@ function handleChatImageSelect(input) {
         function goToChatFromModal(userId, encodedName) {
             // Close the connections popup
             document.getElementById('connectionsModal').classList.remove('active');
-            
+
             // Decode the name back to normal
             const userName = decodeURIComponent(encodedName);
-            
+
             // Open the chat
             goToChat(userId, userName);
         }
@@ -1458,7 +1763,7 @@ function handleChatImageSelect(input) {
                     return chatRef.set({
                         participants: [currentUser.uid, userId],
                         updatedAt: new Date(),
-                        lastMessage: "" 
+                        lastMessage: ""
                     }, { merge: true });
                 }
             }).then(() => {
@@ -1522,7 +1827,7 @@ function handleChatImageSelect(input) {
             batch.commit().then(() => {
                 alert("Disconnected successfully.");
                 document.getElementById('connectionsModal').classList.remove('active');
-                
+
                 // 3. 🚨 UI CLEANUP: If this chat was open, clear the screen
                 const currentOpenChat = document.getElementById('selectedChatId').value;
                 if (currentOpenChat === chatId) {
@@ -1542,29 +1847,25 @@ function handleChatImageSelect(input) {
             });
         }
 
-        function renderUserResults(snapshot, allRequests = []) {
+       function renderUserResults(snapshot, allRequests = []) {
             const listEl = document.getElementById('searchResultsList');
             const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
             let html = '';
-            
+
             const DEFAULT_PIC = "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png";
 
-            // --- STEP 1: PRE-PROCESS REQUESTS (The Fix) ---
-            // Create a Set of IDs to HIDE (Accepted connections)
+            // --- STEP 1: PRE-PROCESS REQUESTS ---
             const connectedIds = new Set();
-            // Create a Map for Pending Requests (to show correct buttons)
             const requestMap = new Map();
 
             allRequests.forEach(reqDoc => {
                 const d = reqDoc.data();
-                // Determine the 'other' person's ID
                 const isSender = d.senderId === currentUser.uid;
                 const otherId = isSender ? d.recipientId : d.senderId;
 
                 if (d.status === 'accepted') {
                     connectedIds.add(otherId);
                 } else if (d.status === 'pending') {
-                    // Store the request data mapped to the user's ID
                     requestMap.set(otherId, { ...d, docId: reqDoc.id });
                 }
             });
@@ -1574,42 +1875,48 @@ function handleChatImageSelect(input) {
                 const user = doc.data();
                 const targetUserId = doc.id;
 
-                // 1. Skip Self
                 if (!user || targetUserId === currentUser.uid) return;
-
-                // 2. 🚨 CRITICAL FIX: Skip Already Connected Users
                 if (connectedIds.has(targetUserId)) return;
 
-                // 3. Name Sanitization & Search Filter
+                // Search Filter
                 let rawName = user.name;
-                if (!rawName || rawName === 'undefined') rawName = 'Unknown';
+                if (!rawName || rawName === 'undefined') rawName = 'Unknown User';
                 if (searchTerm && !rawName.toLowerCase().includes(searchTerm)) return;
 
                 const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1).replace(/'/g, "\\'");
-                const roleText = (user.role || 'N/A').toUpperCase();
-                
-                // 🚨 NEW: Badge Logic
+                const profileSrc = user.profilePic || DEFAULT_PIC;
+                const role = (user.role || 'N/A').toUpperCase();
+
+                // 1. Verification Badge Logic
                 let badgeHtml = '';
                 if (user.role === 'mentor' && user.isVerified) {
                     badgeHtml = `<span class="badge badge-verified" style="margin-left:5px;">MENTOR ✔</span>`;
                 } else {
-                    badgeHtml = `<span class="badge" style="margin-left:5px; background:rgba(255,255,255,0.1); color:#999;">${roleText}</span>`;
+                    badgeHtml = `<span class="badge" style="margin-left:5px; background:rgba(255,255,255,0.1); color:#999; border:1px solid var(--border-color);">${role}</span>`;
                 }
-                const profileSrc = user.profilePic || DEFAULT_PIC;
 
-                // 4. Determine Button State based on Pre-processed Map
+                // 2. Experience / Headline Logic (LinkedIn Style)
+                let subtextHtml = '';
+                if (user.expertise && Array.isArray(user.expertise) && user.expertise.length > 0) {
+                    // Join array with Pipe separator
+                    const expString = user.expertise.join(' | ');
+                    subtextHtml = `<p style="font-size:13px; color:var(--text-secondary); margin-top:2px; line-height:1.4;">${expString}</p>`;
+                } else {
+                    // Fallback for students or empty profiles
+                    const fallbackText = user.role === 'student' ? `Student • ${user.year || 'N/A'}` : 'No experience listed';
+                    subtextHtml = `<p style="font-size:13px; color:var(--text-secondary); margin-top:2px;">${fallbackText}</p>`;
+                }
+
+                // 3. Button State
                 let buttonHtml;
                 const existingRequest = requestMap.get(targetUserId);
 
                 if (existingRequest) {
-                    // We found a PENDING request
                     if (existingRequest.senderId === currentUser.uid) {
-                        // I sent it
                         buttonHtml = `
                         <button class="btn btn-disabled" style="width:100%" disabled>Requested</button>
                         <button class="btn btn-danger" style="width:100%; margin-top:10px;" onclick="cancelRequest('${existingRequest.docId}')">Cancel</button>`;
                     } else {
-                        // I received it
                         buttonHtml = `
                         <div style="display:flex; gap:10px; margin-top:10px;">
                             <button class="btn btn-primary" style="flex:1" onclick="updateRequest('${existingRequest.docId}','accepted','${targetUserId}')">Accept</button>
@@ -1617,30 +1924,35 @@ function handleChatImageSelect(input) {
                         </div>`;
                     }
                 } else {
-                    // No connection exists -> Show Connect
                     buttonHtml = `<button class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="sendInstantConnectionRequest('${targetUserId}', this)">Connect</button>`;
                 }
 
-                // 5. Render Card HTML (Big Centered Image Layout)
                 html += `
                 <div class="card">
                     <div class="card-content-wrapper">
-                        <img src="${profileSrc}" class="card-avatar">
+                        <img src="${profileSrc}" class="card-avatar" alt="Profile">
                         <div style="width:100%; text-align:left; padding-left:10px;">
-                            <div class="card-header" style="font-size:18px; margin-bottom:8px; justify-content:flex-start; gap:10px;">
+                            
+                            <div class="card-header" style="font-size:18px; margin-bottom:4px; justify-content:flex-start; gap:8px; align-items:center;">
                                 ${displayName} 
-                                <span class="badge badge-verified">${badgeHtml}</span>
+                                ${badgeHtml}
                             </div>
-                            <p style="font-size:13px; color:var(--text-muted); margin-bottom:4px;">
-                                <strong>College:</strong> ${user.college || 'N/A'}
+                            
+                            <p style="font-size:14px; color:var(--text-main); margin-bottom:2px; font-weight:500;">
+                                ${user.college || 'N/A'}
                             </p>
+                            
+                            ${subtextHtml}
+
                         </div>
                     </div>
-                    ${buttonHtml}
+                    <div class="card-footer" style="gap: 10px; margin-top: 0;">
+                        ${buttonHtml}
+                    </div>
                 </div>`;
             });
 
-            listEl.innerHTML = html || '<p style="text-align:center; grid-column:1/-1; color:var(--text-muted); margin-top:40px;">No new people to connect with.</p>';
+            listEl.innerHTML = html || '<p style="text-align:center; grid-column: 1/-1; color: var(--text-secondary);">No new users found.</p>';
         }
 
         function sendInstantConnectionRequest(recipientId, btnElement) {
@@ -1654,12 +1966,12 @@ function handleChatImageSelect(input) {
 
             // 2. Fetch data and save
             const myId = currentUser.uid;
-            
+
             // We fetch the target's name from DB to ensure no "undefined" or syntax errors
             db.collection('users').doc(recipientId).get().then(snap => {
                 const targetData = snap.exists ? snap.data() : {};
                 const targetName = targetData.name || "Unknown User";
-                
+
                 // Safe check for my name
                 const myName = currentUserData.name || "Unknown User";
 
@@ -1704,13 +2016,13 @@ function handleChatImageSelect(input) {
                 .then(snap => {
                     let html = '';
                     let count = 0;
-                    
+
                     snap.forEach(doc => {
                         const req = doc.data();
-                        
+
                         // Strict check for pending
                         if (req.status !== 'pending') return;
-                        
+
                         count++;
                         // Fallback for missing name to prevent "undefined"
                         const senderName = req.senderName || 'Unknown User';
@@ -1745,7 +2057,7 @@ function handleChatImageSelect(input) {
                 });
         }
         function cancelRequest(requestId) {
-            if(!confirm("Cancel this connection request?")) return;
+            if (!confirm("Cancel this connection request?")) return;
             db.collection('connection_requests').doc(requestId).delete()
                 .then(() => {
                     loadMentors(); // Refresh UI
@@ -1769,7 +2081,7 @@ function handleChatImageSelect(input) {
             const chatId = [currentUser.uid, otherId].sort().join('_');
             const otherUser = MOCK_USERS[otherId] || { name: 'Unknown' };
             const otherName = otherUser.name.charAt(0).toUpperCase() + otherUser.name.slice(1);
-            
+
             // Just create the document logic, NO system message added
             return db.collection('chats').doc(chatId).set({
                 participants: [currentUser.uid, otherId],
@@ -1817,20 +2129,20 @@ function handleChatImageSelect(input) {
 
         let msgUnsub;
         function openInlineChat(id, name) {
-            if(msgUnsub) msgUnsub();
+            if (msgUnsub) msgUnsub();
             document.getElementById('selectedChatId').value = id;
             document.getElementById('chatHeader').innerText = name;
             document.getElementById('sendMessageForm').classList.remove('hidden');
             const cont = document.getElementById('messagesContainer');
-            
+
             msgUnsub = db.collection('chats').doc(id).collection('messages').orderBy('timestamp', 'asc').onSnapshot(snap => {
                 let html = '';
                 snap.forEach(doc => {
                     const m = doc.data();
                     const me = m.senderId === currentUser.uid;
-                    
+
                     let contentHtml = '';
-                    
+
                     // 1. Check for Image
                     if (m.imageUrl) {
                         // 🚨 FIX: Added onerror handler to debug broken links
@@ -1842,7 +2154,7 @@ function handleChatImageSelect(input) {
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                             <div style="display:none; color:#ff6b6b; font-size:12px; padding:5px;">⚠️ Failed to load image</div>
                         `;
-                    } 
+                    }
                     // 2. Check for Text
                     else if (m.text) {
                         contentHtml = `<span>${m.text}</span>`;
@@ -1858,7 +2170,7 @@ function handleChatImageSelect(input) {
                         </div>`;
                     }
                 });
-                cont.innerHTML = html; 
+                cont.innerHTML = html;
                 cont.scrollTop = cont.scrollHeight;
             });
         }
@@ -1908,6 +2220,21 @@ function handleChatImageSelect(input) {
 
         function loadPosts() { loadCommunity(); } // Alias for cleaner calls
 
+        // --- MISSING FUNCTION: OPEN POST MODAL ---
+        function openCreatePostModal() {
+            // This function was missing!
+            document.getElementById('createPostModal').classList.add('active');
+
+            // Optional: Reset form when opening
+            document.getElementById('communityPostTitle').value = "";
+            document.getElementById('communityPostBody').value = "";
+            document.getElementById('postLinkInput').value = "";
+            document.getElementById('postFileInput').value = "";
+            document.getElementById('postFileName').innerText = "None";
+            document.getElementById('removePostImgBtn').style.display = "none";
+            document.getElementById('submitPostBtn').disabled = false;
+            document.getElementById('submitPostBtn').innerText = "Post";
+        }
         function handleCreatePostSubmit(e) {
             e.preventDefault();
             const submitBtn = document.getElementById('submitPostBtn');
