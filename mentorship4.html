@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Mentorship App</title>
+    <style>
+        /* --- VARIABLES & RESET --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { 
+            --primary-color: #2196F3; 
+            --secondary-color: #4CAF50; 
+            --danger-color: #f44336; 
+            --light-bg: #f5f5f5; 
+            --text-color: #333; 
+            --border-color: #ddd; 
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--light-bg); color: var(--text-color); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        /* --- NAVBAR --- */
+        .navbar { 
+            background: var(--primary-color); 
+            color: white; 
+            padding: 15px 20px; 
+            margin-bottom: 20px; 
+            border-radius: 8px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .navbar-brand h1 { font-size: 24px; margin: 0; }
+        .navbar-brand p { font-size: 12px; opacity: 0.9; margin-top: 4px; }
+        .navbar-right { display: flex; align-items: center; gap: 15px; }
+
+        /* --- ICONS --- */
+        .profile-circle, .requests-icon-style {
+            width: 40px; height: 40px;
+            background-color: white;
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.5);
+            transition: all 0.2s ease; user-select: none;
+        }
+        .requests-icon-style { margin-right: 5px; }
+        .profile-circle:hover, .requests-icon-style:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        /* --- TABS --- */
+        .tabs { 
+            display: flex; gap: 10px; margin-bottom: 20px; 
+            border-bottom: 2px solid var(--border-color); 
+            justify-content: center; 
+        }
+        .tab-button { 
+            padding: 12px 20px; background: none; border: none; 
+            border-bottom: 3px solid transparent; cursor: pointer; 
+            font-weight: 500; color: #666; 
+        }
+        .tab-button.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+        
+        .tab-content { display: none; position: relative; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- COMMUNITY + ICON --- */
+        .center-icon-wrapper { padding: 10px 0; margin: 10px 0; }
+        .create-icon-style {
+            width: 40px; height: 40px;
+            background-color: var(--primary-color); color: white;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold; cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.8);
+            transition: all 0.2s ease; user-select: none;
+            margin: 0 auto; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .create-icon-style:hover {
+            transform: scale(1.1);
+            background-color: var(--primary-color);
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        /* --- GENERAL UI --- */
+        .card { background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card-header { font-size: 18px; font-weight: 600; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .card-footer { margin-top: 15px; display: flex; gap: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 500; }
+        input, textarea, select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px; }
+        .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 14px; }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-secondary { background: var(--secondary-color); color: white; }
+        .btn-danger { background: var(--danger-color); color: white; }
+        .btn-disabled { background: #ccc; color: #666; cursor: not-allowed; } 
+        
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+        .badge-pending { background: #fff3cd; color: #856404; }
+        .badge-accepted { background: #d4edda; color: #155724; }
+        .badge-rejected { background: #f8d7da; color: #721c24; }
+        .badge-verified { background: #d1ecf1; color: #0c5460; }
+
+        /* --- MODALS --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
+        .modal-header { font-size: 20px; font-weight: bold; margin-bottom: 20px; }
+        .modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
+        .hidden { display: none !important; }
+        .auth-container { max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+    <div id="authScreen" class="auth-container">
+        <div id="loginForm">
+            <h2 style="text-align:center; margin-bottom:20px;">Login</h2>
+            <p style="text-align:center; color: #666;">(Mock Mode Active - Click Login)</p>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group"><label>Email:</label><input type="email" id="loginEmail" value="mock@vit.com"></div>
+                <div class="form-group"><label>Password:</label><input type="password" id="loginPassword" value="password"></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="appScreen" class="hidden">
+        <div class="container">
+            <div class="navbar">
+                <div class="navbar-brand">
+                    <h1>VidyaGenie</h1>
+                    <p id="userInfo"></p>
+                </div>
+                <div class="navbar-right">
+                    <div id="requestsIcon" onclick="switchTab(event, 'requests')" title="Connection Requests" class="requests-icon-style">
+                        <span style="font-size: 20px; position: relative; top: -1px;">👥</span>
+                    </div>
+                    <div class="profile-circle" id="profileIcon" onclick="switchTab(null, 'profile')" title="My Profile"></div>
+                </div>
+            </div>
+
+            <div class="tabs">         
+                <button class="tab-button" onclick="switchTab(event, 'mentors')">Explore</button> 
+                <button class="tab-button" onclick="switchTab(event, 'community')">Community</button>
+                <button class="tab-button" onclick="switchTab(event, 'chats')">Chats</button>            
+            </div>
+
+            <div id="mentors" class="tab-content">
+                <div class="card" style="margin-bottom: 20px;">
+                    <div class="card-header">Search Users</div>
+                    <div class="card-body">
+                        <form id="userSearchForm" onsubmit="handleUserSearch(event)">
+                            <div class="form-group" style="display: flex; gap: 10px;">
+                                <input type="text" id="searchInput" placeholder="Search by Name (e.g., Jane)" style="flex-grow: 1;">
+                                <button type="submit" class="btn btn-primary">Search</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div id="searchResultsList" class="grid"></div>
+            </div>
+
+            <div id="requests" class="tab-content">
+                <div id="requestsList"></div>
+            </div>
+
+            <div id="chats" class="tab-content">
+                <div style="display: flex; gap: 20px; height: 70vh;">
+                    <div id="activeChatsList" style="flex: 0 0 300px; background: white; border: 1px solid var(--border-color); border-radius: 8px; overflow-y: auto;">
+                        <h4 style="padding: 15px; border-bottom: 1px solid var(--border-color);">Active Conversations</h4>
+                        <div id="chatsListContent">Loading...</div>
+                    </div>
+                    <div id="messageView" style="flex: 1; background: white; border: 1px solid var(--border-color); border-radius: 8px; display: flex; flex-direction: column;">
+                        <div id="chatHeader" style="padding: 15px; border-bottom: 1px solid var(--border-color); font-weight: bold;">Select a chat to begin.</div>
+                        <div id="messagesContainer" style="flex: 1; overflow-y: auto; padding: 20px;"></div>
+                        <form id="sendMessageForm" onsubmit="handleSendMessage(event)" class="hidden" style="padding: 15px; border-top: 1px solid var(--border-color); display: flex; gap: 10px;">
+                            <input type="hidden" id="selectedChatId">
+                            <textarea id="messageText" placeholder="Type your message..." required style="flex-grow: 1; resize: none; height: 40px;"></textarea>
+                            <button type="submit" class="btn btn-primary">Send</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div id="community" class="tab-content">
+                <div class="center-icon-wrapper">
+                    <div id="createPostIcon" class="create-icon-style" onclick="openCreatePostModal()" title="Create New Post">
+                        <span style="font-size: 24px; position: relative; top: -2px;">+</span> 
+                    </div>
+                </div>
+                <div id="communityPostsList" style="margin-top: 20px; padding: 0 10px;"></div>
+            </div>
+
+            <div id="profile" class="tab-content">
+                <div class="card">
+                    <div class="card-header">My Profile</div>
+                    <div id="profileContent" class="card-body"></div>
+                    <div class="card-footer">
+                        <button class="btn btn-danger" onclick="window.location.reload()">Logout</button> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="createPostModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Create Discussion Post</div>
+            <form onsubmit="handleCreatePostSubmit(event)">
+                <div class="form-group">
+                    <label>Title:</label>
+                    <input type="text" id="communityPostTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Details:</label>
+                    <textarea id="communityPostBody" required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="document.getElementById('createPostModal').classList.remove('active')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Post</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="postDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="postDetailTitle">Post Title</div>
+            <div id="postDetailBody" style="margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #ddd;"></div>
+            <h4 style="margin-bottom: 10px;">Discussion</h4>
+            <div id="commentsList" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px;"></div>
+            <form onsubmit="handleNewComment(event)">
+                <input type="hidden" id="currentPostId">
+                <div class="form-group">
+                    <textarea id="commentText" placeholder="Add a comment..." required></textarea>
+                </div>
+                <div class="modal-footer" style="justify-content: space-between;">
+                    <button type="button" class="btn" onclick="document.getElementById('postDetailModal').classList.remove('active')">Close</button>
+                    <button type="submit" class="btn btn-primary">Comment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBFivNpSRGK87SDxzi3wWJAl3Pia_vrezo",
+            authDomain: "college-mentorship--app.firebaseapp.com",
+            projectId: "college-mentorship--app",
+            storageBucket: "college-mentorship--app.firebasestorage.app",
+            messagingSenderId: "842851012332",
+            appId: "1:842851012332:web:37ff1cbf9b7b90977c1fc9",
+            measurementId: "G-G6MN80S4LM"
+        };
+
+        let app, auth, db, currentUser, currentUserData;
+
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.firestore();
+            console.log("Firebase initialized");
+        } catch (error) { console.error(error); }
+
+        // --- TEMPORARY LOGIN BYPASS (Mock Data) ---
+        // UPDATED: Using the Real ID from your database
+        const MOCK_USER_ID = "rZTJaAZXbVml1SpAzsdz"; 
+
+        currentUser = { uid: MOCK_USER_ID };
+        currentUserData = {
+            userId: MOCK_USER_ID,
+            name: "Mock Student",
+            email: "mock@vit.com",
+            role: "student", // CRITICAL: Set to student to view mentors
+            college: "VIT",
+            isVerified: true
+        };
+
+        // Initialize App View
+        document.getElementById('authScreen').classList.add('hidden');
+        document.getElementById('appScreen').classList.remove('hidden');
+        updateUserInfo();
+        
+        // Start on Community Tab
+        switchTab(null, 'community'); 
+
+        function updateUserInfo() {
+            document.getElementById('userInfo').textContent = `${currentUserData.name} (${currentUserData.role.toUpperCase()})`;
+            document.getElementById('profileIcon').textContent = currentUserData.name.charAt(0).toUpperCase();
+        }
+
+        // --- NAVIGATION ---
+        function switchTab(event, tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            if(event && event.currentTarget) event.currentTarget.classList.add('active');
+
+            if (tabName === 'mentors') loadMentors();
+            if (tabName === 'requests') loadRequests();
+            if (tabName === 'chats') loadChats();
+            if (tabName === 'community') loadCommunity();
+            if (tabName === 'profile') loadProfile();
+        }
+
+        // --- SEARCH & CONNECTIONS (Mentors Tab) ---
+        function loadMentors() {
+            // Automatically list all mentors/users initially
+            const listEl = document.getElementById('searchResultsList');
+            listEl.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">Loading all available connections...</p>';
+            
+            // Query all mentors. You can remove the where clause to see ALL users if you prefer.
+            db.collection('users').where('role', '==', 'mentor').get().then(snap => {
+                renderUserResults(snap);
+            }).catch(e => {
+                listEl.innerHTML = '<p style="color:red; text-align:center;">Failed to load. Check console.</p>';
+                console.error(e);
+            });
+        }
+
+        function handleUserSearch(event) {
+            event.preventDefault();
+            const term = document.getElementById('searchInput').value.toLowerCase().trim();
+            if(!term) return loadMentors(); // Reset if empty
+
+            const listEl = document.getElementById('searchResultsList');
+            listEl.innerHTML = 'Searching...';
+
+            const end = term.replace(/.$/, c => String.fromCharCode(c.charCodeAt(0) + 1));
+            
+            db.collection('users')
+                .where('name', '>=', term)
+                .where('name', '<', end)
+                .get()
+                .then(renderUserResults)
+                .catch(e => console.error(e));
+        }
+
+        function renderUserResults(snapshot) {
+            const listEl = document.getElementById('searchResultsList');
+            let html = '';
+            snapshot.forEach(doc => {
+                const user = doc.data();
+                if(user.userId === currentUser.uid) return; // Don't show self
+
+                html += `
+                    <div class="card">
+                        <div class="card-header">${user.name} <span class="badge badge-verified">${user.role.toUpperCase()}</span></div>
+                        <div class="card-body">
+                            <p><strong>College:</strong> ${user.college}</p>
+                            <p><strong>Expertise:</strong> ${(user.expertise || []).join(', ')}</p>
+                        </div>
+                        <div class="card-footer" style="gap: 10px;">
+                            <button class="btn btn-primary" id="btn-${doc.id}" onclick="sendInstantConnectionRequest('${doc.id}', '${user.name}', this)">Connect</button>
+                        </div>
+                    </div>`;
+            });
+            listEl.innerHTML = html || '<p style="text-align:center; grid-column: 1/-1;">No users found.</p>';
+        }
+
+        // --- INSTANT CONNECTION REQUEST (Instagram Style) ---
+        function sendInstantConnectionRequest(recipientId, recipientName, btnElement) {
+            // Disable button immediately to prevent double clicks
+            btnElement.disabled = true;
+            btnElement.textContent = "Sending...";
+
+            db.collection('connection_requests').add({
+                senderId: currentUser.uid,
+                senderName: currentUserData.name,
+                recipientId: recipientId,
+                recipientName: recipientName,
+                status: 'pending',
+                subject: 'General Connection', // Default subject
+                message: "I'd like to connect with you on VidyaGenie!", // Default message
+                createdAt: new Date()
+            }).then(() => {
+                // Update button UI to show success state
+                btnElement.textContent = "Requested";
+                btnElement.classList.remove('btn-primary');
+                btnElement.classList.add('btn-secondary'); // Change color
+                btnElement.style.cursor = "default";
+            }).catch(error => {
+                console.error("Error sending request:", error);
+                alert("Failed to send request.");
+                btnElement.disabled = false;
+                btnElement.textContent = "Connect";
+            });
+        }
+
+        // --- REQUESTS TAB ---
+        function loadRequests() {
+            const list = document.getElementById('requestsList');
+            list.innerHTML = 'Loading...';
+            // Find requests where I am the recipient
+            db.collection('connection_requests').where('recipientId', '==', currentUser.uid).get().then(snap => {
+                let html = '';
+                snap.forEach(doc => {
+                    const req = doc.data();
+                    html += `
+                        <div class="card">
+                            <div class="card-header">From: ${req.senderName} <span class="badge badge-${req.status}">${req.status}</span></div>
+                            <div class="card-body"><p>${req.message}</p></div>
+                            ${req.status === 'pending' ? `
+                            <div class="card-footer">
+                                <button class="btn btn-secondary" onclick="updateRequest('${doc.id}', 'accepted', '${req.senderId}')">Accept</button>
+                                <button class="btn btn-danger" onclick="updateRequest('${doc.id}', 'rejected')">Reject</button>
+                            </div>` : ''}
+                        </div>`;
+                });
+                list.innerHTML = html || '<p>No pending requests.</p>';
+            });
+        }
+
+        function updateRequest(id, status, otherId) {
+            db.collection('connection_requests').doc(id).update({ status }).then(() => {
+                if(status === 'accepted') createChat(otherId);
+                loadRequests();
+            });
+        }
+
+        // --- CHATS ---
+        function createChat(otherId) {
+            const chatId = [currentUser.uid, otherId].sort().join('_');
+            db.collection('chats').doc(chatId).set({
+                participants: [currentUser.uid, otherId],
+                lastMessage: 'Chat started',
+                updatedAt: new Date()
+            }, { merge: true });
+        }
+
+        function loadChats() {
+            const listEl = document.getElementById('chatsListContent');
+            listEl.innerHTML = 'Loading chats...';
+            db.collection('chats').where('participants', 'array-contains', currentUser.uid)
+              .orderBy('updatedAt', 'desc').get().then(async snap => {
+                let html = '';
+                for(const doc of snap.docs) {
+                    const chat = doc.data();
+                    const otherId = chat.participants.find(id => id !== currentUser.uid);
+                    const userSnap = await db.collection('users').doc(otherId).get();
+                    const otherName = userSnap.exists ? userSnap.data().name : 'Unknown';
+                    
+                    html += `
+                        <div class="card" onclick="openInlineChat('${doc.id}', '${otherName}')" style="cursor:pointer; padding: 10px; margin-bottom: 5px;">
+                            <strong>${otherName}</strong><br><small>${chat.lastMessage}</small>
+                        </div>`;
+                }
+                listEl.innerHTML = html || 'No active chats.';
+            }).catch(e => { console.error(e); listEl.innerHTML = '<p style="color:red">Error loading chats. (Requires Index)</p>'; });
+        }
+
+        let msgUnsub;
+        function openInlineChat(chatId, name) {
+            if(msgUnsub) msgUnsub();
+            document.getElementById('selectedChatId').value = chatId;
+            document.getElementById('chatHeader').textContent = name;
+            document.getElementById('sendMessageForm').classList.remove('hidden');
+            const container = document.getElementById('messagesContainer');
+            
+            msgUnsub = db.collection('chats').doc(chatId).collection('messages').orderBy('timestamp', 'asc')
+                .onSnapshot(snap => {
+                    let html = '';
+                    snap.forEach(doc => {
+                        const m = doc.data();
+                        const isMe = m.senderId === currentUser.uid;
+                        html += `<div style="text-align: ${isMe ? 'right' : 'left'}; margin: 5px 0;">
+                            <span style="background: ${isMe ? '#2196F3' : '#eee'}; color: ${isMe ? 'white' : 'black'}; padding: 5px 10px; border-radius: 10px; display:inline-block;">${m.text}</span>
+                        </div>`;
+                    });
+                    container.innerHTML = html;
+                    container.scrollTop = container.scrollHeight;
+                });
+        }
+
+        function handleSendMessage(e) {
+            e.preventDefault();
+            const text = document.getElementById('messageText').value.trim();
+            const chatId = document.getElementById('selectedChatId').value;
+            if(!text) return;
+            
+            db.collection('chats').doc(chatId).collection('messages').add({
+                text, senderId: currentUser.uid, timestamp: new Date()
+            });
+            db.collection('chats').doc(chatId).update({ lastMessage: text, updatedAt: new Date() });
+            document.getElementById('messageText').value = '';
+        }
+
+        // --- COMMUNITY & COMMENTS ---
+        function loadCommunity() {
+            db.collection('posts').orderBy('createdAt', 'desc').limit(20).get().then(snap => {
+                let html = '';
+                snap.forEach(doc => {
+                    const p = doc.data();
+                    const isAuthor = p.authorId === currentUser.uid;
+                    html += `
+                        <div class="card">
+                            <div style="cursor:pointer;" onclick="viewPost('${doc.id}')">
+                                <div class="card-header">${p.title} <span class="badge badge-verified">${p.authorRole}</span></div>
+                                <div class="card-body">${p.body}</div>
+                            </div>
+                            <div class="card-footer" style="justify-content: space-between;">
+                                <small>By ${p.authorName}</small>
+                                <div style="display:flex; gap:10px;">
+                                    <button class="btn btn-secondary" onclick="viewPost('${doc.id}')">Comment</button>
+                                    ${isAuthor ? `<button class="btn btn-danger" onclick="deletePost('${doc.id}')">Delete</button>` : ''}
+                                    <button class="btn btn-secondary" onclick="upvote('${doc.id}')">Upvote (${p.upvotes || 0})</button>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                document.getElementById('communityPostsList').innerHTML = html || 'No posts.';
+            });
+        }
+
+        function openCreatePostModal() { document.getElementById('createPostModal').classList.add('active'); }
+        
+        function handleCreatePostSubmit(e) {
+            e.preventDefault();
+            const title = document.getElementById('communityPostTitle').value;
+            const body = document.getElementById('communityPostBody').value;
+            db.collection('posts').add({
+                title, body, authorId: currentUser.uid, authorName: currentUserData.name, authorRole: currentUserData.role,
+                upvotes: 0, upvoters: [], createdAt: new Date()
+            }).then(() => {
+                document.getElementById('createPostModal').classList.remove('active');
+                loadCommunity();
+            });
+        }
+
+        function deletePost(id) {
+            if(confirm("Delete post?")) db.collection('posts').doc(id).delete().then(loadCommunity);
+        }
+
+        // --- NEW POST/COMMENT VIEW ---
+        function viewPost(id) {
+            document.getElementById('currentPostId').value = id;
+            db.collection('posts').doc(id).get().then(doc => {
+                const p = doc.data();
+                document.getElementById('postDetailTitle').textContent = p.title;
+                document.getElementById('postDetailBody').innerHTML = `<p>${p.body}</p><small>By ${p.authorName}</small>`;
+                loadComments(id);
+                document.getElementById('postDetailModal').classList.add('active');
+            });
+        }
+
+        function loadComments(postId) {
+            const list = document.getElementById('commentsList');
+            list.innerHTML = 'Loading...';
+            // Sort by Upvotes DESC, then Timestamp DESC (Needs Index, fallback to simple query if fails)
+            db.collection('posts').doc(postId).collection('comments')
+                .orderBy('upvotes', 'desc').orderBy('timestamp', 'desc')
+                .get().then(snap => {
+                    renderComments(snap, list, postId);
+                })
+                .catch(err => {
+                    console.log("Index missing, falling back to timestamp sort.");
+                    db.collection('posts').doc(postId).collection('comments').orderBy('timestamp', 'desc').get()
+                    .then(snap => renderComments(snap, list, postId));
+                });
+        }
+
+        function renderComments(snap, list, postId) {
+            let html = '';
+            snap.forEach(doc => {
+                const c = doc.data();
+                const isAuthor = c.authorId === currentUser.uid;
+                html += `
+                    <div style="border:1px solid #eee; padding:10px; margin-bottom:5px; border-radius:5px; background:#fafafa;">
+                        <p>${c.text}</p>
+                        <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-top:5px;">
+                            <span style="color:#666">${c.authorName}</span>
+                            <div style="display:flex; gap:5px;">
+                                ${!isAuthor ? `<button class="btn btn-secondary" style="padding:2px 6px; font-size:10px;" onclick="upvoteComment('${postId}', '${doc.id}')">Upvote (${c.upvotes || 0})</button>` : `<span style="padding:2px 6px;">Upvotes: ${c.upvotes || 0}</span>`}
+                                ${isAuthor ? `<button class="btn btn-danger" style="padding:2px 6px; font-size:10px;" onclick="deleteComment('${postId}', '${doc.id}')">Delete</button>` : ''}
+                            </div>
+                        </div>
+                    </div>`;
+            });
+            list.innerHTML = html || 'No comments.';
+        }
+
+        function handleNewComment(e) {
+            e.preventDefault();
+            const text = document.getElementById('commentText').value;
+            const pid = document.getElementById('currentPostId').value;
+            db.collection('posts').doc(pid).collection('comments').add({
+                text, authorId: currentUser.uid, authorName: currentUserData.name, authorRole: currentUserData.role,
+                timestamp: new Date(), upvotes: 0, upvoters: []
+            }).then(() => {
+                document.getElementById('commentText').value = '';
+                loadComments(pid);
+            });
+        }
+
+        function deleteComment(pid, cid) {
+            if(confirm("Delete comment?")) db.collection('posts').doc(pid).collection('comments').doc(cid).delete().then(() => loadComments(pid));
+        }
+
+        function upvote(id) {
+            // Post Upvote logic remains same
+            const ref = db.collection('posts').doc(id);
+            ref.get().then(doc => {
+                if(doc.data().authorId === currentUser.uid) return alert("Cannot upvote self");
+                const upvoters = doc.data().upvoters || [];
+                const hasUpvoted = upvoters.includes(currentUser.uid);
+                ref.update({
+                    upvotes: firebase.firestore.FieldValue.increment(hasUpvoted ? -1 : 1),
+                    upvoters: hasUpvoted ? upvoters.filter(x=>x!==currentUser.uid) : [...upvoters, currentUser.uid]
+                }).then(loadCommunity);
+            });
+        }
+
+        function upvoteComment(pid, cid) {
+            const ref = db.collection('posts').doc(pid).collection('comments').doc(cid);
+            ref.get().then(doc => {
+                const data = doc.data();
+                if(data.authorId === currentUser.uid) return; // Safety check
+                const upvoters = data.upvoters || [];
+                const hasUpvoted = upvoters.includes(currentUser.uid);
+                ref.update({
+                    upvotes: firebase.firestore.FieldValue.increment(hasUpvoted ? -1 : 1),
+                    upvoters: hasUpvoted ? upvoters.filter(id => id !== currentUser.uid) : [...upvoters, currentUser.uid]
+                }).then(() => loadComments(pid));
+            });
+        }
+
+        // --- PROFILE ---
+        function loadProfile() {
+            document.getElementById('profileContent').innerHTML = `
+                <p><strong>Name:</strong> ${currentUserData.name}</p>
+                <p><strong>Role:</strong> ${currentUserData.role}</p>
+                <p><strong>College:</strong> ${currentUserData.college}</p>
+            `;
+        }
+        function handleLogin(e) { e.preventDefault(); alert("Mock Login Successful"); }
+    </script>
+</body>
+</html>
