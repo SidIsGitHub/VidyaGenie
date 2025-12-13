@@ -101,7 +101,7 @@
         }
 
         .navbar-brand h1 {
-            font-size: 22px;
+            font-size: 50px;
             font-weight: 700;
             letter-spacing: -0.5px;
             background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
@@ -307,6 +307,14 @@
         input::placeholder,
         textarea::placeholder {
             color: #555;
+        }
+
+        /* --- CHAT SPECIFIC STYLING --- */
+        /* ... (existing chat CSS) ... */
+
+        #chatSearchInput:focus {
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.2) !important;
         }
 
         /* --- BUTTONS --- */
@@ -610,9 +618,9 @@
             </div>
 
             <div class="tabs">
-                <button class="tab-button" onclick="switchTab(event, 'mentors')">Explore</button>
                 <button class="tab-button" onclick="switchTab(event, 'chats')">Messages</button>
                 <button class="tab-button" onclick="switchTab(event, 'community')">Community</button>
+                <button class="tab-button" onclick="switchTab(event, 'mentors')">Explore</button>
             </div>
 
             <div id="mentors" class="tab-content">
@@ -638,8 +646,13 @@
             <div id="chats" class="tab-content">
                 <div style="display: flex; gap: 20px; height: 75vh;">
                     <div id="activeChatsList" style="flex: 0 0 300px; overflow-y: auto;">
-                        <h4 style="padding: 20px; border-bottom: 1px solid var(--border-color);">Active Conversations
+                        <h4 style="padding: 20px 20px 10px 20px; border-bottom: 1px solid var(--border-color);">Active
+                            Conversations
                         </h4>
+                        <div style="padding: 10px 15px 15px 15px;">
+                            <input type="text" id="chatSearchInput" placeholder="Search chats..."
+                                style="width: 100%; padding: 10px 15px; border-radius: var(--radius-md); background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-main); font-size: 14px;">
+                        </div>
                         <div id="chatsListContent"></div>
                     </div>
                     <div id="messageView" style="flex: 1; display: flex; flex-direction: column;">
@@ -758,8 +771,8 @@
 
         // 🟢 STEP 1: UNCOMMENT THE ID OF THE USER YOU WANT TO BE:
 
-        //const MOCK_USER_ID = "rZTJaAZXbVml1SpAzsdz"; // SELVA (MENTOR)
-        const MOCK_USER_ID = "4UvojVrHYVFBiOtRbHoD"; // SIDDHANT (STUDENT)
+        const MOCK_USER_ID = "rZTJaAZXbVml1SpAzsdz"; // SELVA (MENTOR)
+        //const MOCK_USER_ID = "4UvojVrHYVFBiOtRbHoD"; // SIDDHANT (STUDENT)
 
         // ---------------------------------------------------------
 
@@ -795,8 +808,34 @@
         document.getElementById('appScreen').classList.remove('hidden');
         updateUserInfo();
 
+        // 🚨 FINAL FIX: Force Chat Creation for Testing ONLY if logged in as Prajwal
+        const selvaId = "rZTJaAZXbVml1SpAzsdz";
+        const prajwalId = "4UvojVrHYVFBiOtRbHoD";
+        const isPrajwal = currentUser.uid === prajwalId;
+
+        if (isPrajwal) {
+            const chatId = [prajwalId, selvaId].sort().join('_');
+            console.log(`Verifying chat exists with Selva. ID: ${chatId}`);
+
+            db.collection('chats').doc(chatId).get().then(doc => {
+                if (!doc.exists) {
+                    console.warn("Chat document missing. Creating a valid chat document now.");
+                    // Force creation of the required document to test the chat display logic
+                    db.collection('chats').doc(chatId).set({
+                        participants: [prajwalId, selvaId],
+                        lastMessage: 'Forced connection check message.',
+                        updatedAt: new Date()
+                    }, { merge: true }).then(() => {
+                        console.log("Forced chat document created. Re-running chat load.");
+                        loadChats(); // Reload chats right after creation
+                    });
+                }
+            });
+        }
+        // END FINAL FIX BLOCK
+
         // Start on Community Tab (Requested Default View)
-        const communityButton = document.querySelector('.tabs button:nth-child(3)'); // Assuming Community is the 3rd button
+        const communityButton = document.querySelector('.tabs button:nth-child(3)');
         if (communityButton) {
             communityButton.classList.add('active');
         }
@@ -856,21 +895,83 @@
         function handleUserSearch(event) {
             event.preventDefault();
             const term = document.getElementById('searchInput').value.toLowerCase().trim();
+            const listEl = document.getElementById('searchResultsList');
+
             if (!term) return loadMentors(); // Reset if empty
 
-            const listEl = document.getElementById('searchResultsList');
             listEl.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: var(--text-secondary);">Searching...</p>';
 
             const end = term.replace(/.$/, c => String.fromCharCode(c.charCodeAt(0) + 1));
 
-            db.collection('users')
+            // 1. Search for users by name
+            const usersSearchPromise = db.collection('users')
                 .where('name', '>=', term)
                 .where('name', '<', end)
-                .get()
-                .then(renderUserResults)
-                .catch(e => console.error(e));
-        }
+                .get();
 
+            // 2. Fetch all requests involving the current user (required to determine button state)
+            const requestsPromise = db.collection('connection_requests')
+                .where('recipientId', '==', currentUser.uid)
+                .get();
+
+            const sentRequestsPromise = db.collection('connection_requests')
+                .where('senderId', '==', currentUser.uid)
+                .get();
+
+            // 3. Combine promises and render
+            Promise.all([usersSearchPromise, requestsPromise, sentRequestsPromise]).then(([userSnap, receivedReqSnap, sentReqSnap]) => {
+                const allRequests = [...receivedReqSnap.docs, ...sentReqSnap.docs];
+
+                // Pass the snapshot AND the requests to the renderer
+                renderUserResults(userSnap, allRequests);
+            }).catch(e => {
+                listEl.innerHTML = '<p style="color:var(--danger-color); text-align:center;">Failed to execute search. Check console.</p>';
+                console.error("Error in handleUserSearch:", e);
+            });
+        }
+        function unfriendUser(otherId, requestId) {
+            if (!requestId) {
+                alert("Error: Missing Request ID. Cannot unfriend.");
+                console.error("Unfriend failed: requestId is missing.");
+                return;
+            }
+
+            if (!confirm("Are you sure you want to unfriend this user? This will permanently delete your chat history.")) {
+                return;
+            }
+
+            // 1. Calculate the Chat ID
+            const chatId = [currentUser.uid, otherId].sort().join('_');
+
+            // Array to hold all deletion promises
+            const deletionPromises = [];
+
+            // 2. Delete the Chat Document 
+            deletionPromises.push(
+                db.collection('chats').doc(chatId).delete().then(() => {
+                    console.log("Chat document deleted.");
+                }).catch(e => {
+                    console.warn("Could not delete chat document (may be harmless if it didn't exist).", e);
+                })
+            );
+
+            // 3. Delete the Connection Request document
+            deletionPromises.push(
+                db.collection('connection_requests').doc(requestId).delete().then(() => {
+                    console.log("Connection request document deleted.");
+                })
+            );
+
+            // Wait for all deletions to complete
+            Promise.all(deletionPromises).then(() => {
+                alert("User unfriended successfully. The Explore tab is refreshing.");
+                loadMentors(); // Refresh the Explore tab
+                loadChats();   // Refresh the Messages tab
+            }).catch(e => {
+                console.error("Error during unfriend process:", e);
+                alert("Failed to complete unfriend process. Check console.");
+            });
+        }
         function renderUserResults(snapshot, allRequests = []) {
             const listEl = document.getElementById('searchResultsList');
             let html = '';
@@ -882,32 +983,40 @@
                 // 1. Skip if user is invalid or is the current logged-in user
                 if (!user || targetUserId === currentUser.uid) return;
 
-                // --- Client-Side Connection Check ---
-                // Only run check if allRequests is provided (i.e. from loadMentors)
                 let buttonHtml;
+                let existingRequestDocId = null; // Store doc ID for unfriend action
 
-                if (allRequests.length >= 0) {
-                    const existingRequest = allRequests.find(reqDoc => {
-                        const data = reqDoc.data();
-                        return (data.senderId === currentUser.uid && data.recipientId === targetUserId) ||
-                            (data.senderId === targetUserId && data.recipientId === currentUser.uid);
-                    });
+                // --- Client-Side Connection Check ---
+                const existingRequest = allRequests.find(reqDoc => {
+                    const data = reqDoc.data();
+                    // Check if the request involves BOTH the current user AND the target user
+                    const involvesBoth = (data.senderId === currentUser.uid && data.recipientId === targetUserId) ||
+                        (data.senderId === targetUserId && data.recipientId === currentUser.uid);
+                    if (involvesBoth) {
+                        existingRequestDocId = reqDoc.id; // Save the document ID
+                    }
+                    return involvesBoth;
+                });
 
-                    if (existingRequest) {
-                        const status = existingRequest.data().status;
-                        const statusText = status === 'accepted' ? 'Connected' : 'Requested';
-                        const btnClass = status === 'accepted' ? 'btn-secondary' : 'btn-disabled';
+                if (existingRequest) {
+                    const status = existingRequest.data().status;
 
-                        buttonHtml = `<button class="btn ${btnClass}" disabled>${statusText}</button>`;
+                    if (status === 'accepted') {
+                        // 🚨 NEW: Show Unfriend button for accepted connections
+                        buttonHtml = `
+                    <button class="btn btn-secondary btn-disabled" disabled style="background: var(--success-color); color: white;">Connected</button>
+                    <button class="btn btn-danger" onclick="unfriendUser('${targetUserId}', '${existingRequestDocId}')">Unfriend</button>
+                `;
                     } else {
-                        const name = user.name || 'Unknown';
-                        buttonHtml = `<button class="btn btn-primary" id="btn-${targetUserId}" onclick="sendInstantConnectionRequest('${targetUserId}', '${name}', this)">Connect</button>`;
+                        const statusText = 'Requested';
+                        const btnClass = 'btn-disabled';
+                        buttonHtml = `<button class="btn ${btnClass}" disabled>${statusText}</button>`;
                     }
                 } else {
-                    // Fallback for search results if requests not passed (though we should pass them ideally)
                     const name = user.name || 'Unknown';
                     buttonHtml = `<button class="btn btn-primary" id="btn-${targetUserId}" onclick="sendInstantConnectionRequest('${targetUserId}', '${name}', this)">Connect</button>`;
                 }
+                // --- End Connection Check ---
 
                 // Safe Name, Role, and Detail Formatting
                 const name = user.name || 'Unknown';
@@ -934,8 +1043,9 @@
         }
 
         // --- INSTANT CONNECTION REQUEST ---
+        // --- INSTANT CONNECTION REQUEST (Instagram Style) ---
         function sendInstantConnectionRequest(recipientId, recipientName, btnElement) {
-            // Disable button immediately
+            // Disable button immediately to prevent double clicks
             btnElement.disabled = true;
             btnElement.textContent = "Sending...";
 
@@ -945,15 +1055,12 @@
                 recipientId: recipientId,
                 recipientName: recipientName,
                 status: 'pending',
-                subject: 'General Connection',
-                message: "I'd like to connect with you on VidyaGenie!",
+                subject: 'General Connection', // Default subject
+                message: "I'd like to connect with you on VidyaGenie!", // Default message
                 createdAt: new Date()
             }).then(() => {
-                // Update button UI
-                btnElement.textContent = "Requested";
-                btnElement.classList.remove('btn-primary');
-                btnElement.classList.add('btn-secondary'); // Visual feedback
-                btnElement.style.cursor = "default";
+                // 🚨 FIX: Force full reload of the mentor list AFTER the request is successfully sent.
+                loadMentors();
             }).catch(error => {
                 console.error("Error sending request:", error);
                 alert("Failed to send request.");
@@ -987,46 +1094,103 @@
         }
 
         function updateRequest(id, status, otherId) {
-            db.collection('connection_requests').doc(id).update({ status }).then(() => {
-                if (status === 'accepted') createChat(otherId);
-                loadRequests();
+            // 1. Update the connection request status
+            const updatePromise = db.collection('connection_requests').doc(id).update({ status: status });
+
+            if (status === 'accepted') {
+                // 2. If accepted, wait for the status update, THEN create the chat
+                updatePromise.then(() => {
+                    // createChat returns a promise, so we return it to chain the next .then()
+                    return createChat(otherId);
+                }).then(() => {
+                    // 3. Only load the requests and chats AFTER chat creation is guaranteed successful
+                    loadRequests();
+                    loadChats(); // Reload the chats list to display the new conversation
+                }).catch(error => {
+                    console.error("Error finalizing request or creating chat:", error);
+                    alert("Failed to finalize connection. Please check the console.");
+                });
+            } else {
+                // 4. If rejected, just update status and load requests
+                updatePromise.then(() => {
+                    loadRequests();
+                });
+            }
+        }
+
+        // --- CHATS ---
+        // --- CHATS ---
+        function createChat(otherId) {
+            // Generates a canonical ID by sorting both UIDs alphabetically
+            const chatId = [currentUser.uid, otherId].sort().join('_');
+
+            // Find the other user's name from mock data for the initial message
+            const otherUser = MOCK_USERS[otherId] || { name: 'Unknown' };
+            const otherName = otherUser.name.charAt(0).toUpperCase() + otherUser.name.slice(1);
+
+            // Use Firestore transaction or set with merge to ensure the document exists
+            return db.collection('chats').doc(chatId).set({
+                participants: [currentUser.uid, otherId], // <--- CRITICAL: Both IDs must be here
+                lastMessage: `You are now connected with ${otherName}!`,
+                updatedAt: new Date()
+            }, { merge: true }).then(() => {
+                console.log(`Chat created successfully: ${chatId}`);
+                // Optional: Add a welcome message to the subcollection
+                return db.collection('chats').doc(chatId).collection('messages').add({
+                    text: `Welcome! Your chat with ${otherName} is live.`,
+                    senderId: 'SYSTEM',
+                    timestamp: new Date()
+                });
+            }).catch(e => {
+                console.error("Error during chat creation:", e);
+                throw e; // Re-throw to be caught by updateRequest's catch block
             });
         }
 
         // --- CHATS ---
-        function createChat(otherId) {
-            const chatId = [currentUser.uid, otherId].sort().join('_');
-            db.collection('chats').doc(chatId).set({
-                participants: [currentUser.uid, otherId],
-                lastMessage: 'Chat started',
-                updatedAt: new Date()
-            }, { merge: true });
-        }
-
         function loadChats() {
             const listEl = document.getElementById('chatsListContent');
             listEl.innerHTML = '<p style="color:var(--text-secondary);">Loading chats...</p>';
+
+            // 1. Fetch all chat documents where the current user is a participant
             db.collection('chats').where('participants', 'array-contains', currentUser.uid)
                 .orderBy('updatedAt', 'desc').get().then(async snap => {
                     let html = '';
-                    for (const doc of snap.docs) {
-                        const chat = doc.data();
-                        const otherId = chat.participants.find(id => id !== currentUser.uid);
-                        const userSnap = await db.collection('users').doc(otherId).get();
-                        const otherName = userSnap.exists ? userSnap.data().name : 'Unknown';
-                        const role = userSnap.exists ? (userSnap.data().role || '').toUpperCase() : '';
 
-                        html += `
-                <div class="card chat-item" onclick="openInlineChat('${doc.id}', '${otherName}')" style="cursor:pointer; padding: 15px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="font-weight: 600; font-size: 15px; color: var(--text-main);">${otherName} <span style="font-size: 11px; color: var(--text-secondary);">(${role})</span></div>
-                        <small style="color: var(--text-secondary); display: block; margin-top: 4px;">${chat.lastMessage}</small>
-                    </div>
-                    <button class="btn btn-danger" style="padding: 4px 10px; font-size: 12px; border-radius: 6px;" onclick="deleteChat('${doc.id}', event)">X</button>
-                </div>`;
-                    }
+                    // Iterate over each chat found
+                    snap.forEach(doc => {
+                        const chat = doc.data();
+                        // Get the ID of the other participant
+                        const otherId = chat.participants.find(id => id !== currentUser.uid);
+
+                        // 🚨 FIX: Rely purely on MOCK_USERS for speed and consistency
+                        const otherUser = MOCK_USERS[otherId];
+
+                        if (otherUser) {
+                            const otherName = otherUser.name.charAt(0).toUpperCase() + otherUser.name.slice(1);
+                            const role = (otherUser.role || '').toUpperCase();
+
+                            html += `
+                        <div class="card chat-item" onclick="openInlineChat('${doc.id}', '${otherName}')" style="cursor:pointer; padding: 15px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600; font-size: 15px; color: var(--text-main);">${otherName} <span style="font-size: 11px; color: var(--text-secondary);">(${role})</span></div>
+                                <small style="color: var(--text-secondary); display: block; margin-top: 4px;">${chat.lastMessage}</small>
+                            </div>
+                            <button class="btn btn-danger" style="padding: 4px 10px; font-size: 12px; border-radius: 6px;" onclick="deleteChat('${doc.id}', event)">X</button>
+                        </div>`;
+                        } else {
+                            // This block indicates a chat exists with an ID not in MOCK_USERS
+                            console.warn(`Chat exists with unknown user ID: ${otherId}`);
+                            html += `<p style="padding: 15px; color: var(--danger-color);">Error: Chat with Unknown User (ID: ${otherId})</p>`;
+                        }
+                    });
+
                     listEl.innerHTML = html || '<p style="color:var(--text-secondary);">No active chats.</p>';
-                }).catch(e => { console.error(e); listEl.innerHTML = '<p style="color:var(--danger-color)">Error loading chats. (Requires Index)</p>'; });
+
+                }).catch(e => {
+                    console.error("Error fetching chat list (Check Firestore Index):", e);
+                    listEl.innerHTML = '<p style="color:var(--danger-color)">Error loading chats. (Check Console)</p>';
+                });
         }
         function deleteChat(chatId, event) {
             event.stopPropagation();
