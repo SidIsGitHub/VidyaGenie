@@ -85,12 +85,22 @@
 
         /* 3. Images inside bubbles */
         .chat-image {
-            max-width: 100%; /* Fit inside the bubble */
+            max-width: 350px; /* Increased from 200px */
+            width: auto;      /* Maintains aspect ratio */
+            height: auto;     /* Maintains aspect ratio */
+            
             border-radius: 12px;
-            cursor: pointer;
-            display: block;
             margin-top: 5px;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.2);
+            display: block;
+            
+            /* Larger minimum size for placeholder */
+            min-width: 150px; 
+            min-height: 150px;
+            background-color: rgba(0,0,0,0.3); 
         }
+        .chat-image:hover { opacity: 0.9; }
         
         /* 4. Ensure the container handles scrolling correctly */
         #messagesContainer {
@@ -1538,7 +1548,6 @@ function handleChatImageSelect(input) {
         }
 
         let msgUnsub;
-
         function openInlineChat(id, name) {
             if(msgUnsub) msgUnsub();
             document.getElementById('selectedChatId').value = id;
@@ -1552,17 +1561,27 @@ function handleChatImageSelect(input) {
                     const m = doc.data();
                     const me = m.senderId === currentUser.uid;
                     
-                    // Determine Content (Image or Text)
                     let contentHtml = '';
+                    
+                    // 1. Check for Image
                     if (m.imageUrl) {
-                        contentHtml = `<img src="${m.imageUrl}" class="chat-image" onclick="window.open(this.src)">`;
-                    } else {
-                        contentHtml = m.text || "";
+                        // 🚨 FIX: Added onerror handler to debug broken links
+                        contentHtml = `
+                            <img src="${m.imageUrl}" 
+                                 class="chat-image" 
+                                 onclick="window.open(this.src)" 
+                                 alt="Image"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div style="display:none; color:#ff6b6b; font-size:12px; padding:5px;">⚠️ Failed to load image</div>
+                        `;
+                    } 
+                    // 2. Check for Text
+                    else if (m.text) {
+                        contentHtml = `<span>${m.text}</span>`;
                     }
 
-                    // Only render if there is content
-                    if(contentHtml) {
-                        // 🚨 Structure: Row (Alignment) -> Bubble (Visuals) -> Content
+                    // Only render if we have content
+                    if (contentHtml) {
                         html += `
                         <div class="chat-message-row ${me ? 'me' : 'them'}">
                             <div class="msg-bubble ${me ? 'msg-me' : 'msg-them'}">
