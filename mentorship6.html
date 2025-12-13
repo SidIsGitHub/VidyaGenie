@@ -6,7 +6,86 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VidyaGenie</title>
     <style>
-        /* --- COMPLETE CHAT STYLES (Alignment + Visuals) --- */
+       
+        
+        /* --- CHAT SCROLL FIX --- */
+        #chats .tab-content {
+            height: 75vh; /* Fixed height for the whole tab */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            gap: 20px;
+            height: 100%; /* Fill the tab height */
+            min-height: 0; /* Critical for nested flex scrolling */
+        }
+
+        #messageView {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            overflow: hidden; /* Clip content that tries to leak */
+            height: 100%; /* Ensure it respects parent height */
+        }
+
+        #messagesContainer {
+            flex: 1; /* Grow to fill available space */
+            overflow-y: auto; /* Enable scrollbar here */
+            min-height: 0; /* Critical flex fix */
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            /* Ensure background persists during scroll */
+            background: radial-gradient(circle at center, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
+        }
+
+        #sendMessageForm {
+            flex-shrink: 0; /* Prevent input form from squishing */
+            background: rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 10;
+        }
+        /* --- EMOJI PICKER STYLES --- */
+        .emoji-picker {
+            position: absolute;
+            bottom: 80px; /* Sits above the input bar */
+            left: 20px;
+            width: 300px;
+            height: 200px;
+            background: rgba(30, 30, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr); /* 6 emojis per row */
+            gap: 8px;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            z-index: 100;
+            animation: slideUp 0.2s ease-out;
+        }
+
+        .emoji-btn {
+            background: transparent;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.2s;
+            padding: 5px;
+        }
+        
+        .emoji-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.2);
+        }
         
         /* 1. The Row Container: Handles Left/Right Alignment */
         .chat-message-row {
@@ -743,28 +822,106 @@
             border: 1px solid var(--border-color);
             color: var(--text-main);
         }
+        /* --- EXPLORE TAB: BIG CENTERED IMAGE, LEFT TEXT --- */
+        
+        /* 1. Stack content vertically */
+        #searchResultsList .card-content-wrapper {
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 20px;
+            margin-bottom: 20px;
+            text-align: center; /* Centers the image */
+        }
+
+        /* 2. Big Centered Profile Picture */
+        #searchResultsList .card-avatar {
+            width: 130px !important;  /* Much Bigger */
+            height: 130px !important;
+            min-width: 130px !important;
+            border-width: 4px;
+            margin: 0 auto; /* Force Center */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        /* 3. Text Container: Force Left Alignment */
+        #searchResultsList .card-content-wrapper > div {
+            width: 100%;
+            text-align: left !important; /* Align text to the left */
+            padding-left: 10px; /* Slight offset from edge */
+        }
+
+        /* 4. Adjust Header Text Size */
+        #searchResultsList .card-header {
+            font-size: 18px; 
+            margin-bottom: 8px;
+            justify-content: flex-start; /* Align Name & Badge to left */
+            gap: 10px;
+        }
+
+        /* 5. Make details text smaller */
+        #searchResultsList .card-body p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
     </style>
 </head>
 
 <body>
 
-    <div id="authScreen" class="auth-container">
-        <div id="loginForm">
-            <h2>Welcome Back</h2>
-            <p style="text-align:center; color: var(--text-secondary); margin-bottom: 30px;">Login to VidyaGenie Mock
-                Mode</p>
-            <form onsubmit="handleLogin(event)">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="loginEmail" value="mock@vit.com">
+    <div id="authScreen" class="auth-container" style="max-width: 800px; margin: 100px auto; padding: 40px; background: var(--glass-bg); backdrop-filter: blur(30px); border-radius: 24px; border: 1px solid var(--glass-border);">
+        <h2 style="margin-bottom: 30px; font-size: 32px; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-align: center;">VidyaGenie Portal</h2>
+        
+        <div style="display: flex; gap: 40px; align-items: stretch; text-align: left;">
+            
+            <div style="flex: 1;">
+                <h3 style="margin-bottom: 15px; color: var(--text-main); font-size: 18px;">User Login</h3>
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="loginEmail" placeholder="Enter email..." value="selva@vit.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" value="password" disabled style="opacity: 0.5; cursor: not-allowed;">
+                        <small style="color: var(--text-muted); font-size: 11px;">*OTP Disabled for Mock Mode</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 10px;">Login</button>
+                </form>
+            </div>
+
+            <div style="width: 1px; background: var(--glass-border);"></div>
+
+            <div style="flex: 1;">
+                <h3 style="margin-bottom: 15px; color: var(--text-main); font-size: 18px;">Dev Switcher</h3>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    
+                    <button class="btn btn-secondary" onclick="simulateLogin('rZTJaAZXbVml1SpAzsdz')" style="justify-content: flex-start; gap: 10px; border: 1px solid var(--success-color);">
+                        <span style="color: var(--success-color);">✔</span>
+                        <div>
+                            <div style="font-weight: 700; color: white;">Selva</div>
+                            <div style="font-size: 10px; color: var(--success-color);">VERIFIED MENTOR</div>
+                        </div>
+                    </button>
+
+                    <button class="btn btn-secondary" onclick="simulateLogin('4UvojVrHYVFBiOtRbHoD')" style="justify-content: flex-start; gap: 10px;">
+                        <span>🎓</span> 
+                        <div>
+                            <div style="font-weight: 700; color: white;">Prajwal</div>
+                            <div style="font-size: 10px; color: var(--text-muted);">STUDENT</div>
+                        </div>
+                    </button>
+
+                    <button class="btn btn-secondary" onclick="simulateLogin('new_user_andy_id')" style="justify-content: flex-start; gap: 10px; border: 1px solid var(--danger-color);">
+                        <span>⚠️</span> 
+                        <div>
+                            <div style="font-weight: 700; color: white;">Andy</div>
+                            <div style="font-size: 10px; color: var(--danger-color);">UNVERIFIED MENTOR</div>
+                        </div>
+                    </button>
+
                 </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="loginPassword" value="password">
-                </div>
-                <button type="submit" class="btn btn-primary"
-                    style="width: 100%; padding: 14px; margin-top: 10px;">Login to Account</button>
-            </form>
+            </div>
         </div>
     </div>
 
@@ -828,19 +985,22 @@
                         </div>
                         <div id="chatsListContent"></div>
                     </div>
-                    <div id="messageView" style="flex: 1; display: flex; flex-direction: column;">
-                        <div id="chatHeader"
-                            style="padding: 20px; border-bottom: 1px solid var(--border-color); font-weight: bold;">
-                            Select a chat to begin.</div>
-                        <div id="messagesContainer" style="flex: 1; overflow-y: auto; padding: 25px;"></div>
-                        <form id="sendMessageForm" onsubmit="handleSendMessage(event)" class="hidden" style="padding: 20px; border-top: 1px solid var(--glass-border); display: flex; gap: 12px; background: rgba(0,0,0,0.2); align-items: center;">
+                    <div id="messageView">
+                        <div id="chatHeader" style="padding: 20px 30px; font-weight: 800; font-size: 18px; border-bottom: 1px solid var(--glass-border); background: rgba(0,0,0,0.2);">Select a conversation</div>
+                        
+                        <div id="messagesContainer"></div>
+                        
+                        <form id="sendMessageForm" onsubmit="handleSendMessage(event)" class="hidden" style="position: relative; padding: 20px; border-top: 1px solid var(--glass-border); display: flex; gap: 12px; background: rgba(0,0,0,0.2); align-items: center;">
                             <input type="hidden" id="selectedChatId">
                             
+                            <div id="emojiPicker" class="emoji-picker hidden"></div>
+
                             <input type="file" id="chatFileInput" accept="image/*" style="display: none;" onchange="handleChatImageSelect(this)">
+                            <button type="button" class="chat-upload-btn btn-circle" onclick="document.getElementById('chatFileInput').click()" title="Send Image">📷</button>
                             
-                            <button type="button" class="chat-upload-btn btn-circle" onclick="document.getElementById('chatFileInput').click()" title="Send Image" style = >📷</button>
+                            <button type="button" class="chat-upload-btn btn-circle" onclick="toggleEmojiPicker()" title="Add Emoji" style="padding-bottom: 0;">😀</button>
                             
-                            <textarea id="messageText" placeholder="Type a message..." required style="flex-grow: 1; height: 45px; border-radius: 22px; padding: 12px 20px; resize: none; background: rgba(255,255,255,0.05); border:none;"></textarea>
+                            <textarea id="messageText" placeholder="Type a message..." required style="flex-grow: 1; height: 45px; border-radius: 22px; padding: 12px 24px; resize: none; background: rgba(255,255,255,0.05); border:none;"></textarea>
                             
                             <button type="submit" class="btn btn-primary btn-circle" style="font-size: 18px;">➤</button>
                         </form>
@@ -977,22 +1137,83 @@
         } catch (error) { console.error(error); }
 
         // --- MOCK USERS ---
-        const MOCK_USER_ID = "rZTJaAZXbVml1SpAzsdz"; // SELVA
-        //const MOCK_USER_ID = "4UvojVrHYVFBiOtRbHoD"; // PRAJWAL
+        //const MOCK_USER_ID = "rZTJaAZXbVml1SpAzsdz"; // SELVA
+        const MOCK_USER_ID = "4UvojVrHYVFBiOtRbHoD"; // PRAJWAL
 
         currentUser = { uid: MOCK_USER_ID };
 
+        // --- MOCK USERS & DATA ---
         const MOCK_USERS = {
-            "rZTJaAZXbVml1SpAzsdz": { userId: "rZTJaAZXbVml1SpAzsdz", name: "selva", email: "selva@vit.com", role: "mentor", college: "VIT", year: "3rd Year", isVerified: true },
-            "4UvojVrHYVFBiOtRbHoD": { userId: "4UvojVrHYVFBiOtRbHoD", name: "prajwal", email: "jane@college.com", role: "student", college: "Vidyalankar Poly", bio: "CSE Alumni", expertise: ["React", "Firebase"], isVerified: true }
+            "rZTJaAZXbVml1SpAzsdz": { 
+                userId: "rZTJaAZXbVml1SpAzsdz", 
+                name: "selva", 
+                email: "selva@vit.com", 
+                role: "mentor", 
+                college: "VIT", 
+                year: "3rd Year", 
+                isVerified: true // ✅ Verified Mentor (Green Tick)
+            },
+            "4UvojVrHYVFBiOtRbHoD": { 
+                userId: "4UvojVrHYVFBiOtRbHoD", 
+                name: "prajwal", 
+                email: "prajwal@vit.com", 
+                role: "student", 
+                college: "Vidyalankar Poly", 
+                bio: "CSE Alumni", 
+                isVerified: false 
+            },
+            "new_user_andy_id": {
+                userId: "new_user_andy_id",
+                name: "Andy",
+                email: "andy@test.com",
+                role: "mentor", 
+                college: "MIT",
+                isVerified: false // ❌ Unverified Mentor (No Tick)
+            }
         };
 
         currentUserData = MOCK_USERS[MOCK_USER_ID];
+        // --- AUTH LOGIC ---
+        // --- INIT APP (FIXED) ---
+        // 1. Reset User State
+        currentUser = null;
+        currentUserData = null;
 
-        // INIT APP
-        document.getElementById('authScreen').classList.add('hidden');
-        document.getElementById('appScreen').classList.remove('hidden');
-        updateUserInfo();
+        // 2. Force Show Login Screen, Hide App
+        document.getElementById('authScreen').classList.remove('hidden');
+        document.getElementById('appScreen').classList.add('hidden');
+
+        // --- AUTH LOGIC ---
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            
+            // Search MOCK_USERS for matching email
+            const user = Object.values(MOCK_USERS).find(u => u.email === email);
+            
+            if (user) {
+                simulateLogin(user.userId);
+            } else {
+                alert("User not found! Try: selva@vit.com, prajwal@vit.com, or andy@test.com");
+            }
+        }
+
+        function simulateLogin(userId) {
+            currentUser = { uid: userId };
+            currentUserData = MOCK_USERS[userId];
+            
+            // 1. Save user to DB (Syncing mock data to Firestore)
+            db.collection('users').doc(userId).set(currentUserData, { merge: true })
+            .then(() => {
+                // 2. Switch UI
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('appScreen').classList.remove('hidden');
+                updateUserInfo();
+                
+                // 3. Load Data specific to this user
+                switchTab('community');
+            }).catch(e => console.error("Login Error", e));
+        }
 
         // Default Tab
         switchTab('community');
@@ -1085,6 +1306,44 @@ function handleChatImageSelect(input) {
                 lastMessage: "📷 Image",
                 updatedAt: new Date()
             });
+        }
+        // --- EMOJI LOGIC ---
+        const commonEmojis = [
+            "😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "🥲", "😊",
+            "😇", "🙂", "🙃", "😉", "😌", "😍", "🥰", "😘", "😗", "😙",
+            "😚", "😋", "😛", "😝", "😜", "🤪", "🤨", "🧐", "🤓", "😎",
+            "🥸", "🤩", "🥳", "😏", "😒", "😞", "😔", "😕", "🙁",
+            "☹️", "😣", "😖", "😫", "😩", "🥺", "😢", "😭", "😤", "😠",
+            "😡", "🤬", "🤯", "😳", "🥵", "🥶", "😱", "🤗", "🤔",
+            "🤭", "🤫", "🤥", "😶", "😐", "😑", "😬", "🙄", "😯", "😦",
+            "👍", "👎", "👊", "✊", "🤛", "🤜", "🤞", "✌️", "🤟", "🤘",
+            "👌", "🤌", "🤏", "👈", "👉", "👆", "👇", "☝️", "✋", "🤚",
+            "👋", "🔥", "✨", "❤️", "💯", "🎉", "💀", "💩", "🤡", "👻"
+        ];
+
+        function toggleEmojiPicker() {
+            const picker = document.getElementById('emojiPicker');
+            picker.classList.toggle('hidden');
+
+            // Lazy load emojis only when opened first time
+            if (picker.innerHTML === "") {
+                commonEmojis.forEach(emoji => {
+                    const btn = document.createElement('button');
+                    btn.className = "emoji-btn";
+                    btn.innerText = emoji;
+                    btn.type = "button"; // Prevent form submission
+                    btn.onclick = () => insertEmoji(emoji);
+                    picker.appendChild(btn);
+                });
+            }
+        }
+
+        function insertEmoji(emoji) {
+            const input = document.getElementById('messageText');
+            input.value += emoji;
+            input.focus(); // Keep focus on input so user can keep typing
+            // Optional: Close picker after selection? 
+            // document.getElementById('emojiPicker').classList.add('hidden'); 
         }
         // --- NAVBAR & USER INFO ---
         function updateUserInfo() {
@@ -1287,92 +1546,101 @@ function handleChatImageSelect(input) {
             const listEl = document.getElementById('searchResultsList');
             const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
             let html = '';
-
-            // Default "WhatsApp-style" Placeholder
+            
             const DEFAULT_PIC = "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png";
 
+            // --- STEP 1: PRE-PROCESS REQUESTS (The Fix) ---
+            // Create a Set of IDs to HIDE (Accepted connections)
+            const connectedIds = new Set();
+            // Create a Map for Pending Requests (to show correct buttons)
+            const requestMap = new Map();
+
+            allRequests.forEach(reqDoc => {
+                const d = reqDoc.data();
+                // Determine the 'other' person's ID
+                const isSender = d.senderId === currentUser.uid;
+                const otherId = isSender ? d.recipientId : d.senderId;
+
+                if (d.status === 'accepted') {
+                    connectedIds.add(otherId);
+                } else if (d.status === 'pending') {
+                    // Store the request data mapped to the user's ID
+                    requestMap.set(otherId, { ...d, docId: reqDoc.id });
+                }
+            });
+
+            // --- STEP 2: RENDER USERS ---
             snapshot.forEach(doc => {
                 const user = doc.data();
                 const targetUserId = doc.id;
 
+                // 1. Skip Self
                 if (!user || targetUserId === currentUser.uid) return;
 
-                // Name Sanitization
+                // 2. 🚨 CRITICAL FIX: Skip Already Connected Users
+                if (connectedIds.has(targetUserId)) return;
+
+                // 3. Name Sanitization & Search Filter
                 let rawName = user.name;
-                if (!rawName || rawName === 'undefined') rawName = 'Unknown User';
+                if (!rawName || rawName === 'undefined') rawName = 'Unknown';
                 if (searchTerm && !rawName.toLowerCase().includes(searchTerm)) return;
 
-                const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
-                // Escape quotes
-                const safeName = displayName.replace(/'/g, "\\'");
-                
+                const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1).replace(/'/g, "\\'");
                 const roleText = (user.role || 'N/A').toUpperCase();
-                const details = (user.role === 'mentor') ? `Expertise: ${(user.expertise || []).join(', ')}` : `Year: ${user.year || 'N/A'}`;
                 
-                // Profile Picture Logic
+                // 🚨 NEW: Badge Logic
+                let badgeHtml = '';
+                if (user.role === 'mentor' && user.isVerified) {
+                    badgeHtml = `<span class="badge badge-verified" style="margin-left:5px;">MENTOR ✔</span>`;
+                } else {
+                    badgeHtml = `<span class="badge" style="margin-left:5px; background:rgba(255,255,255,0.1); color:#999;">${roleText}</span>`;
+                }
                 const profileSrc = user.profilePic || DEFAULT_PIC;
 
-                // --- BUTTON STATE ---
+                // 4. Determine Button State based on Pre-processed Map
                 let buttonHtml;
-                let existingRequestDocId = null;
-                
-                const existingRequest = allRequests.find(reqDoc => {
-                    const data = reqDoc.data();
-                    const involvesBoth = (data.senderId === currentUser.uid && data.recipientId === targetUserId) ||
-                                         (data.senderId === targetUserId && data.recipientId === currentUser.uid);
-                    if (involvesBoth) existingRequestDocId = reqDoc.id;
-                    return involvesBoth;
-                });
+                const existingRequest = requestMap.get(targetUserId);
 
                 if (existingRequest) {
-                    const reqData = existingRequest.data();
-                    const status = reqData.status;
-
-                    if (status === 'accepted') {
-                        return; // Hide connected users from Explore
-                    } 
-                    else if (status === 'pending') {
-                        if (reqData.senderId === currentUser.uid) {
-                            buttonHtml = `
-                            <button class="btn btn-disabled" disabled>Requested</button>
-                            <button class="btn btn-danger" style="background: transparent; border: 1px solid var(--danger-color); color: var(--danger-color);" onclick="cancelRequest('${existingRequestDocId}')">Cancel</button>`;
-                        } else {
-                            buttonHtml = `
-                            <button class="btn btn-secondary" onclick="updateRequest('${existingRequestDocId}', 'accepted', '${targetUserId}')">Accept</button>
-                            <button class="btn btn-danger" onclick="updateRequest('${existingRequestDocId}', 'rejected')">Decline</button>`;
-                        }
+                    // We found a PENDING request
+                    if (existingRequest.senderId === currentUser.uid) {
+                        // I sent it
+                        buttonHtml = `
+                        <button class="btn btn-disabled" style="width:100%" disabled>Requested</button>
+                        <button class="btn btn-danger" style="width:100%; margin-top:10px;" onclick="cancelRequest('${existingRequest.docId}')">Cancel</button>`;
                     } else {
-                        buttonHtml = `<button class="btn btn-primary" onclick="sendInstantConnectionRequest('${targetUserId}', this)">Connect</button>`;
+                        // I received it
+                        buttonHtml = `
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <button class="btn btn-primary" style="flex:1" onclick="updateRequest('${existingRequest.docId}','accepted','${targetUserId}')">Accept</button>
+                            <button class="btn btn-danger" style="flex:1" onclick="updateRequest('${existingRequest.docId}','rejected')">Decline</button>
+                        </div>`;
                     }
                 } else {
-                    buttonHtml = `<button class="btn btn-primary" onclick="sendInstantConnectionRequest('${targetUserId}', this)">Connect</button>`;
+                    // No connection exists -> Show Connect
+                    buttonHtml = `<button class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="sendInstantConnectionRequest('${targetUserId}', this)">Connect</button>`;
                 }
 
-                // New Card Layout with Image on Left
+                // 5. Render Card HTML (Big Centered Image Layout)
                 html += `
                 <div class="card">
                     <div class="card-content-wrapper">
-                        <img src="${profileSrc}" class="card-avatar" alt="Profile">
-                        
-                        <div style="flex: 1; min-width: 0;">
-                            <div class="card-header" style="margin-bottom: 5px;">
+                        <img src="${profileSrc}" class="card-avatar">
+                        <div style="width:100%; text-align:left; padding-left:10px;">
+                            <div class="card-header" style="font-size:18px; margin-bottom:8px; justify-content:flex-start; gap:10px;">
                                 ${displayName} 
-                                <span class="badge badge-verified">${roleText}</span>
+                                <span class="badge badge-verified">${badgeHtml}</span>
                             </div>
-                            <div class="card-body" style="margin-bottom: 0;">
-                                <p style="margin-bottom: 4px;"><strong>College:</strong> ${user.college || 'N/A'}</p>
-                                <p style="margin-bottom: 0;"><strong>Details:</strong> ${details}</p>
-                            </div>
+                            <p style="font-size:13px; color:var(--text-muted); margin-bottom:4px;">
+                                <strong>College:</strong> ${user.college || 'N/A'}
+                            </p>
                         </div>
                     </div>
-                    
-                    <div class="card-footer" style="gap: 10px; margin-top: 0;">
-                        ${buttonHtml}
-                    </div>
+                    ${buttonHtml}
                 </div>`;
             });
 
-            listEl.innerHTML = html || '<p style="text-align:center; grid-column: 1/-1; color: var(--text-secondary);">No new users found.</p>';
+            listEl.innerHTML = html || '<p style="text-align:center; grid-column:1/-1; color:var(--text-muted); margin-top:40px;">No new people to connect with.</p>';
         }
 
         function sendInstantConnectionRequest(recipientId, btnElement) {
