@@ -6,6 +6,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VidyaGenie</title>
     <style>
+        /* --- PROFILE PICTURE STYLES --- */
+        .profile-pic-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .profile-initial-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--bg-input);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: bold;
+            border: 2px solid var(--primary-color);
+            margin: 0 auto 15px auto;
+        }
+
+        .navbar-pic {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+        }
+
+        .navbar-initial {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg-input);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
         /* --- PREMIUM DARK THEME VARIABLES --- */
         :root {
             /* Apple/iOS Dark Mode Inspired Palette */
@@ -106,6 +152,7 @@
             letter-spacing: -0.5px;
             background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -771,8 +818,8 @@
 
         // 🟢 STEP 1: UNCOMMENT THE ID OF THE USER YOU WANT TO BE:
 
-        const MOCK_USER_ID = "rZTJaAZXbVml1SpAzsdz"; // SELVA (MENTOR)
-        //const MOCK_USER_ID = "4UvojVrHYVFBiOtRbHoD"; // SIDDHANT (STUDENT)
+        //const MOCK_USER_ID = "rZTJaAZXbVml1SpAzsdz"; // SELVA (MENTOR)
+        const MOCK_USER_ID = "4UvojVrHYVFBiOtRbHoD"; // PRAJWAL (STUDENT)
 
         // ---------------------------------------------------------
 
@@ -843,10 +890,28 @@
 
         function updateUserInfo() {
             if (currentUserData) {
-                // Capitalize name for display
-                const displayName = currentUserData.name.charAt(0).toUpperCase() + currentUserData.name.slice(1);
-                document.getElementById('userInfo').textContent = `${displayName} (${currentUserData.role.toUpperCase()})`;
-                document.getElementById('profileIcon').textContent = displayName.charAt(0);
+                // Fetch latest data to get the pic
+                db.collection('users').doc(currentUser.uid).get().then(doc => {
+                    const data = doc.data() || currentUserData;
+                    const displayName = data.name.charAt(0).toUpperCase() + data.name.slice(1);
+                    const picUrl = data.profilePic;
+
+                    document.getElementById('userInfo').textContent = `${displayName} (${data.role.toUpperCase()})`;
+
+                    const profileIcon = document.getElementById('profileIcon');
+                    // Clear previous content/styles
+                    profileIcon.innerHTML = '';
+                    profileIcon.style.backgroundImage = '';
+                    profileIcon.className = ''; // reset classes
+
+                    if (picUrl) {
+                        profileIcon.innerHTML = `<img src="${picUrl}" class="navbar-pic">`;
+                        profileIcon.style.border = 'none'; // remove border from container since img has it
+                    } else {
+                        profileIcon.innerHTML = displayName.charAt(0);
+                        profileIcon.className = 'profile-circle'; // use default class
+                    }
+                });
             }
         }
 
@@ -1185,7 +1250,7 @@
                         }
                     });
 
-                    listEl.innerHTML = html || '<p style="color:var(--text-secondary);">No active chats.</p>';
+                    listEl.innerHTML = html || '<p style="color:var(--text-secondary);">&nbsp&nbspNo active chats.</p>';
 
                 }).catch(e => {
                     console.error("Error fetching chat list (Check Firestore Index):", e);
@@ -1383,26 +1448,99 @@
         }
 
         // --- PROFILE ---
+        // --- PROFILE ---
+        // --- PROFILE ---
         function loadProfile() {
-            const p = document.getElementById('profileContent');
-            const displayName = currentUserData.name.charAt(0).toUpperCase() + currentUserData.name.slice(1);
-            const displayIcon = displayName.charAt(0);
+            db.collection('users').doc(currentUser.uid).get().then(doc => {
+                const data = doc.data() || currentUserData;
+                const picUrl = data.profilePic || "";
+                const displayName = data.name.charAt(0).toUpperCase() + data.name.slice(1);
 
-            p.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 30px;">
-                    <div style="width: 100px; height: 100px; background: var(--bg-input); color: var(--primary-color); border: 2px solid var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold; margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-                        ${displayIcon}
+                const p = document.getElementById('profileContent');
+
+                // Show Image or Initial
+                let imageHtml = picUrl
+                    ? `<img src="${picUrl}" class="profile-pic-large">`
+                    : `<div class="profile-initial-large">${displayName.charAt(0)}</div>`;
+
+                p.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 30px;">
+                        ${imageHtml}
+                        <h2 style="margin: 0; color: var(--text-main); font-size: 24px;">${displayName}</h2>
+                        <span class="badge badge-verified" style="margin-top: 8px;">${data.role.toUpperCase()}</span>
                     </div>
-                    <h2 style="margin: 0; color: var(--text-main); font-size: 24px;">${displayName}</h2>
-                    <span class="badge badge-verified" style="margin-top: 8px;">${currentUserData.role.toUpperCase()}</span>
-                </div>
-                
-                <div style="background: var(--bg-input); padding: 25px; border-radius: 16px; border: 1px solid var(--border-color); text-align: left;">
-                    <p style="margin-bottom: 15px; font-size: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;"><strong>📧 Email:</strong> <span style="color: var(--text-secondary); float: right;">${currentUserData.email}</span></p>
-                    <p style="margin-bottom: 15px; font-size: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;"><strong>🎓 College:</strong> <span style="color: var(--text-secondary); float: right;">${currentUserData.college}</span></p>
-                    <p style="font-size: 16px;"><strong>📅 Year:</strong> <span style="color: var(--text-secondary); float: right;">${currentUserData.year || 'N/A'}</span></p>
-                </div>
-            `;
+                    
+                    <div style="margin-top: 20px; text-align: left; background: var(--bg-input); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+                        <label style="font-size: 12px; color: #888; margin-bottom: 10px; display:block;">Update Profile Picture</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect()">
+                            
+                            <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Choose Photo</button>
+                            
+                            <span id="fileNameDisplay" style="font-size: 13px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">No file selected</span>
+                            
+                            <button class="btn btn-primary" onclick="uploadProfilePic()">Save</button>
+                        </div>
+                        <small style="color: #666; font-size: 11px; margin-top: 8px; display:block;">Max size: 800KB. Supports JPG, PNG.</small>
+                    </div>
+
+                    <div style="margin-top: 20px; text-align: left;">
+                        <p style="margin-bottom: 10px;"><strong>Email:</strong> <span style="color:var(--text-secondary);">${data.email}</span></p>
+                        <p><strong>College:</strong> <span style="color:var(--text-secondary);">${data.college}</span></p>
+                    </div>
+                `;
+            });
+        }
+        function handleFileSelect() {
+            const fileInput = document.getElementById('fileInput');
+            const fileNameDisplay = document.getElementById('fileNameDisplay');
+            if (fileInput.files.length > 0) {
+                fileNameDisplay.textContent = fileInput.files[0].name;
+            } else {
+                fileNameDisplay.textContent = "No file selected";
+            }
+        }
+        function uploadProfilePic() {
+            const fileInput = document.getElementById('fileInput');
+
+            if (fileInput.files.length === 0) {
+                alert("Please choose a photo first.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+
+            // Limit file size to ~800KB to respect Firestore limits
+            if (file.size > 800 * 1024) {
+                alert("File is too large! Please choose an image under 800KB.");
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const base64String = e.target.result; // This is the image data
+
+                // Save to Firestore
+                db.collection('users').doc(currentUser.uid).set({
+                    profilePic: base64String
+                }, { merge: true }).then(() => {
+                    alert("Profile picture updated!");
+                    loadProfile(); // Refresh profile UI
+                    updateUserInfo(); // Refresh navbar icon
+                }).catch(err => {
+                    console.error("Error saving image:", err);
+                    alert("Failed to save image.");
+                });
+            };
+
+            reader.onerror = function (error) {
+                console.error("Error reading file:", error);
+                alert("Error reading file.");
+            };
+
+            // Read the file as a Data URL (Base64 string)
+            reader.readAsDataURL(file);
         }
         function handleLogin(e) { e.preventDefault(); alert("Mock Login Successful"); }
     </script>
