@@ -83,7 +83,7 @@
             flex: 1;
             overflow-y: auto;
             /* 🚨 FIX: Added extra padding on the right (25px) to prevent overlap with scrollbar */
-            padding: 20px 25px 20px 20px; 
+            padding: 20px 25px 20px 20px;
             display: flex;
             flex-direction: column;
         }
@@ -983,7 +983,7 @@
     <div id="authScreen" class="auth-container"
         style="max-width: 900px; margin: 60px auto; padding: 40px; background: var(--bg-card); border-radius: 24px; border: 1px solid var(--border-color);">
         <h2
-            style="margin-bottom: 20px; font-size: 32px; background: var(--primary-color); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-align: center;">
+            style="margin-bottom: 20px; font-size: 32px; background: var(--primary-color);background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-align: center;">
             VidyaGenie Portal</h2>
 
         <div style="display: flex; gap: 40px; align-items: flex-start; text-align: left;">
@@ -1087,34 +1087,15 @@
 
             <div style="width: 1px; background: var(--border-color); align-self: stretch;"></div>
 
-            <div style="flex: 0.8;">
+            <div style="flex: 0.8; display: flex; flex-direction: column;">
                 <h3 style="margin-bottom: 15px; color: var(--text-main);">Dev Switcher</h3>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <button class="btn btn-secondary" onclick="simulateLogin('rZTJaAZXbVml1SpAzsdz')"
-                        style="justify-content: flex-start; gap: 10px; border: 1px solid var(--success-color);">
-                        <span style="color: var(--success-color);">✔</span>
-                        <div>
-                            <div style="font-weight: 700; color: white;">Selva</div>
-                            <div style="font-size: 10px; color: var(--success-color);">VERIFIED MENTOR</div>
-                        </div>
-                    </button>
-                    <button class="btn btn-secondary" onclick="simulateLogin('4UvojVrHYVFBiOtRbHoD')"
-                        style="justify-content: flex-start; gap: 10px;">
-                        <span>🎓</span>
-                        <div>
-                            <div style="font-weight: 700; color: white;">Prajwal</div>
-                            <div style="font-size: 10px; color: var(--text-muted);">STUDENT</div>
-                        </div>
-                    </button>
-                    <button class="btn btn-secondary" onclick="simulateLogin('new_user_andy_id')"
-                        style="justify-content: flex-start; gap: 10px; border: 1px solid var(--danger-color);">
-                        <span>⚠️</span>
-                        <div>
-                            <div style="font-weight: 700; color: white;">Andy</div>
-                            <div style="font-size: 10px; color: var(--danger-color);">UNVERIFIED MENTOR</div>
-                        </div>
-                    </button>
+                <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Select any registered account to login instantly:</p>
+                
+                <div id="devUserList" style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto; padding-right: 5px;">
+                    <p style="color: #666; font-size: 13px;">Loading accounts...</p>
                 </div>
+                
+                <button class="btn btn-secondary" onclick="loadDevUsers()" style="margin-top: 15px; font-size: 12px; width: 100%;">↻ Refresh List</button>
             </div>
         </div>
     </div>
@@ -1154,7 +1135,8 @@
                     <div class="card-body">
                         <form id="userSearchForm" onsubmit="handleUserSearch(event)">
                             <div class="form-group" style="display: flex; gap: 10px; margin-bottom: 0;">
-                                <input type="text" id="searchInput" placeholder="Search by Name (e.g., Andy)" style="flex-grow: 1;">
+                                <input type="text" id="searchInput" placeholder="Search by Name (e.g., Andy)"
+                                    style="flex-grow: 1;">
                                 <button type="submit" class="btn btn-primary">Search</button>
                             </div>
                         </form>
@@ -1220,12 +1202,18 @@
             </div>
 
             <div id="profile" class="tab-content">
-                <div class="card" style="text-align: center;">
-                    <div class="card-header" style="justify-content: center;">My Profile</div>
+                <div class="card" style="text-align: center; max-width: 500px; margin: 40px auto; padding: 50px 30px;">
                     <div id="profileContent" class="card-body"></div>
-                    <div class="card-footer" style="justify-content: center; border-top: none;">
-                        <button class="btn btn-danger" style="width: 100%; max-width: 200px;"
-                            onclick="window.location.reload()">Logout</button>
+
+                    <div class="card-footer"
+                        style="border-top: 1px solid var(--glass-border); margin-top: 30px; padding-top: 30px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%;">
+                            <button class="btn btn-secondary" onclick="window.location.reload()"
+                                style="padding: 12px;">Log Out</button>
+                            <button class="btn btn-danger" onclick="deleteAccount()"
+                                style="padding: 12px; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.3);">Delete
+                                Account</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1385,35 +1373,142 @@
         document.getElementById('appScreen').classList.add('hidden');
 
         // --- AUTH LOGIC ---
+        // --- AUTH: REAL LOGIN HANDLER ---
+        // --- AUTH: REAL LOGIN HANDLER (FIXED) ---
+       // --- AUTH: REAL LOGIN HANDLER ---
         function handleLogin(e) {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
+            
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+            
+            // Force lowercase to match registration
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const password = document.getElementById('loginPassword').value.trim();
 
-            // Search MOCK_USERS for matching email
-            const user = Object.values(MOCK_USERS).find(u => u.email === email);
-
-            if (user) {
-                simulateLogin(user.userId);
-            } else {
-                alert("User not found! Try: selva@vit.com, prajwal@vit.com, or andy@test.com");
+            if (!email || !password) {
+                alert("Please enter both email and password.");
+                return;
             }
+
+            btn.innerText = "Verifying...";
+            btn.disabled = true;
+
+            // 1. Check Hardcoded Mock Users
+            const mockUser = Object.values(MOCK_USERS).find(u => u.email.toLowerCase() === email);
+            if (mockUser) {
+                console.log("Found in Mock Data");
+                simulateLogin(mockUser.userId);
+                return;
+            }
+
+            // 2. Check Firestore Database
+            db.collection('users').where('email', '==', email).get()
+            .then(snap => {
+                if (!snap.empty) {
+                    const userDoc = snap.docs[0];
+                    console.log("Found in Firestore:", userDoc.id);
+                    simulateLogin(userDoc.id);
+                } else {
+                    alert("❌ Account not found.\n(Check for typos or Register first)");
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
+            })
+            .catch(err => {
+                console.error("Login Error:", err);
+                alert("Network error: " + err.message);
+                btn.innerText = originalText;
+                btn.disabled = false;
+            });
         }
+        // --- HELPER: GENERATE BUTTON HTML ---
+        function generateUserButtonHtml(u) {
+            const uid = u.userId || u.uid; // Handle both structures
+            const name = (u.name || "Unknown").charAt(0).toUpperCase() + (u.name || "User").slice(1);
+            
+            // Visual Logic
+            let icon, statusColor, statusText;
+            if (u.role === 'mentor') {
+                if (u.isVerified) {
+                    icon = '✔'; statusColor = 'var(--success-color)'; statusText = 'VERIFIED MENTOR';
+                } else {
+                    icon = '⚠️'; statusColor = 'var(--danger-color)'; statusText = 'UNVERIFIED MENTOR';
+                }
+            } else {
+                icon = '🎓'; statusColor = 'var(--text-muted)'; statusText = 'STUDENT';
+            }
 
+            const borderColor = u.role === 'mentor' && u.isVerified ? 'var(--success-color)' : 'var(--glass-border)';
+
+            return `
+            <button class="btn btn-secondary" onclick="simulateLogin('${uid}')" style="justify-content: flex-start; gap: 12px; border: 1px solid ${borderColor}; padding: 12px; margin-bottom:10px; width:100%; transition: transform 0.2s;">
+                <div style="width:30px; height:30px; border-radius:50%; background:${statusColor}; color:black; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px; flex-shrink:0;">
+                    ${u.profilePic ? `<img src="${u.profilePic}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">` : icon}
+                </div>
+                <div style="text-align:left; overflow:hidden;">
+                    <div style="font-weight: 700; color: white; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${name}</div>
+                    <div style="font-size: 10px; color: ${statusColor}; font-weight:600;">${statusText}</div>
+                </div>
+            </button>`;
+        }
+        // --- INIT APP ---
+        // 1. Reset
+        currentUser = null;
+        currentUserData = null;
+        
+        // 2. Show Login
+        document.getElementById('authScreen').classList.remove('hidden');
+        document.getElementById('appScreen').classList.add('hidden');
+        
+        // 3. 🚨 Seed Mock Data & Load List
+        seedMockData().then(() => {
+            loadDevUsers(); // Load the list immediately on startup
+        });
+
+        // Helper to ensure Selva/Prajwal/Andy exist in DB for testing
+        function seedMockData() {
+            const batch = db.batch();
+            Object.values(MOCK_USERS).forEach(user => {
+                const ref = db.collection('users').doc(user.userId);
+                // Only write if not exists (to preserve chats/edits made by you)
+                // Actually for dev switcher simplicity, let's just set merge:true so they definitely exist
+                batch.set(ref, user, { merge: true });
+            });
+            return batch.commit();
+        }
+        seedMockData().then(() => {
+            loadDevUsers(); // Load the list immediately on startup
+        });
+
+        function seedMockData() {
+            const batch = db.batch();
+            Object.values(MOCK_USERS).forEach(user => {
+                const ref = db.collection('users').doc(user.userId);
+                // Only write if not exists (to preserve chats/edits made by you)
+                // Actually for dev switcher simplicity, let's just set merge:true so they definitely exist
+                batch.set(ref, user, { merge: true });
+            });
+            return batch.commit();
+        }
         function simulateLogin(userId) {
-            currentUser = { uid: userId };
-            currentUserData = MOCK_USERS[userId];
+            // 1. Fetch Fresh Data from DB (Handles Ranveer, Selva, everyone)
+            db.collection('users').doc(userId).get().then(doc => {
+                if (!doc.exists) {
+                    alert("User data not found in DB!");
+                    return;
+                }
+                
+                currentUser = { uid: userId };
+                currentUserData = doc.data(); // Get real data (profile pic, etc)
 
-            // 1. Save user to DB (Syncing mock data to Firestore)
-            db.collection('users').doc(userId).set(currentUserData, { merge: true })
-                .then(() => {
-                    // 2. Switch UI
-                    document.getElementById('authScreen').classList.add('hidden');
-                    document.getElementById('appScreen').classList.remove('hidden');
-                    updateUserInfo();
-
-                    // 3. Load Data specific to this user
-                    switchTab('community');
-                }).catch(e => console.error("Login Error", e));
+                // 2. Switch UI
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('appScreen').classList.remove('hidden');
+                updateUserInfo();
+                switchTab('community');
+                
+            }).catch(e => console.error("Login Error", e));
         }
         // --- AUTH: TOGGLE UI ---
         function toggleAuthMode(mode) {
@@ -1440,6 +1535,7 @@
 
         // --- AUTH: REGISTER HANDLER ---
         // --- AUTH: REGISTER HANDLER (FIXED) ---
+       // --- AUTH: REGISTER HANDLER (FIXED) ---
         function handleRegister(e) {
             e.preventDefault();
             const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -1448,9 +1544,10 @@
             submitBtn.textContent = "Creating Account...";
             submitBtn.disabled = true;
 
-            // 1. Collect Data
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
+            // 1. Collect Data & SANITIZE EMAIL
+            const name = document.getElementById('regName').value.trim();
+            // 🚨 FIX: Force lowercase to ensure login works later
+            const email = document.getElementById('regEmail').value.trim().toLowerCase(); 
             const age = document.getElementById('regAge').value;
             const gender = document.getElementById('regGender').value;
             const role = document.getElementById('regRole').value;
@@ -1458,21 +1555,18 @@
             const gradYear = document.getElementById('regYear').value;
             const fileInput = document.getElementById('regFile');
 
-            // 2. Collect Experience Array
             const expertise = [];
             document.querySelectorAll('.exp-input').forEach(input => {
                 if(input.value.trim()) expertise.push(input.value.trim());
             });
 
-            // 3. Define Save Function
             const performRegistration = (base64Pic) => {
-                // Generate a unique ID
                 const newUserId = "user_" + Date.now();
 
                 const newUser = {
                     userId: newUserId,
                     name: name,
-                    email: email,
+                    email: email, // Saved as lowercase
                     role: role,
                     age: age,
                     gender: gender,
@@ -1484,20 +1578,13 @@
                     createdAt: new Date()
                 };
 
-                // Save to Firestore
                 db.collection('users').doc(newUserId).set(newUser)
                 .then(() => {
-                    // 🚨 SUCCESS: Manually Log In (Don't use simulateLogin here)
                     currentUser = { uid: newUserId };
-                    currentUserData = newUser; // Use the object we just created
-                    
+                    currentUserData = newUser;
                     alert("Account created successfully!");
-                    
-                    // Switch Screens
                     document.getElementById('authScreen').classList.add('hidden');
                     document.getElementById('appScreen').classList.remove('hidden');
-                    
-                    // Load App Data
                     updateUserInfo();
                     switchTab('community');
                 })
@@ -1509,16 +1596,60 @@
                 });
             };
 
-            // 4. Handle Image Processing
             if (fileInput.files.length > 0) {
                 const reader = new FileReader();
-                reader.onload = function (e) {
-                    performRegistration(e.target.result);
-                };
+                reader.onload = function (e) { performRegistration(e.target.result); };
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
                 performRegistration(null);
             }
+        }
+        // --- DEV: LOAD ALL USERS ---
+        // --- DEV: LOAD ALL USERS (Fixed) ---
+        function loadDevUsers() {
+            const container = document.getElementById('devUserList');
+            container.innerHTML = ''; // Clear loading text
+
+            // 1. Render Hardcoded Mock Users FIRST (Guaranteed to show)
+            Object.values(MOCK_USERS).forEach(user => {
+                container.innerHTML += generateUserButtonHtml(user);
+            });
+
+            // 2. Fetch "Real" Registered Users from DB
+            db.collection('users').orderBy('createdAt', 'desc').get().then(snap => {
+                snap.forEach(doc => {
+                    // Check if this ID is already in MOCK_USERS to avoid duplicates
+                    if (!MOCK_USERS[doc.id]) {
+                        const u = doc.data();
+                        u.userId = doc.id; // Ensure ID is attached
+                        container.innerHTML += generateUserButtonHtml(u);
+                    }
+                });
+                
+                if (container.innerHTML === '') {
+                    container.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">No accounts found.</p>';
+                }
+            }).catch(e => {
+                console.error("Dev list error:", e);
+                // Even if DB fails, Mock users are already visible!
+            });
+        }
+        function deleteAccount() {
+            if (!confirm("⚠️ Are you sure you want to permanently delete your account? This action cannot be undone.")) return;
+
+            const userId = currentUser.uid;
+
+            // 1. Delete User Document from Firestore
+            db.collection('users').doc(userId).delete()
+                .then(() => {
+                    alert("Your account has been deleted.");
+                    // 2. Force Reload to Logout
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error("Error deleting account:", error);
+                    alert("Failed to delete account: " + error.message);
+                });
         }
         // Default Tab
         switchTab('community');
@@ -1847,7 +1978,7 @@
             });
         }
 
-       function renderUserResults(snapshot, allRequests = []) {
+        function renderUserResults(snapshot, allRequests = []) {
             const listEl = document.getElementById('searchResultsList');
             const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
             let html = '';
@@ -2388,7 +2519,6 @@
             reader.onload = function (e) { db.collection('users').doc(currentUser.uid).set({ profilePic: e.target.result }, { merge: true }).then(() => { alert("Updated!"); loadProfile(); updateUserInfo(); }); };
             reader.readAsDataURL(file);
         }
-        function handleLogin(e) { e.preventDefault(); alert("Mock Login Successful"); }
     </script>
 </body>
 
