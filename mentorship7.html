@@ -6,6 +6,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VidyaGenie</title>
     <style>
+        /* --- THREADED COMMENT PREVIEWS --- */
+        .preview-comments-container {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .preview-comment-row {
+            display: flex;
+            gap: 10px;
+            position: relative;
+        }
+
+        /* The Thread Line */
+        .thread-line-visual {
+            width: 2px;
+            background: var(--border-color);
+            margin-left: 20px;
+            /* Align with avatar center usually, or just offset */
+            margin-right: 5px;
+            border-radius: 2px;
+        }
+
+        .preview-comment-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px 14px;
+            flex: 1;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+        .preview-comment-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .preview-meta {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-size: 11px;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
         /* --- ENABLE DYNAMIC COLORING --- */
         #searchResultsList .card {
             /* Smooth transition when color is applied */
@@ -663,30 +712,65 @@
             justify-content: center;
             margin: 20px 0 30px;
         }
-        
 
+        /* UPDATED: Expanding Bubble Button Logic */
         .create-icon-style {
-            width: 56px;
-            height: 56px;
-            background-color: var(--primary-color);
-            color: white;
-            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 400;
-            font-size: 32px;
+            height: 56px;
+            width: 56px;
+            /* Start as circle */
+            min-width: 56px;
+            /* Prevent squishing */
+            border-radius: 28px;
+            /* Circular ends */
+            background-color: var(--primary-color);
+            color: white;
             cursor: pointer;
             box-shadow: 0 8px 25px rgba(10, 132, 255, 0.4);
-            transition: all var(--transition-speed) var(--transition-bounce);
             border: none;
+            overflow: hidden;
+            /* Hide text initially */
+            white-space: nowrap;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            /* Bouncy expand */
+            padding: 0;
         }
 
+        /* Hover State: Expands width and changes color */
         .create-icon-style:hover {
-            transform: scale(1.1);
+            width: 200px;
+            /* Expand width */
             background-color: var(--text-main);
+            /* White background */
             color: var(--primary-color);
+            /* Blue text/icon */
+            padding-left: 5px;
+            padding-right: 20px;
+            transform: scale(1.05);
+            /* Slight grow */
         }
+
+        /* The hidden text */
+        .create-icon-text {
+            max-width: 0;
+            opacity: 0;
+            font-size: 15px;
+            font-weight: 700;
+            margin-left: 0;
+            transition: all 0.5s ease;
+            transform: translateX(20px);
+        }
+
+        /* Show text on hover */
+        .create-icon-style:hover .create-icon-text {
+            max-width: 150px;
+            opacity: 1;
+            margin-left: 10px;
+            transform: translateX(0);
+        }
+
 
         /* --- AUTH SCREEN --- */
         .auth-container {
@@ -1220,9 +1304,9 @@
 
             <div id="community" class="tab-content">
                 <div class="center-icon-wrapper">
-                    <div id="createPostIcon" class="create-icon-style" onclick="openCreatePostModal()"
-                        title="Create New Post">
-                        <span style="position: relative; top: -2.5px;">+</span>
+                    <div id="createPostIcon" class="create-icon-style" onclick="openCreatePostModal()">
+                        <span style="font-size: 32px; line-height: 1; margin-bottom: 4px;">+</span>
+                        <span class="create-icon-text">Create New Post</span>
                     </div>
                 </div>
                 <div id="communityPostsList" style="margin-top: 20px; padding: 0 5px;"></div>
@@ -1549,7 +1633,7 @@
                 document.getElementById('loginSection').classList.remove('hidden');
             }
         }
-        
+
         function applyCardTheme(img) {
             // 1. Safety check
             if (!img.complete || img.naturalWidth === 0) return;
@@ -2398,37 +2482,91 @@
         }
 
         // --- COMMUNITY & POSTS ---
-        function loadCommunity() {
-            // Reusing the robust loadCommunity from previous step
-            const listEl = document.getElementById('communityPostsList');
-            if (!listEl) return;
-            listEl.innerHTML = '<p style="text-align:center; color:var(--text-secondary);">Loading posts...</p>';
-            db.collection('posts').orderBy('createdAt', 'desc').limit(20).get().then(snap => {
-                let html = '';
-                snap.forEach(doc => {
-                    const p = doc.data();
-                    const isAuthor = p.authorId === currentUser.uid;
-                    const imageHtml = p.imageUrl ? `<img src="${p.imageUrl}" class="post-image" onclick="window.open(this.src)" style="cursor:pointer;">` : '';
-                    const linkHtml = p.linkUrl ? `<a href="${p.linkUrl}" target="_blank" class="post-link">🔗 ${p.linkUrl}</a>` : '';
-                    html += `
-                    <div class="card">
-                        <div style="cursor:pointer;" onclick="viewPost('${doc.id}')">
-                            <div class="card-header">${p.title} <span class="badge badge-verified" style="font-size:10px;">${p.authorRole || 'User'}</span></div>
-                            <div class="card-body">${p.body}${linkHtml}${imageHtml}</div>
-                        </div>
-                        <div class="card-footer" style="justify-content: space-between; align-items: center;">
-                            <small style="color:var(--text-secondary);">By ${p.authorName}</small>
-                            <div style="display:flex; gap:10px;">
-                                <button class="btn btn-secondary" onclick="viewPost('${doc.id}')">Comment</button>
-                                ${isAuthor ? `<button class="btn btn-danger" onclick="deletePost('${doc.id}')">Delete</button>` : ''}
-                                <button class="btn btn-secondary" onclick="upvote('${doc.id}')">↑ ${p.upvotes || 0}</button>
+        // --- COMMUNITY & POSTS ---
+        // --- COMMUNITY & POSTS (Async with Comments) ---
+async function loadCommunity() {
+    const listEl = document.getElementById('communityPostsList');
+    if (!listEl) return;
+    
+    listEl.innerHTML = '<p style="text-align:center; color:var(--text-secondary);">Loading posts...</p>';
+    
+    try {
+        const snap = await db.collection('posts').orderBy('createdAt', 'desc').limit(20).get();
+        let fullHtml = '';
+
+        // Process posts concurrently
+        const postPromises = snap.docs.map(async (doc) => {
+            const p = doc.data();
+            const isAuthor = p.authorId === currentUser.uid;
+            
+            // Post Upvote Logic
+            const pUpvoters = p.upvoters || [];
+            const pHasUpvoted = pUpvoters.includes(currentUser.uid);
+            const pUpvoteClass = pHasUpvoted ? 'btn-primary' : 'btn-secondary'; 
+
+            const imageHtml = p.imageUrl ? `<img src="${p.imageUrl}" class="post-image" onclick="window.open(this.src)" style="cursor:pointer;">` : '';
+            const linkHtml = p.linkUrl ? `<a href="${p.linkUrl}" target="_blank" class="post-link">🔗 ${p.linkUrl}</a>` : '';
+
+            // --- FETCH TOP 2 COMMENTS ---
+            const commentsSnap = await db.collection('posts').doc(doc.id).collection('comments')
+                .orderBy('upvotes', 'desc')
+                .limit(2)
+                .get();
+
+            let commentsHtml = '';
+            if (!commentsSnap.empty) {
+                commentsHtml = '<div class="preview-comments-container">';
+                commentsSnap.forEach(cDoc => {
+                    const c = cDoc.data();
+                    // Comment Upvote Logic
+                    const cUpvoters = c.upvoters || [];
+                    const cHasUpvoted = cUpvoters.includes(currentUser.uid);
+                    const cUpColor = cHasUpvoted ? 'var(--primary-color)' : 'var(--text-secondary)';
+
+                    commentsHtml += `
+                    <div class="preview-comment-row">
+                        <div class="thread-line-visual"></div>
+                        <div class="preview-comment-card" onclick="viewPost('${doc.id}')" style="cursor:pointer;">
+                            <div class="preview-meta">
+                                <span>${c.authorName}</span>
+                                <span style="color:${cUpColor}">↑ ${c.upvotes || 0}</span>
                             </div>
+                            <div style="color:var(--text-main); line-height:1.4;">${c.text}</div>
                         </div>
                     </div>`;
                 });
-                listEl.innerHTML = html || '<p style="text-align:center; color:var(--text-secondary);">No posts yet.</p>';
-            }).catch(e => listEl.innerHTML = '<p style="text-align:center; color:var(--danger-color);">Error loading posts.</p>');
-        }
+                // Add a "View all" hint if needed
+                commentsHtml += `</div>`;
+            }
+            // -----------------------------
+
+            return `
+            <div class="card">
+                <div style="cursor:pointer;" onclick="viewPost('${doc.id}')">
+                    <div class="card-header">${p.title} <span class="badge badge-verified" style="font-size:10px;">${p.authorRole || 'User'}</span></div>
+                    <div class="card-body">${p.body}${linkHtml}${imageHtml}</div>
+                </div>
+                
+                ${commentsHtml} <div class="card-footer" style="justify-content: space-between; align-items: center;">
+                    <small style="color:var(--text-secondary);">By ${p.authorName}</small>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn btn-secondary" onclick="viewPost('${doc.id}')">💬 Comment</button>
+                        ${isAuthor ? `<button class="btn btn-danger" onclick="deletePost('${doc.id}')">Delete</button>` : ''}
+                        <button class="btn ${pUpvoteClass}" onclick="upvote('${doc.id}')">↑ ${p.upvotes || 0}</button>
+                    </div>
+                </div>
+            </div>`;
+        });
+
+        const htmlArray = await Promise.all(postPromises);
+        fullHtml = htmlArray.join('');
+        listEl.innerHTML = fullHtml || '<p style="text-align:center; color:var(--text-secondary);">No posts yet.</p>';
+
+    } catch (e) {
+        console.error(e);
+        listEl.innerHTML = '<p style="text-align:center; color:var(--danger-color);">Error loading posts.</p>';
+    }
+}
 
         function loadPosts() { loadCommunity(); } // Alias for cleaner calls
 
@@ -2503,17 +2641,28 @@
             snap.forEach(doc => {
                 const c = doc.data();
                 const isAuthor = c.authorId === currentUser.uid;
+
+                // --- NEW LOGIC: Check if I already upvoted this comment ---
+                const upvoters = c.upvoters || [];
+                const hasUpvoted = upvoters.includes(currentUser.uid);
+                const upvoteClass = hasUpvoted ? 'btn-primary' : 'btn-secondary';
+                // ----------------------------------------------------------
+
                 html += `
-                <div style="border:1px solid var(--border-color); padding:15px; margin-bottom:10px; border-radius:12px; background:var(--bg-input);">
-                    <p style="color: var(--text-main); margin-bottom: 8px;">${c.text}</p>
-                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-top:5px;">
-                        <span style="color: var(--text-secondary);">${c.authorName}</span>
-                        <div style="display:flex; gap:5px;">
-                            ${!isAuthor ? `<button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="upvoteComment('${postId}', '${doc.id}')">↑ (${c.upvotes || 0})</button>` : `<span style="padding:4px 8px; color: var(--text-secondary);">↑ ${c.upvotes || 0}</span>`}
-                            ${isAuthor ? `<button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteComment('${postId}', '${doc.id}')">Delete</button>` : ''}
-                        </div>
-                    </div>
-                </div>`;
+        <div style="border:1px solid var(--border-color); padding:15px; margin-bottom:10px; border-radius:12px; background:var(--bg-input);">
+            <p style="color: var(--text-main); margin-bottom: 8px;">${c.text}</p>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-top:5px;">
+                <span style="color: var(--text-secondary);">${c.authorName}</span>
+                <div style="display:flex; gap:5px;">
+                    ${!isAuthor
+                        // Use the dynamic 'upvoteClass' variable here
+                        ? `<button class="btn ${upvoteClass}" style="padding:4px 8px; font-size:11px;" onclick="upvoteComment('${postId}', '${doc.id}')">↑ (${c.upvotes || 0})</button>`
+                        : `<span style="padding:4px 8px; color: var(--text-secondary);">↑ ${c.upvotes || 0}</span>`
+                    }
+                    ${isAuthor ? `<button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteComment('${postId}', '${doc.id}')">Delete</button>` : ''}
+                </div>
+            </div>
+        </div>`;
             });
             list.innerHTML = html || '<p style="color:var(--text-secondary);">No comments.</p>';
         }
