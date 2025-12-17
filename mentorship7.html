@@ -2303,26 +2303,24 @@
             });
             return batch.commit();
         }
-        function simulateLogin(userId) {
-            // 1. Fetch Fresh Data from DB (Handles Ranveer, Selva, everyone)
-            db.collection('users').doc(userId).get().then(doc => {
-                if (!doc.exists) {
-                    alert("User data not found in DB!");
-                    return;
-                }
+        // --- 2. UPDATE LOGIN TO START TRACKING ---
+function simulateLogin(uid) {
+    db.collection('users').doc(uid).get().then(doc => {
+        currentUser = { uid: doc.id };
+        currentUserData = doc.data();
+        document.getElementById('authScreen').classList.add('hidden');
+        document.getElementById('appScreen').classList.remove('hidden');
+        
+        updateUserInfo();
+        loadDevUsers();
+        initNotificationListener();
+        
+        // START PRESENCE TRACKING HERE
+        startPresenceHeartbeat(); 
 
-                currentUser = { uid: userId };
-                currentUserData = doc.data(); // Get real data (profile pic, etc)
-
-                // 2. Switch UI
-                document.getElementById('authScreen').classList.add('hidden');
-                document.getElementById('appScreen').classList.remove('hidden');
-                updateUserInfo();
-                initNotificationListener();
-                switchTab('community');
-
-            }).catch(e => console.error("Login Error", e));
-        }
+        switchTab('community');
+    });
+}
         // --- AUTH: TOGGLE UI ---
         function toggleAuthMode(mode) {
             if (mode === 'register') {
@@ -3212,6 +3210,7 @@
 
         // --- LOAD CHATS (Connections + Active Conversations) ---
         // --- LOAD CHATS (Clean UI - Search Connections + Active Conversations) ---
+// --- 3. LOAD CHATS (With Green Dot & Search) ---
 function loadChats() {
     const listEl = document.getElementById('chatsListContent');
     const searchTerm = document.getElementById('chatSearchInput').value.toLowerCase().trim();
@@ -3251,28 +3250,38 @@ function loadChats() {
 
             const displayName = otherUser.name.charAt(0).toUpperCase() + otherUser.name.slice(1);
             const role = (otherUser.role || '').toUpperCase();
-            const picUrl = otherUser.profilePic;
+            
+            // STATUS DOT COLOR LOGIC
+            let statusColor = '#636366'; // Gray
+            if (otherUser.lastSeen) {
+                const diffMins = (new Date() - otherUser.lastSeen.toDate()) / 60000;
+                if (diffMins < 5) statusColor = '#30D158'; // Green
+            }
 
-            let avatarHtml = picUrl 
-                ? `<img src="${picUrl}" style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:1px solid var(--border-color); flex-shrink:0;">`
-                : `<div style="width:45px; height:45px; border-radius:50%; background:black; color:white; display:flex; align-items:center; justify-content:center; border:1px solid var(--border-color); font-weight:bold; font-size:18px; flex-shrink:0;">${displayName.charAt(0)}</div>`;
+            let avatarContent = otherUser.profilePic 
+                ? `<img src="${otherUser.profilePic}" style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:1px solid var(--border-color);">`
+                : `<div style="width:45px; height:45px; border-radius:50%; background:black; color:white; display:flex; align-items:center; justify-content:center; border:1px solid var(--border-color); font-weight:bold; font-size:18px;">${displayName.charAt(0)}</div>`;
+
+            const avatarHtml = `
+                <div style="position: relative; flex-shrink: 0;">
+                    ${avatarContent}
+                    <div style="position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; background: ${statusColor}; border: 2px solid var(--bg-card); border-radius: 50%;"></div>
+                </div>`;
 
             const existingChat = chatMap[otherId];
             const lastMsg = existingChat ? (existingChat.lastMessage || 'Sent media') : 'Start a conversation';
             const msgColor = existingChat ? 'var(--text-secondary)' : 'var(--primary-color)';
             const chatId = existingChat ? existingChat.id : [currentUser.uid, otherId].sort().join('_');
 
-            // Attached Context Menu events, but NO visible button (deleteBtn)
+            // IMPORTANT: Passing 'otherId' to openInlineChat now
             return `
-            <div class="card chat-item" onclick="openInlineChat('${chatId}', '${displayName}')" 
+            <div class="card chat-item" onclick="openInlineChat('${chatId}', '${otherId}', '${displayName}')" 
                  style="cursor:pointer; padding: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 12px; user-select: none;"
                  oncontextmenu="showContextMenu(event, 'chat', '${chatId}')"
                  ontouchstart="startLongPress(event, 'chat', '${chatId}')"
                  ontouchend="cancelLongPress()"
                  ontouchmove="cancelLongPress()">
-                
                 ${avatarHtml}
-                
                 <div style="flex: 1; min-width: 0;">
                     <div style="font-weight: 600; font-size: 15px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                         ${displayName} <span style="font-size: 11px; color: var(--text-secondary);">(${role})</span>
@@ -3285,8 +3294,7 @@ function loadChats() {
         });
 
         const renderedItems = await Promise.all(renderPromises);
-        html = renderedItems.join('');
-        listEl.innerHTML = html || '<p style="color:var(--text-secondary); padding:15px;">No connections found.</p>';
+        listEl.innerHTML = renderedItems.join('') || '<p style="color:var(--text-secondary); padding:15px;">No connections found.</p>';
 
     }).catch(e => {
         console.error(e);
@@ -3860,65 +3868,91 @@ function loadChats() {
         }
 
         // 3. The Chat Function
-        function openInlineChat(chatId, name) {
-            if (msgUnsub) msgUnsub();
+        // --- 4. OPEN CHAT (With "Last Active" Header) ---
+function openInlineChat(chatId, otherUserId, name) {
+    if (msgUnsub) msgUnsub();
+    
+    document.getElementById('selectedChatId').value = chatId;
+    
+    // Initial Header State (Name only)
+    const headerEl = document.getElementById('chatHeader');
+    headerEl.innerHTML = `
+        <div style="line-height:1.2;">
+            <div style="font-size:16px;">${name}</div>
+            <div id="headerStatus" style="font-size:12px; color:var(--text-secondary); font-weight:normal;">Connecting...</div>
+        </div>`;
 
-            document.getElementById('selectedChatId').value = chatId;
-            document.getElementById('chatHeader').innerText = name;
-            document.getElementById('sendMessageForm').classList.remove('hidden');
-            const cont = document.getElementById('messagesContainer');
+    document.getElementById('sendMessageForm').classList.remove('hidden');
+    const cont = document.getElementById('messagesContainer');
+    
+    // 1. Fetch User Status for Header
+    if (otherUserId) {
+        db.collection('users').doc(otherUserId).get().then(doc => {
+            if (doc.exists) {
+                const u = doc.data();
+                const statusText = formatLastActive(u.lastSeen);
+                const statusColor = statusText === 'Active now' ? '#30D158' : 'var(--text-secondary)';
+                const statusEl = document.getElementById('headerStatus');
+                if(statusEl) {
+                    statusEl.innerText = statusText;
+                    statusEl.style.color = statusColor;
+                }
+            }
+        });
+    }
 
-            msgUnsub = db.collection('chats').doc(chatId).collection('messages')
-                .orderBy('timestamp', 'asc')
-                .onSnapshot(snap => {
-                    let html = '';
-                    snap.forEach(doc => {
-                        if (snap.empty) {
-                            cont.innerHTML = '<p style="text-align:center; color:var(--text-secondary); margin-top:20px;">Say hello! 👋</p>';
-                            return;
-                        }
-                        const m = doc.data();
-                        if (!currentUser) return;
+    // 2. Load Messages
+    msgUnsub = db.collection('chats').doc(chatId).collection('messages')
+        .orderBy('timestamp', 'asc')
+        .onSnapshot(snap => {
+            if (snap.empty) {
+                cont.innerHTML = '<p style="text-align:center; color:var(--text-secondary); margin-top:20px;">Say hello! 👋</p>';
+                return;
+            }
 
-                        const me = m.senderId === currentUser.uid;
-                        let content = '';
+            let html = '';
+            snap.forEach(doc => {
+                const m = doc.data();
+                if (!currentUser) return;
 
-                        // Handle Media
-                        if (m.imageUrl) {
-                            if (m.mediaType === 'video') {
-                                content = `<video src="${m.imageUrl}" controls class="chat-image" onclick="event.stopPropagation()"></video>`;
-                            } else {
-                                content = `<img src="${m.imageUrl}" class="chat-image" onclick="event.stopPropagation(); openLightbox(this.src)">`;
-                            }
-                        } else if (m.text) {
-                            content = `<span>${m.text}</span>`;
-                        }
+                const me = m.senderId === currentUser.uid;
+                let content = '';
 
-                        // --- EVENTS FOR CONTEXT MENU ---
-                        // Only attach these events if it is MY message ('me')
-                        let events = '';
-                        if (me) {
-                            events = `
+                if (m.imageUrl) {
+                    if (m.mediaType === 'video') {
+                        content = `<video src="${m.imageUrl}" controls class="chat-image" onclick="event.stopPropagation()"></video>`;
+                    } else {
+                        content = `<img src="${m.imageUrl}" class="chat-image" onclick="event.stopPropagation(); openLightbox(this.src)">`;
+                    }
+                } else if (m.text) {
+                    content = `<span>${m.text}</span>`;
+                }
+
+                // Context Menu Events
+                let events = '';
+                if (me) {
+                    events = `
                         oncontextmenu="showContextMenu(event, 'message', '${chatId}', '${doc.id}')"
-ontouchstart="startLongPress(event, 'message', '${chatId}', '${doc.id}')"
+                        ontouchstart="startLongPress(event, 'message', '${chatId}', '${doc.id}')"
                         ontouchend="cancelLongPress()"
                         ontouchmove="cancelLongPress()"
                     `;
-                        }
+                }
 
-                        html += `
+                html += `
                 <div class="chat-message-row ${me ? 'me' : 'them'}">
                     <div class="msg-bubble ${me ? 'msg-me' : 'msg-them'}" 
                          ${events} 
-                         style="user-select: none;"> ${content}
+                         style="user-select: none;">
+                        ${content}
                     </div>
                 </div>`;
-                    });
-
-                    cont.innerHTML = html;
-                    cont.scrollTop = cont.scrollHeight;
-                });
-        }
+            });
+            
+            cont.innerHTML = html;
+            cont.scrollTop = cont.scrollHeight;
+        });
+}
         // --- ENABLE ENTER TO SEND (Shift+Enter for New Line) ---
         function setupEnterKeySubmits() {
 
@@ -3956,6 +3990,31 @@ ontouchstart="startLongPress(event, 'message', '${chatId}', '${doc.id}')"
 
         // Start listening immediately
         setupEnterKeySubmits();
+        // --- 1. PRESENCE & TIME UTILS ---
+
+function startPresenceHeartbeat() {
+    if (!currentUser) return;
+    // Update immediately, then every 2 minutes
+    const update = () => db.collection('users').doc(currentUser.uid).update({
+        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    update();
+    setInterval(update, 120000); 
+}
+
+function formatLastActive(timestamp) {
+    if (!timestamp) return 'Offline';
+    const date = timestamp.toDate();
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    
+    if (diffMins < 5) return 'Active now';
+    if (diffMins < 60) return `Active ${diffMins}m ago`;
+    if (diffHours < 24) return `Active ${diffHours}h ago`;
+    return `Last seen ${date.toLocaleDateString()}`;
+}
     </script>
 
 </body>
