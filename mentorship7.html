@@ -6,6 +6,113 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VidyaGenie</title>
     <style>
+        /* --- CUSTOM CONTEXT MENU (Instagram Style) --- */
+        #customContextMenu {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            background: #262626;
+            /* Dark Grey */
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 6px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            min-width: 150px;
+            animation: fadeIn 0.1s ease-out;
+        }
+
+        #customContextMenu button {
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            border: none;
+            color: #ff453a;
+            /* Red for Unsend */
+            font-weight: 600;
+            padding: 10px 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        #customContextMenu button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .delete-msg-btn {
+            margin-left: 10px;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: bold;
+            font-size: 18px;
+            line-height: 1;
+            display: inline-block;
+            vertical-align: middle;
+            transition: color 0.2s;
+            padding: 0 4px;
+        }
+
+        .delete-msg-btn:hover {
+            color: #ff453a;
+            /* Red on hover */
+            transform: scale(1.2);
+        }
+
+        /* --- LIGHTBOX STYLES --- */
+        .lightbox {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            z-index: 9999;
+            /* On top of everything */
+            padding-top: 0;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            /* Prevent scrolling background */
+            background-color: rgba(0, 0, 0, 0.95);
+            /* Deep black background */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lightbox-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s ease-out;
+            cursor: default;
+            /* Changed from 'grab' to 'default' */
+        }
+
+        .lightbox-content:active {
+            cursor: move;
+            /* Shows move icon only when actually dragging */
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10000;
+        }
+
+        .lightbox-close:hover,
+        .lightbox-close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
         /* --- NOTIFICATION BADGE --- */
         .notification-badge {
             position: absolute;
@@ -1622,12 +1729,19 @@
                         <h4 style="padding: 20px 20px 10px 20px; border-bottom: 1px solid var(--border-color);">Active
                             Conversations</h4>
                         <div style="padding: 10px 15px 15px 15px;">
-                            <input type="text" id="chatSearchInput" placeholder="Search chats..."
-                                style="width: 100%; padding: 10px 15px; border-radius: var(--radius-md); background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-main); font-size: 14px;">
+                            <div style="padding: 10px 15px 15px 15px; position: relative;">
+                                <span
+                                    style="position: absolute; left: 25px; top: 50%; transform: translateY(-55%); color: var(--text-secondary); font-size: 14px;">🔍</span>
+                                <input type="text" id="chatSearchInput" placeholder="Search connections..."
+                                    onkeyup="loadChats()"
+                                    style="width: 100%; padding: 10px 15px 10px 35px; border-radius: var(--radius-md); background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-main); font-size: 14px;">
+                            </div>
                         </div>
                         <div id="chatsListContent"></div>
                     </div>
                     <div id="messageView">
+                        <input type="file" id="chatFileInput" accept="image/*,video/*" style="display: none;"
+                            onchange="handleChatFileSelect(this)">
                         <div id="chatHeader"
                             style="padding: 20px 30px; font-weight: 800; font-size: 18px; border-bottom: 1px solid var(--glass-border); background: rgba(0,0,0,0.2);">
                             Select a conversation</div>
@@ -1636,21 +1750,23 @@
 
                         <form id="sendMessageForm" onsubmit="handleSendMessage(event)" class="hidden"
                             style="position: relative; padding: 20px; border-top: 1px solid var(--glass-border); display: flex; gap: 12px; background: rgba(0,0,0,0.2); align-items: center;">
+
                             <input type="hidden" id="selectedChatId">
 
                             <div id="emojiPicker" class="emoji-picker hidden"></div>
 
-                            <input type="file" id="chatFileInput" accept="image/*" style="display: none;"
-                                onchange="handleChatImageSelect(this)">
+                            <input type="file" id="chatFileInput" accept="image/*,video/*" style="display: none;"
+                                onchange="handleChatFileSelect(this)">
+
                             <button type="button" class="chat-upload-btn btn-circle"
                                 onclick="document.getElementById('chatFileInput').click()"
-                                title="Send Image">📷</button>
+                                title="Send Image/Video">📷</button>
 
                             <button type="button" class="chat-upload-btn btn-circle" onclick="toggleEmojiPicker()"
                                 title="Add Emoji" style="padding-bottom: 0;">😀</button>
 
                             <textarea id="messageText" placeholder="Type a message..." required
-                                style="flex-grow: 1; height: 45px; border-radius: 22px; padding: 12px 24px; resize: none; background: rgba(255,255,255,0.05); border:none;"></textarea>
+                                style="flex-grow: 1; height: 45px; border-radius: 22px; padding: 12px 24px; resize: none; background: rgba(255,255,255,0.05); border:none; color: white; font-family: inherit; overflow: hidden;"></textarea>
 
                             <button type="submit" class="btn btn-primary btn-circle" style="font-size: 18px;">➤</button>
                         </form>
@@ -1790,6 +1906,8 @@
     </div>
 
     <div id="createPostModal" class="modal">
+        <input type="file" id="postFileInput" accept="image/*,video/*" style="display: none;"
+            onchange="handlePostFileSelect()">
         <div class="modal-content">
             <div class="modal-header">Create Discussion Post</div>
             <form onsubmit="handleCreatePostSubmit(event)">
@@ -1858,10 +1976,36 @@
             </form>
         </div>
     </div>
+    <div id="imageLightbox" class="lightbox" onclick="closeLightbox()">
+        <span class="lightbox-close">&times;</span>
+        <img class="lightbox-content" id="lightboxImg" onclick="event.stopPropagation()" draggable="false"
+            ondragstart="return false;">
+        <div
+            style="position: absolute; bottom: 20px; color: white; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 20px; font-size: 12px; pointer-events: none;">
+            Scroll to Zoom • Drag to Pan
+        </div>
+    </div>
+    <div id="customContextMenu">
+        <button id="btnUnsend" onclick="performUnsend()" style="display:none; color:#ff453a;">Unsend Message</button>
+        <button id="btnDeleteChat" onclick="performDeleteChat()" style="display:none; color:#ff453a;">Delete
+            Conversation</button>
+    </div>
+    <div id="confirmModal" class="modal" style="z-index: 11000;">
+        <div class="modal-content" style="max-width: 320px; text-align: center; padding: 25px;">
+            <h3 id="confirmTitle" style="margin-bottom: 10px; font-size: 20px;">Are you sure?</h3>
+            <p id="confirmMessage" style="color: var(--text-secondary); margin-bottom: 25px; font-size: 14px;">This
+                action cannot be undone.</p>
 
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button class="btn btn-danger" onclick="closeConfirmModal()" style="flex: 1;">CANCEL</button>
+                <button id="btnConfirmAction" class="btn btn-primary" style="flex: 1;">CONFIRM</button>
+            </div>
+        </div>
+    </div>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -1933,6 +2077,113 @@
         // --- AUTH LOGIC ---
         // --- AUTH: REAL LOGIN HANDLER ---
         // --- AUTH: REAL LOGIN HANDLER (FIXED) ---
+        // --- LIGHTBOX LOGIC (Zoom & Pan) ---
+        let currentScale = 1;
+        let isDragging = false;
+        let startX, startY, translateX = 0, translateY = 0;
+
+        function openLightbox(src) {
+            const modal = document.getElementById('imageLightbox');
+            const img = document.getElementById('lightboxImg');
+
+            // Reset state
+            currentScale = 1;
+            translateX = 0;
+            translateY = 0;
+            img.style.transform = `translate(0px, 0px) scale(1)`;
+
+            img.src = src;
+            modal.style.display = "flex";
+
+            // Add Scroll Listener
+            img.addEventListener('wheel', handleZoom, { passive: false });
+            // Add Drag Listeners
+            img.addEventListener('mousedown', startDrag);
+            window.addEventListener('mousemove', drag);
+            window.addEventListener('mouseup', endDrag);
+        }
+
+        function closeLightbox() {
+            const modal = document.getElementById('imageLightbox');
+            const img = document.getElementById('lightboxImg');
+            modal.style.display = "none";
+
+            // Clean up listeners
+            img.removeEventListener('wheel', handleZoom);
+            img.removeEventListener('mousedown', startDrag);
+            window.removeEventListener('mousemove', drag);
+            window.removeEventListener('mouseup', endDrag);
+        }
+        // --- CUSTOM CONFIRMATION LOGIC ---
+        function showConfirm(title, message, onConfirmCallback) {
+            const modal = document.getElementById('confirmModal');
+            document.getElementById('confirmTitle').innerText = title;
+            document.getElementById('confirmMessage').innerText = message;
+
+            // Assign the specific action to the Confirm button
+            const confirmBtn = document.getElementById('btnConfirmAction');
+            confirmBtn.onclick = function () {
+                onConfirmCallback(); // Run the passed function
+                closeConfirmModal(); // Close modal
+            };
+
+            modal.classList.add('active');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+        }
+
+        function handleZoom(event) {
+            event.preventDefault(); // Stop page scrolling
+            const img = document.getElementById('lightboxImg');
+
+            // Determine zoom direction
+            const delta = event.deltaY * -0.005; // -0.005 sensitivity
+            const newScale = Math.min(Math.max(0.5, currentScale + delta), 5); // Min 0.5x, Max 5x
+
+            currentScale = newScale;
+            updateTransform();
+        }
+        function deleteMessage(chatId, messageId) {
+            if (!confirm("Unsend this message?")) return;
+
+            db.collection('chats').doc(chatId).collection('messages').doc(messageId).delete()
+                .then(() => {
+                    console.log("Message unsent");
+                    // The onSnapshot listener in openInlineChat will automatically remove it from the UI
+                })
+                .catch(error => {
+                    console.error("Error removing message: ", error);
+                    alert("Could not unsend message.");
+                });
+        }
+        // --- DRAG / PAN LOGIC ---
+        function startDrag(e) {
+            if (currentScale <= 1) return; // Only drag if zoomed in
+            isDragging = true;
+            startX = e.clientX - translateX;
+            startY = e.clientY - translateY;
+            document.getElementById('lightboxImg').style.cursor = 'grabbing';
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            translateX = e.clientX - startX;
+            translateY = e.clientY - startY;
+            updateTransform();
+        }
+
+        function endDrag() {
+            isDragging = false;
+            document.getElementById('lightboxImg').style.cursor = 'grab';
+        }
+
+        function updateTransform() {
+            const img = document.getElementById('lightboxImg');
+            img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
+        }
         function handleLogin(e) {
             e.preventDefault();
 
@@ -2040,6 +2291,7 @@
         seedMockData().then(() => {
             loadDevUsers(); // Load the list immediately on startup
         });
+
 
         function seedMockData() {
             const batch = db.batch();
@@ -2319,6 +2571,85 @@
             if (tabName === 'requests') loadRequests();
             if (tabName === 'profile') loadProfile();
         }
+        // --- CONTEXT MENU LOGIC (Right Click / Long Press) ---
+        // --- CONTEXT MENU LOGIC (Dynamic) ---
+        let contextMenuTarget = { type: null, id1: null, id2: null };
+        let longPressTimer;
+
+        function showContextMenu(e, type, id1, id2 = null) {
+            e.preventDefault();
+            e.stopPropagation(); // Prevent other clicks
+
+            contextMenuTarget = { type, id1, id2 };
+
+            const menu = document.getElementById('customContextMenu');
+            const btnUnsend = document.getElementById('btnUnsend');
+            const btnDelete = document.getElementById('btnDeleteChat');
+
+            // 1. Toggle Buttons based on Type
+            if (type === 'message') {
+                btnUnsend.style.display = 'block';
+                btnDelete.style.display = 'none';
+            } else if (type === 'chat') {
+                btnUnsend.style.display = 'none';
+                btnDelete.style.display = 'block';
+            }
+
+            // 2. Position Menu
+            let x = e.pageX || (e.touches ? e.touches[0].pageX : 0);
+            let y = e.pageY || (e.touches ? e.touches[0].pageY : 0);
+
+            menu.style.left = `${x}px`;
+            menu.style.top = `${y}px`;
+            menu.style.display = 'block';
+        }
+
+        function hideContextMenu() {
+            document.getElementById('customContextMenu').style.display = 'none';
+        }
+        window.addEventListener('click', hideContextMenu);
+        window.addEventListener('scroll', hideContextMenu);
+
+        // --- ACTIONS ---
+        function performUnsend() {
+            // id1 = chatId, id2 = msgId
+            if (contextMenuTarget.type === 'message') {
+                deleteMessage(contextMenuTarget.id1, contextMenuTarget.id2);
+            }
+            hideContextMenu();
+        }
+
+        function performDeleteChat() {
+            if (contextMenuTarget.type === 'chat') {
+                showConfirm(
+                    "Delete Conversation?",
+                    "This will delete the chat history permanently.",
+                    () => {
+                        db.collection('chats').doc(contextMenuTarget.id1).delete().then(() => {
+                            loadChats();
+                            // Clear screen if open
+                            if (document.getElementById('selectedChatId').value === contextMenuTarget.id1) {
+                                document.getElementById('chatHeader').textContent = "Select a chat to begin.";
+                                document.getElementById('messagesContainer').innerHTML = "";
+                                document.getElementById('sendMessageForm').classList.add('hidden');
+                            }
+                        });
+                    }
+                );
+            }
+            hideContextMenu();
+        }
+
+        // --- LONG PRESS HANDLERS ---
+        function startLongPress(e, type, id1, id2 = null) {
+            longPressTimer = setTimeout(() => {
+                showContextMenu(e, type, id1, id2);
+            }, 600);
+        }
+
+        function cancelLongPress() {
+            clearTimeout(longPressTimer);
+        }
 
         // --- POST FILE HANDLING ---
         function handlePostFileSelect() {
@@ -2340,27 +2671,48 @@
             removeBtn.style.display = 'none';
         }
 
-        function handleChatImageSelect(input) {
+        function handleChatFileSelect(input) {
             if (input.files && input.files[0]) {
                 const file = input.files[0];
 
-                // 1. Size Limit Check (Keep under ~800KB for Firestore document limits)
-                if (file.size > 800 * 1024) {
-                    alert("Image too large. Please select an image under 800KB.");
-                    input.value = ""; // Reset
+                // 1. Size Limit Check
+                if (file.size > 2 * 1024 * 1024) { // 2MB Limit
+                    alert("File too large. Please keep under 2MB.");
+                    input.value = "";
                     return;
                 }
 
-                // 2. Read & Send
+                // 2. Detect Type
+                const type = file.type.startsWith('video/') ? 'video' : 'image';
+
+                // 3. Read & Send
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     const base64 = e.target.result;
-                    sendChatImage(base64);
+                    sendChatFile(base64, type);
                 };
                 reader.readAsDataURL(file);
 
-                input.value = ""; // Reset input so same file can be selected again
+                input.value = "";
             }
+        }
+
+        function sendChatFile(base64String, type) {
+            const chatId = document.getElementById('selectedChatId').value;
+            if (!chatId) return;
+
+            db.collection('chats').doc(chatId).collection('messages').add({
+                imageUrl: base64String, // Still using 'imageUrl' field to store data
+                mediaType: type,        // NEW: Stores 'image' or 'video'
+                text: type === 'video' ? "Sent a video" : "Sent an image",
+                senderId: currentUser.uid,
+                timestamp: new Date()
+            });
+
+            db.collection('chats').doc(chatId).update({
+                lastMessage: type === 'video' ? "🎥 Video" : "📷 Image",
+                updatedAt: new Date()
+            });
         }
 
         function sendChatImage(base64String) {
@@ -2583,37 +2935,32 @@
         }
 
         function unfriend(otherId, reqId) {
-            if (!confirm("Are you sure you want to disconnect? Chat history will be permanently deleted.")) return;
+            showConfirm(
+                "Disconnect User?",
+                "Are you sure you want to disconnect? Chat history will be deleted.",
+                () => {
+                    const batch = db.batch();
+                    const chatId = [currentUser.uid, otherId].sort().join('_');
 
-            const batch = db.batch();
-            const chatId = [currentUser.uid, otherId].sort().join('_');
+                    batch.delete(db.collection('connection_requests').doc(reqId));
+                    batch.delete(db.collection('chats').doc(chatId));
 
-            // 1. Queue Deletes
-            batch.delete(db.collection('connection_requests').doc(reqId));
-            batch.delete(db.collection('chats').doc(chatId));
+                    batch.commit().then(() => {
+                        document.getElementById('connectionsModal').classList.remove('active');
 
-            // 2. Commit to Database
-            batch.commit().then(() => {
-                alert("Disconnected successfully.");
-                document.getElementById('connectionsModal').classList.remove('active');
-
-                // 3. 🚨 UI CLEANUP: If this chat was open, clear the screen
-                const currentOpenChat = document.getElementById('selectedChatId').value;
-                if (currentOpenChat === chatId) {
-                    document.getElementById('chatHeader').textContent = "Select a chat to begin.";
-                    document.getElementById('messagesContainer').innerHTML = "";
-                    document.getElementById('sendMessageForm').classList.add('hidden');
-                    document.getElementById('selectedChatId').value = ""; // Clear ID
-                    if (msgUnsub) msgUnsub(); // Stop listening to updates
+                        // UI Cleanup
+                        const currentOpenChat = document.getElementById('selectedChatId').value;
+                        if (currentOpenChat === chatId) {
+                            document.getElementById('chatHeader').textContent = "Select a chat to begin.";
+                            document.getElementById('messagesContainer').innerHTML = "";
+                            document.getElementById('sendMessageForm').classList.add('hidden');
+                            if (msgUnsub) msgUnsub();
+                        }
+                        loadMentors();
+                        loadChats();
+                    }).catch(e => alert("Error disconnecting: " + e.message));
                 }
-
-                // 4. Refresh Lists
-                loadMentors();
-                loadChats();
-            }).catch(e => {
-                console.error("Error disconnecting:", e);
-                alert("Error disconnecting: " + e.message);
-            });
+            );
         }
 
         function renderUserResults(snapshot, allRequests = []) {
@@ -2863,28 +3210,89 @@
             }, { merge: true });
         }
 
-        function loadChats() {
-            const listEl = document.getElementById('chatsListContent');
-            listEl.innerHTML = '<p style="color:var(--text-secondary);">Loading chats...</p>';
-            db.collection('chats').where('participants', 'array-contains', currentUser.uid).orderBy('updatedAt', 'desc').get().then(async snap => {
-                let html = '';
-                snap.forEach(doc => {
-                    const chat = doc.data();
-                    const otherId = chat.participants.find(id => id !== currentUser.uid);
-                    const otherUser = MOCK_USERS[otherId];
-                    if (otherUser) {
-                        const otherName = otherUser.name.charAt(0).toUpperCase() + otherUser.name.slice(1);
-                        const role = (otherUser.role || '').toUpperCase();
-                        html += `
-                        <div class="card chat-item" onclick="openInlineChat('${doc.id}', '${otherName}')" style="cursor:pointer; padding: 15px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
-                            <div><div style="font-weight: 600; font-size: 15px; color: var(--text-main);">${otherName} <span style="font-size: 11px; color: var(--text-secondary);">(${role})</span></div><small style="color: var(--text-secondary); display: block; margin-top: 4px;">${chat.lastMessage}</small></div>
-                            <button class="btn btn-danger" style="padding: 4px 10px; font-size: 12px; border-radius: 6px;" onclick="deleteChat('${doc.id}', event)">X</button>
-                        </div>`;
-                    }
-                });
-                listEl.innerHTML = html || '<p style="color:var(--text-secondary);">&nbsp&nbspNo active chats.</p>';
-            }).catch(e => { console.error(e); listEl.innerHTML = '<p style="color:var(--danger-color)">Error loading chats.</p>'; });
-        }
+        // --- LOAD CHATS (Connections + Active Conversations) ---
+        // --- LOAD CHATS (Clean UI - Search Connections + Active Conversations) ---
+function loadChats() {
+    const listEl = document.getElementById('chatsListContent');
+    const searchTerm = document.getElementById('chatSearchInput').value.toLowerCase().trim();
+    
+    if (!searchTerm) listEl.innerHTML = '<p style="color:var(--text-secondary); padding:15px;">Loading...</p>';
+
+    const sentPromise = db.collection('connection_requests').where('senderId', '==', currentUser.uid).where('status', '==', 'accepted').get();
+    const receivedPromise = db.collection('connection_requests').where('recipientId', '==', currentUser.uid).where('status', '==', 'accepted').get();
+    const chatsPromise = db.collection('chats').where('participants', 'array-contains', currentUser.uid).get();
+
+    Promise.all([sentPromise, receivedPromise, chatsPromise]).then(async ([sentSnap, recSnap, chatsSnap]) => {
+        const chatMap = {}; 
+        chatsSnap.forEach(doc => {
+            const data = doc.data();
+            const otherId = data.participants.find(id => id !== currentUser.uid);
+            chatMap[otherId] = { ...data, id: doc.id };
+        });
+
+        const connectedUserIds = new Set();
+        sentSnap.forEach(doc => connectedUserIds.add(doc.data().recipientId));
+        recSnap.forEach(doc => connectedUserIds.add(doc.data().senderId));
+
+        let html = '';
+
+        const renderPromises = Array.from(connectedUserIds).map(async (otherId) => {
+            let otherUser = null;
+            try {
+                const uDoc = await db.collection('users').doc(otherId).get();
+                if (uDoc.exists) otherUser = uDoc.data();
+            } catch (e) {}
+
+            if (!otherUser) otherUser = MOCK_USERS[otherId];
+            if (!otherUser) return; 
+
+            const name = (otherUser.name || 'User').toLowerCase();
+            if (searchTerm && !name.includes(searchTerm)) return;
+
+            const displayName = otherUser.name.charAt(0).toUpperCase() + otherUser.name.slice(1);
+            const role = (otherUser.role || '').toUpperCase();
+            const picUrl = otherUser.profilePic;
+
+            let avatarHtml = picUrl 
+                ? `<img src="${picUrl}" style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:1px solid var(--border-color); flex-shrink:0;">`
+                : `<div style="width:45px; height:45px; border-radius:50%; background:black; color:white; display:flex; align-items:center; justify-content:center; border:1px solid var(--border-color); font-weight:bold; font-size:18px; flex-shrink:0;">${displayName.charAt(0)}</div>`;
+
+            const existingChat = chatMap[otherId];
+            const lastMsg = existingChat ? (existingChat.lastMessage || 'Sent media') : 'Start a conversation';
+            const msgColor = existingChat ? 'var(--text-secondary)' : 'var(--primary-color)';
+            const chatId = existingChat ? existingChat.id : [currentUser.uid, otherId].sort().join('_');
+
+            // Attached Context Menu events, but NO visible button (deleteBtn)
+            return `
+            <div class="card chat-item" onclick="openInlineChat('${chatId}', '${displayName}')" 
+                 style="cursor:pointer; padding: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 12px; user-select: none;"
+                 oncontextmenu="showContextMenu(event, 'chat', '${chatId}')"
+                 ontouchstart="startLongPress(event, 'chat', '${chatId}')"
+                 ontouchend="cancelLongPress()"
+                 ontouchmove="cancelLongPress()">
+                
+                ${avatarHtml}
+                
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-weight: 600; font-size: 15px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${displayName} <span style="font-size: 11px; color: var(--text-secondary);">(${role})</span>
+                    </div>
+                    <small style="color: ${msgColor}; display: block; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${lastMsg}
+                    </small>
+                </div>
+            </div>`;
+        });
+
+        const renderedItems = await Promise.all(renderPromises);
+        html = renderedItems.join('');
+        listEl.innerHTML = html || '<p style="color:var(--text-secondary); padding:15px;">No connections found.</p>';
+
+    }).catch(e => {
+        console.error(e);
+        listEl.innerHTML = '<p style="color:var(--danger-color)">Error loading chats.</p>';
+    });
+}
 
         function deleteChat(chatId, event) {
             event.stopPropagation();
@@ -2900,53 +3308,7 @@
             }
         }
 
-        let msgUnsub;
-        function openInlineChat(id, name) {
-            if (msgUnsub) msgUnsub();
-            document.getElementById('selectedChatId').value = id;
-            document.getElementById('chatHeader').innerText = name;
-            document.getElementById('sendMessageForm').classList.remove('hidden');
-            const cont = document.getElementById('messagesContainer');
 
-            msgUnsub = db.collection('chats').doc(id).collection('messages').orderBy('timestamp', 'asc').onSnapshot(snap => {
-                let html = '';
-                snap.forEach(doc => {
-                    const m = doc.data();
-                    const me = m.senderId === currentUser.uid;
-
-                    let contentHtml = '';
-
-                    // 1. Check for Image
-                    if (m.imageUrl) {
-                        // 🚨 FIX: Added onerror handler to debug broken links
-                        contentHtml = `
-                            <img src="${m.imageUrl}" 
-                                 class="chat-image" 
-                                 onclick="window.open(this.src)" 
-                                 alt="Image"
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                            <div style="display:none; color:#ff6b6b; font-size:12px; padding:5px;">⚠️ Failed to load image</div>
-                        `;
-                    }
-                    // 2. Check for Text
-                    else if (m.text) {
-                        contentHtml = `<span>${m.text}</span>`;
-                    }
-
-                    // Only render if we have content
-                    if (contentHtml) {
-                        html += `
-                        <div class="chat-message-row ${me ? 'me' : 'them'}">
-                            <div class="msg-bubble ${me ? 'msg-me' : 'msg-them'}">
-                                ${contentHtml}
-                            </div>
-                        </div>`;
-                    }
-                });
-                cont.innerHTML = html;
-                cont.scrollTop = cont.scrollHeight;
-            });
-        }
 
         function handleSendMessage(e) {
             e.preventDefault();
@@ -2962,30 +3324,47 @@
         // --- COMMUNITY & POSTS ---
         // --- COMMUNITY & POSTS (Async with Comments) ---
         // --- COMMUNITY & POSTS (Async with Comments & Optimistic Upvote) ---
+        // --- COMMUNITY & POSTS (Async with Comments, Optimistic Upvote & Video Support) ---
+        // --- COMMUNITY & POSTS (Async, Comments, Optimistic Upvote, Video & ZOOM FIX) ---
+        // --- COMMUNITY & POSTS (Async, Comments, Optimistic Upvote, Video & ZOOM FIX) ---
         async function loadCommunity() {
             const listEl = document.getElementById('communityPostsList');
             if (!listEl) return;
 
-            // Note: We removed the "Loading..." text here to prevent flicker on initial switch if data is cached
-            // If list is empty, show loading.
             if (listEl.innerHTML === '') listEl.innerHTML = '<p style="text-align:center; color:var(--text-secondary);">Loading posts...</p>';
 
             try {
                 const snap = await db.collection('posts').orderBy('createdAt', 'desc').limit(20).get();
-                let fullHtml = '';
 
                 const postPromises = snap.docs.map(async (doc) => {
                     const p = doc.data();
                     const isAuthor = p.authorId === currentUser.uid;
 
+                    // Upvote Logic
                     const pUpvoters = p.upvoters || [];
                     const pHasUpvoted = pUpvoters.includes(currentUser.uid);
                     const pUpvoteClass = pHasUpvoted ? 'btn-primary' : 'btn-secondary';
 
-                    const imageHtml = p.imageUrl ? `<img src="${p.imageUrl}" class="post-image" onclick="window.open(this.src)" style="cursor:pointer;">` : '';
+                    // --- NEW MEDIA RENDERING LOGIC (WITH STOP PROPAGATION) ---
+                    let mediaHtml = '';
+                    if (p.imageUrl) {
+                        if (p.mediaType === 'video') {
+                            // Added onclick="event.stopPropagation()" so clicking video controls doesn't open post
+                            mediaHtml = `
+                        <video src="${p.imageUrl}" controls class="post-image" 
+                               onclick="event.stopPropagation()"
+                               style="background:black; max-height:400px; width:100%; border-radius:12px; margin-top:15px;">
+                        </video>`;
+                        } else {
+                            // Added event.stopPropagation(); before openLightbox
+                            mediaHtml = `<img src="${p.imageUrl}" class="post-image" onclick="event.stopPropagation(); openLightbox(this.src)" style="cursor:pointer;">`;
+                        }
+                    }
+                    // ---------------------------------------------------------
+
                     const linkHtml = p.linkUrl ? `<a href="${p.linkUrl}" target="_blank" class="post-link">🔗 ${p.linkUrl}</a>` : '';
 
-                    // --- FETCH TOP 2 COMMENTS ---
+                    // Fetch Comments (Existing Logic)
                     const commentsSnap = await db.collection('posts').doc(doc.id).collection('comments')
                         .orderBy('upvotes', 'desc').limit(2).get();
 
@@ -3017,7 +3396,7 @@
             <div class="card">
                 <div style="cursor:pointer;" onclick="viewPost('${doc.id}')">
                     <div class="card-header">${p.title} <span class="badge badge-verified" style="font-size:10px;">${p.authorRole || 'User'}</span></div>
-                    <div class="card-body">${p.body}${linkHtml}${imageHtml}</div>
+                    <div class="card-body">${p.body}${linkHtml}${mediaHtml}</div>
                 </div>
                 
                 ${commentsHtml}
@@ -3038,6 +3417,7 @@
 
             } catch (e) {
                 console.error(e);
+                listEl.innerHTML = '<p style="text-align:center; color:var(--danger-color);">Error loading posts.</p>';
             }
         }
 
@@ -3062,33 +3442,70 @@
             e.preventDefault();
             const submitBtn = document.getElementById('submitPostBtn');
             submitBtn.disabled = true; submitBtn.innerText = "Posting...";
+
             const title = document.getElementById('communityPostTitle').value;
             const body = document.getElementById('communityPostBody').value;
             const link = document.getElementById('postLinkInput').value.trim();
             const fileInput = document.getElementById('postFileInput');
 
-            const savePostToDB = (imageUrl) => {
+            const savePostToDB = (fileData, type) => {
                 db.collection('posts').add({
-                    title, body, linkUrl: link, imageUrl, authorName: currentUserData.name, authorId: currentUser.uid, authorRole: currentUserData.role, upvotes: 0, createdAt: new Date()
+                    title,
+                    body,
+                    linkUrl: link,
+                    imageUrl: fileData, // We keep the field name 'imageUrl' for compatibility
+                    mediaType: type || 'image', // NEW: Save 'image' or 'video'
+                    authorName: currentUserData.name,
+                    authorId: currentUser.uid,
+                    authorRole: currentUserData.role,
+                    upvotes: 0,
+                    createdAt: new Date()
                 }).then(() => {
                     document.getElementById('createPostModal').classList.remove('active');
-                    document.getElementById('communityPostTitle').value = ''; document.getElementById('communityPostBody').value = ''; document.getElementById('postLinkInput').value = ''; removePostImage();
-                    submitBtn.disabled = false; submitBtn.innerText = "Post"; loadCommunity();
-                }).catch(err => { console.error(err); alert("Error posting."); submitBtn.disabled = false; submitBtn.innerText = "Post"; });
+                    // Clear inputs
+                    document.getElementById('communityPostTitle').value = '';
+                    document.getElementById('communityPostBody').value = '';
+                    document.getElementById('postLinkInput').value = '';
+                    removePostImage();
+
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Post";
+                    loadCommunity();
+                }).catch(err => {
+                    console.error(err);
+                    alert("Error posting.");
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Post";
+                });
             };
 
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
-                if (file.size > 800 * 1024) { alert("Image too large."); submitBtn.disabled = false; submitBtn.innerText = "Post"; return; }
+                // Note: Firestore has a 1MB limit. Videos must be lovery short/small for this method.
+                if (file.size > 10 * 1024 * 1024) { // Increased check to 10MB (though DB might fail if >1MB)
+                    alert("File too large. Please keep under 2MB for this demo.");
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Post";
+                    return;
+                }
+
+                const fileType = file.type.startsWith('video/') ? 'video' : 'image';
                 const reader = new FileReader();
-                reader.onload = function (e) { savePostToDB(e.target.result); };
+                reader.onload = function (e) { savePostToDB(e.target.result, fileType); };
                 reader.readAsDataURL(file);
-            } else { savePostToDB(null); }
+            } else {
+                savePostToDB(null, null);
+            }
         }
 
         function deletePost(postId) {
-            if (!confirm("Delete post?")) return;
-            db.collection('posts').doc(postId).delete().then(() => loadCommunity());
+            showConfirm(
+                "Delete Post?",
+                "This post will be permanently removed from the community.",
+                () => {
+                    db.collection('posts').doc(postId).delete().then(() => loadCommunity());
+                }
+            );
         }
 
         function viewPost(id) {
@@ -3207,7 +3624,16 @@
             }
         }
 
-        function deleteComment(pid, cid) { if (confirm("Delete?")) db.collection('posts').doc(pid).collection('comments').doc(cid).delete().then(() => loadComments(pid)); }
+        function deleteComment(postId, commentId) {
+            showConfirm(
+                "Delete Comment?",
+                "Are you sure you want to remove this comment?",
+                () => {
+                    db.collection('posts').doc(postId).collection('comments').doc(commentId).delete()
+                        .then(() => loadComments(postId));
+                }
+            );
+        }
         function upvote(id) { const ref = db.collection('posts').doc(id); ref.get().then(doc => { if (doc.data().authorId === currentUser.uid) return alert("Cannot upvote self"); const upvoters = doc.data().upvoters || []; const hasUpvoted = upvoters.includes(currentUser.uid); ref.update({ upvotes: firebase.firestore.FieldValue.increment(hasUpvoted ? -1 : 1), upvoters: hasUpvoted ? upvoters.filter(x => x !== currentUser.uid) : [...upvoters, currentUser.uid] }).then(loadCommunity); }); }
         function upvoteComment(pid, cid) { const ref = db.collection('posts').doc(pid).collection('comments').doc(cid); ref.get().then(doc => { const data = doc.data(); if (data.authorId === currentUser.uid) return; const upvoters = data.upvoters || []; const hasUpvoted = upvoters.includes(currentUser.uid); ref.update({ upvotes: firebase.firestore.FieldValue.increment(hasUpvoted ? -1 : 1), upvoters: hasUpvoted ? upvoters.filter(id => id !== currentUser.uid) : [...upvoters, currentUser.uid] }).then(() => loadComments(pid)); }); }
 
@@ -3222,15 +3648,34 @@
                 const rawName = data.name || "User";
                 const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
 
-                // Update Profile Header
-                document.getElementById('profileName').textContent = displayName;
-                document.getElementById('profileEmail').textContent = data.email || 'email@example.com';
+                // --- UPDATE NAME (With Tick for Verified Mentors) ---
+                const nameEl = document.getElementById('profileName');
+                if (data.role === 'mentor' && data.isVerified) {
+                    // Add Green Tick
+                    nameEl.innerHTML = `${displayName} <span style="color:#30D158; font-size:0.8em; vertical-align: middle;">✔</span>`;
+                } else {
+                    nameEl.textContent = displayName;
+                }
 
+                // --- UPDATE BADGE (Color & Text Logic) ---
                 const badgeEl = document.getElementById('profileBadge');
-                badgeEl.textContent = (data.role || 'student').toUpperCase();
-                badgeEl.style.background = data.role === 'mentor' ? '#30D158' : 'var(--primary-color)';
+                let badgeText = (data.role || 'student').toUpperCase();
+                let badgeColor = 'var(--primary-color)'; // Default Blue for Students
 
-                // Profile Picture
+                if (data.role === 'mentor') {
+                    if (data.isVerified) {
+                        badgeText = "VERIFIED MENTOR";
+                        badgeColor = "#30D158"; // Green
+                    } else {
+                        badgeText = "MENTOR";
+                        badgeColor = "#636366"; // Gray for Unverified
+                    }
+                }
+
+                badgeEl.textContent = badgeText;
+                badgeEl.style.background = badgeColor;
+
+                // --- PROFILE PICTURE ---
                 const picContainer = document.getElementById('profilePicContainer');
                 const picUrl = data.profilePic;
                 if (picUrl) {
@@ -3240,7 +3685,7 @@
                     picContainer.innerHTML = `<div class="profile-initial-large-new">${initials}</div>`;
                 }
 
-                // Skills
+                // --- SKILLS ---
                 const skillsContainer = document.getElementById('skillsContainer');
                 if (data.skills && data.skills.length > 0) {
                     skillsContainer.innerHTML = data.skills.map(skill =>
@@ -3250,7 +3695,8 @@
                     skillsContainer.innerHTML = '<div class="empty-state-new">No skills added yet. Click Edit Profile to add your expertise.</div>';
                 }
 
-                // Profile Info Text
+                // --- INFO SECTION ---
+                document.getElementById('profileEmail').textContent = data.email || 'email@example.com';
                 document.getElementById('infoCollege').textContent = data.college || 'Not specified';
                 document.getElementById('infoYear').textContent = data.year || 'Not specified';
                 document.getElementById('infoRole').textContent = data.role ? data.role.charAt(0).toUpperCase() + data.role.slice(1) : 'Not specified';
@@ -3260,7 +3706,7 @@
                     document.getElementById('infoJoined').textContent = joinedMonth;
                 }
 
-                // Populate Edit Form
+                // --- POPULATE EDIT FORM ---
                 document.getElementById('editName').value = data.name || '';
                 document.getElementById('editCollege').value = data.college || '';
                 document.getElementById('editYear').value = data.year || '';
@@ -3271,9 +3717,8 @@
                 document.getElementById('profileName').textContent = 'Error loading profile';
             });
 
-            // 2. --- NEW LOGIC: CALCULATE REAL STATS ---
+            // 2. --- CALCULATE REAL STATS ---
 
-            // Count Connections (Accepted requests where I am sender OR recipient)
             const sentPromise = db.collection('connection_requests')
                 .where('senderId', '==', currentUser.uid)
                 .where('status', '==', 'accepted').get();
@@ -3283,10 +3728,36 @@
                 .where('status', '==', 'accepted').get();
 
             Promise.all([sentPromise, receivedPromise]).then(([sentSnap, receivedSnap]) => {
+                // A. Total Connections
                 const totalConnections = sentSnap.size + receivedSnap.size;
                 document.getElementById('statConnections').textContent = totalConnections;
-                // For now, setting Mentors stat to same as connections (or you can create specific logic)
-                document.getElementById('statMentors').textContent = totalConnections;
+
+                // B. Calculate Mentor Connections
+                // Collect IDs of everyone I'm connected to
+                const connectedIds = new Set();
+                sentSnap.forEach(doc => connectedIds.add(doc.data().recipientId));
+                receivedSnap.forEach(doc => connectedIds.add(doc.data().senderId));
+
+                if (connectedIds.size === 0) {
+                    document.getElementById('statMentors').textContent = 0;
+                    return;
+                }
+
+                // Query DB for Verified Mentors and check overlap
+                db.collection('users')
+                    .where('role', '==', 'mentor')
+                    .where('isVerified', '==', true)
+                    .get()
+                    .then(mentorSnap => {
+                        let mentorCount = 0;
+                        mentorSnap.forEach(doc => {
+                            // If a verified mentor is in my connected list, count them
+                            if (connectedIds.has(doc.id)) {
+                                mentorCount++;
+                            }
+                        });
+                        document.getElementById('statMentors').textContent = mentorCount;
+                    });
             });
 
             // Count My Posts
@@ -3347,7 +3818,19 @@
             alert('Resume download feature coming soon!');
         }
 
-        function removeProfilePic() { if (!confirm("Remove picture?")) return; db.collection('users').doc(currentUser.uid).update({ profilePic: "" }).then(() => { alert("Removed."); loadProfile(); updateUserInfo(); }); }
+        function removeProfilePic() {
+            showConfirm(
+                "Remove Photo?",
+                "Are you sure you want to remove your profile picture?",
+                () => {
+                    db.collection('users').doc(currentUser.uid).update({ profilePic: "" })
+                        .then(() => {
+                            loadProfile();
+                            updateUserInfo();
+                        });
+                }
+            );
+        }
         function handleFileSelect() { const fileInput = document.getElementById('fileInput'); if (fileInput.files.length > 0) document.getElementById('fileNameDisplay').textContent = fileInput.files[0].name; }
         function uploadProfilePic() {
             const fileInput = document.getElementById('fileInput');
@@ -3358,7 +3841,123 @@
             reader.onload = function (e) { db.collection('users').doc(currentUser.uid).set({ profilePic: e.target.result }, { merge: true }).then(() => { alert("Updated!"); loadProfile(); updateUserInfo(); }); };
             reader.readAsDataURL(file);
         }
+        // --- UNSEND & CHAT FUNCTIONS ---
+
+        // 1. Global listener variable (Only declare this ONCE in your code)
+        let msgUnsub;
+
+        // 2. The Delete Function
+        function deleteMessage(chatId, messageId) {
+            showConfirm(
+                "Unsend Message?",
+                "This message will be removed for everyone in the chat.",
+                () => {
+                    db.collection('chats').doc(chatId).collection('messages').doc(messageId).delete()
+                        .then(() => console.log("Message unsent"))
+                        .catch(error => console.error("Error removing message: ", error));
+                }
+            );
+        }
+
+        // 3. The Chat Function
+        function openInlineChat(chatId, name) {
+            if (msgUnsub) msgUnsub();
+
+            document.getElementById('selectedChatId').value = chatId;
+            document.getElementById('chatHeader').innerText = name;
+            document.getElementById('sendMessageForm').classList.remove('hidden');
+            const cont = document.getElementById('messagesContainer');
+
+            msgUnsub = db.collection('chats').doc(chatId).collection('messages')
+                .orderBy('timestamp', 'asc')
+                .onSnapshot(snap => {
+                    let html = '';
+                    snap.forEach(doc => {
+                        if (snap.empty) {
+                            cont.innerHTML = '<p style="text-align:center; color:var(--text-secondary); margin-top:20px;">Say hello! 👋</p>';
+                            return;
+                        }
+                        const m = doc.data();
+                        if (!currentUser) return;
+
+                        const me = m.senderId === currentUser.uid;
+                        let content = '';
+
+                        // Handle Media
+                        if (m.imageUrl) {
+                            if (m.mediaType === 'video') {
+                                content = `<video src="${m.imageUrl}" controls class="chat-image" onclick="event.stopPropagation()"></video>`;
+                            } else {
+                                content = `<img src="${m.imageUrl}" class="chat-image" onclick="event.stopPropagation(); openLightbox(this.src)">`;
+                            }
+                        } else if (m.text) {
+                            content = `<span>${m.text}</span>`;
+                        }
+
+                        // --- EVENTS FOR CONTEXT MENU ---
+                        // Only attach these events if it is MY message ('me')
+                        let events = '';
+                        if (me) {
+                            events = `
+                        oncontextmenu="showContextMenu(event, 'message', '${chatId}', '${doc.id}')"
+ontouchstart="startLongPress(event, 'message', '${chatId}', '${doc.id}')"
+                        ontouchend="cancelLongPress()"
+                        ontouchmove="cancelLongPress()"
+                    `;
+                        }
+
+                        html += `
+                <div class="chat-message-row ${me ? 'me' : 'them'}">
+                    <div class="msg-bubble ${me ? 'msg-me' : 'msg-them'}" 
+                         ${events} 
+                         style="user-select: none;"> ${content}
+                    </div>
+                </div>`;
+                    });
+
+                    cont.innerHTML = html;
+                    cont.scrollTop = cont.scrollHeight;
+                });
+        }
+        // --- ENABLE ENTER TO SEND (Shift+Enter for New Line) ---
+        function setupEnterKeySubmits() {
+
+            // Helper to handle the logic
+            const addEnterListener = (elementId, actionFunction) => {
+                const el = document.getElementById(elementId);
+                if (el) {
+                    el.addEventListener('keydown', function (e) {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault(); // Stop default (New Line)
+                            actionFunction(e);  // Trigger Send
+                        }
+                    });
+                }
+            };
+
+            // 1. CHAT MESSAGES
+            addEnterListener('messageText', handleSendMessage);
+
+            // 2. COMMENTS
+            addEnterListener('commentText', handleNewComment);
+
+            // 3. CREATE POST BODY
+            // For the post, we trigger the button click to run validation
+            const postBody = document.getElementById('communityPostBody');
+            if (postBody) {
+                postBody.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        document.getElementById('submitPostBtn').click();
+                    }
+                });
+            }
+        }
+
+        // Start listening immediately
+        setupEnterKeySubmits();
     </script>
+
 </body>
 
 </html>
