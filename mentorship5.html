@@ -6,6 +6,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VidyaGenie</title>
     <style>
+
+        .requests-icon-style {
+    margin-right: 0;
+    color: var(--primary-color);
+}
+
+    .private-mode-icon {
+    width: 44px;
+    height: 44px;
+    background-color: var(--bg-input);
+    color: var(--text-main);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    transition: all var(--transition-speed) var(--transition-bounce);
+    font-size: 18px;
+    position: relative;
+}
+
+.private-mode-icon:hover {
+    transform: scale(1.1);
+    background-color: var(--bg-hover);
+    border-color: var(--text-secondary);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+.private-mode-icon.active {
+    background: linear-gradient(135deg, var(--primary-color), #0071e3);
+    color: white;
+    box-shadow: 0 0 20px rgba(10, 132, 255, 0.4);
+    border-color: var(--primary-color);
+}
+
+.private-mode-label {
+    position: absolute;
+    top: -25px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.private-mode-icon:hover .private-mode-label {
+    opacity: 1;
+}
+
         /* --- CONSISTENT SORT BUTTON STYLES --- */
         .sort-btn-style {
             display: flex;
@@ -2043,6 +2099,11 @@
                             <span>👥</span>
                             <span id="requestBadge" class="notification-badge hidden">0</span>
                         </div>
+                        <div id="privateModeIcon" class="private-mode-icon" onclick="togglePrivateMode()" title="Private Browsing">
+    <span>🔒</span>
+    <span class="private-mode-label">Private Mode</span>
+</div>
+
                         <div id="navProfileContainer" class="profile-circle" onclick="switchTab('profile')"
                             title="My Profile" style="cursor: pointer;"></div>
                     </div>
@@ -2587,6 +2648,20 @@
             document.getElementById('confirmModal').classList.remove('active');
         }
 
+        function handleCommentKeyDown(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        const form = event.target.closest('form');
+        if (form) {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.click();
+            }
+        }
+    }
+}
+
+
         function handleZoom(event) {
             event.preventDefault(); // Stop page scrolling
             const img = document.getElementById('lightboxImg');
@@ -3109,6 +3184,44 @@
         function cancelLongPress() {
             clearTimeout(longPressTimer);
         }
+
+
+        // ===== PRIVATE MODE LOGIC =====
+let isPrivateMode = false;
+
+function togglePrivateMode() {
+    isPrivateMode = !isPrivateMode;
+    const icon = document.getElementById('privateModeIcon');
+    
+    if (isPrivateMode) {
+        icon.classList.add('active');
+        document.getElementById('userInfo').style.opacity = '0.5';
+        alert('🔒 Private Mode Activated!\n\nYour profile info is hidden.');
+        console.log('Private mode activated');
+    } else {
+        icon.classList.remove('active');
+        document.getElementById('userInfo').style.opacity = '1';
+        alert('🔓 Private Mode Deactivated');
+        console.log('Private mode deactivated');
+    }
+    
+    localStorage.setItem('privateMode', isPrivateMode);
+}
+
+function checkPrivateMode() {
+    const savedMode = localStorage.getItem('privateMode') === 'true';
+    if (savedMode) {
+        isPrivateMode = true;
+        const icon = document.getElementById('privateModeIcon');
+        if (icon) {
+            icon.classList.add('active');
+            document.getElementById('userInfo').style.opacity = '0.5';
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', checkPrivateMode);
+
 
         // --- POST FILE HANDLING ---
         function handlePostFileSelect() {
@@ -3776,8 +3889,8 @@
                 });
             }
         }
-
-
+        
+            
 
         function handleSendMessage(e) {
             e.preventDefault();
@@ -4014,22 +4127,6 @@
 
                 const performSave = async (fileUrl, mediaType) => {
                     await db.collection('posts').add({
-                        title: title,
-                        body: body,
-                        tags: tagsToSave,
-                        imageUrl: fileUrl || "",
-                        mediaType: mediaType || 'image',
-                        authorName: window.currentUserData.name || "Anonymous",
-                        authorId: currentUser.uid,
-                        authorRole: window.currentUserData.role || "Student",
-
-                        // --- THIS SAVES THE YEAR TO THE POST ---
-                        authorYear: window.currentUserData.year || "",
-                        // ---------------------------------------
-
-                        upvotes: 0,
-                        upvoters: [],
-                        createdAt: new Date()
                     });
 
                     // Reset UI
@@ -4115,7 +4212,8 @@
         <div style="border:1px solid var(--border-color); padding:15px; margin-bottom:10px; border-radius:12px; background:var(--bg-input);">
             <p style="color: var(--text-main); margin-bottom: 8px;">${c.text}</p>
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-top:5px;">
-                <span style="color: var(--text-secondary);">${c.authorName}</span>
+               <span style="color: var(--text-secondary);"> <span style="color: var(--text-secondary);">By ${c.isPrivateMode ? '🔒 Anonymous' : c.authorName}</span>
+
                 <div style="display:flex; gap:5px;">
                     ${!isAuthor
                         // CHANGED: Now calls handleCommentUpvote with event
@@ -4627,15 +4725,9 @@
             const originalText = submitBtn.innerText;
             submitBtn.disabled = true;
             submitBtn.innerText = "...";
+            
 
-            db.collection('posts').doc(postId).collection('comments').add({
-                text: text,
-                authorId: window.currentUser.uid,
-                authorName: window.currentUserData.name,
-                timestamp: new Date(),
-                upvotes: 0,
-                upvoters: []
-            }).then(() => {
+            then(() => {
                 textInput.value = "";
                 // Refresh comments list
                 if (window.loadComments) window.loadComments(postId);
