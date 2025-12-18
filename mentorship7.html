@@ -6,6 +6,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VidyaGenie</title>
     <style>
+        /* --- PRETTY CHECKBOX (TOGGLE SWITCH) --- */
+        .anon-toggle-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #3a3a3c;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #BF5AF2;
+            /* Purple for Incognito */
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(22px);
+        }
+
+        /* --- TOAST NOTIFICATION (Custom Alert) --- */
+        /* --- TOAST NOTIFICATION (Custom Alert) --- */
+        #customToast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #1a1a1c;
+            color: #fff;
+            text-align: center;
+            border-radius: 50px;
+            padding: 16px;
+            position: fixed;
+            z-index: 10005;
+            left: 50%;
+            /* CHANGE: Move to top */
+            top: 30px; 
+            bottom: auto; 
+            transform: translateX(-50%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            opacity: 0;
+            /* CHANGE: Animate 'top' instead of 'bottom' */
+            transition: opacity 0.3s, top 0.3s; 
+        }
+
+        #customToast.show {
+            visibility: visible;
+            opacity: 1;
+            /* CHANGE: Slide down slightly */
+            top: 50px; 
+        }
+
+        /* --- ANONYMOUS SPECIFIC --- */
+        .anon-hidden {
+            display: none !important;
+        }
+
+        .profile-pic-anon {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: #333;
+            color: #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            font-weight: bold;
+            border: 4px dashed #666;
+            margin: 0 auto 25px;
+            box-shadow: none;
+        }
+
         /* --- CONSISTENT SORT BUTTON STYLES --- */
         .sort-btn-style {
             display: flex;
@@ -58,6 +170,13 @@
             opacity: 1;
             margin-left: 10px;
             transform: translateX(0);
+        }
+
+        /* --- ADD THIS NEW BLOCK --- */
+        .anon-exit-override:hover {
+            width: 260px !important; /* Wider to fit "Exit Anonymous mode" */
+            background-color: #333 !important; /* Dark grey background on hover */
+            color: white !important; /* Force text to be White */
         }
 
         /* --- FILTER MODAL PILLS --- */
@@ -1910,71 +2029,76 @@
                     <form onsubmit="handleLogin(event)">
                         <div class="form-group">
                             <label>College Email</label>
-                            <input type="email" id="loginEmail" placeholder="Enter email..." value="selva@vit.com">
+                            <input type="email" id="loginEmail" placeholder="Enter email..." value="">
                         </div>
                         <div class="form-group">
                             <label>Password</label>
-                            <input type="password" id="loginPassword" value="password">
+                            <input type="password" id="loginPassword" value="">
                         </div>
-                        <button type="submit" class="btn btn-primary"
-                            style="width: 100%; padding: 12px; margin-top: 10px;">Login</button>
+
+                        <div class="anon-toggle-wrapper">
+                            <label class="switch">
+                                <input type="checkbox" id="loginAnon">
+                                <span class="slider"></span>
+                            </label>
+                            <div>
+                                <span style="font-weight: 700; color: white;">Login as an Anonymous user</span>
+                                <div style="font-size: 11px; color: var(--text-secondary);">Mask identity, read & post
+                                    only.</div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">Login</button>
                     </form>
                     <p class="auth-toggle-text">
-                        Don't have an account? <span class="auth-link" onclick="toggleAuthMode('register')">Register
-                        </span>
+                        Don't have an account? <span class="auth-link"
+                            onclick="toggleAuthMode('register')">Register</span>
                     </p>
                 </div>
 
                 <div id="registerSection" class="hidden">
                     <h3 style="margin-bottom: 15px; color: var(--text-main); font-size: 20px;">Create Account</h3>
-
                     <div class="auth-scroll-container">
                         <form onsubmit="handleRegister(event)">
+                            <div class="anon-toggle-wrapper">
+                                <label class="switch">
+                                    <input type="checkbox" id="regAnon">
+                                    <span class="slider"></span>
+                                </label>
+                                <div>
+                                    <span style="font-weight: 700; color: white;">Register as Anonymous user</span>
+                                    <div style="font-size: 11px; color: var(--text-secondary);">We see your data, but
+                                        the public won't.</div>
+                                </div>
+                            </div>
+
                             <div class="form-group"><label>Full Name</label><input type="text" id="regName" required>
                             </div>
                             <div class="form-group"><label>College Email</label><input type="email" id="regEmail"
-                                    required>
-                            </div>
+                                    required></div>
                             <div class="form-group"><label>Password</label><input type="password" id="regPass" required>
                             </div>
 
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                                <div class="form-group">
-                                    <label>Age</label>
-                                    <input type="number" id="regAge" required min="16" max="99">
-                                </div>
-                                <div class="form-group">
-                                    <label>Gender</label>
-                                    <select id="regGender" required
+                                <div class="form-group"><label>Age</label><input type="number" id="regAge" required
+                                        min="16" max="99"></div>
+                                <div class="form-group"><label>Gender</label><select id="regGender" required
                                         style="width: 100%; padding: 14px; background: var(--bg-input); border: 1px solid var(--border-color); color: white; border-radius: 12px;">
                                         <option value="Male">Male</option>
                                         <option value="Female">Female</option>
-                                    </select>
-                                </div>
+                                    </select></div>
                             </div>
-
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                                <div class="form-group">
-                                    <label>Role</label>
-                                    <select id="regRole" required
-                                        style="width: 100%; padding: 14px; background: var(--bg-input); border: 1px solid var(--border-color); color: white; border-radius: 12px;">
-                                        <option value="student">Student</option>
-                                        <option value="mentor">Mentor</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Current Year</label>
-                                    <select id="regYear" required
-                                        style="width: 100%; padding: 14px; background: var(--bg-input); border: 1px solid var(--border-color); color: white; border-radius: 12px;">
-                                        <option value="" disabled selected>Select Year</option>
-                                        <option value="FE">First Year (FE)</option>
-                                        <option value="SE">Second Year (SE)</option>
-                                        <option value="TE">Third Year (TE)</option>
-                                        <option value="BE">Fourth Year (BE)</option>
-                                    </select>
-                                </div>
+                            <div class="form-group">
+                                <label>Current Year</label>
+                                <select id="regYear" required
+                                    style="width: 100%; padding: 14px; background: var(--bg-input); border: 1px solid var(--border-color); color: white; border-radius: 12px;">
+                                    <option value="" disabled selected>Select Year</option>
+                                    <option value="FE">First Year (FE)</option>
+                                    <option value="SE">Second Year (SE)</option>
+                                    <option value="TE">Third Year (TE)</option>
+                                    <option value="BE">Fourth Year (BE)</option>
+                                </select>
                             </div>
-
                             <div class="form-group"><label>College / University</label><input type="text"
                                     id="regCollege" required></div>
 
@@ -1994,33 +2118,30 @@
                                 <button type="button" class="btn btn-secondary" onclick="addExperienceField()"
                                     style="font-size: 12px; margin-top: 5px;">+ Add Experience</button>
                             </div>
-
                             <button type="submit" class="btn btn-primary"
                                 style="width: 100%; padding: 12px; margin-top: 20px;">Register</button>
                         </form>
                     </div>
-                    <p class="auth-toggle-text">
-                        Already have an account? <span class="auth-link" onclick="toggleAuthMode('login')">Login
-                        </span>
-                    </p>
+                    <p class="auth-toggle-text">Already have an account? <span class="auth-link"
+                            onclick="toggleAuthMode('login')">Login</span></p>
                 </div>
 
             </div>
-
             <div style="width: 1px; background: var(--border-color); align-self: stretch;"></div>
-
             <div style="flex: 0.8; display: flex; flex-direction: column;">
                 <h3 style="margin-bottom: 15px; color: var(--text-main);">Dev Switcher</h3>
                 <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Select any registered account to
                     login instantly:</p>
-
                 <div id="devUserList"
                     style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto; padding-right: 5px;">
                     <p style="color: #666; font-size: 13px;">Loading accounts...</p>
                 </div>
-
                 <button class="btn btn-secondary" onclick="loadDevUsers()"
                     style="margin-top: 15px; font-size: 12px; width: 100%;">↻ Refresh List</button>
+                    <button class="btn btn-danger" onclick="adminWipeDB()" 
+                    style="margin-top: 10px; font-size: 12px; width: 100%; border: 1px solid #ff453a; background: rgba(255, 69, 58, 0.1);">
+                     Factory Reset (Delete All Data)
+                </button>
             </div>
         </div>
     </div>
@@ -2242,9 +2363,9 @@
 
                     <!-- ACTION BUTTONS -->
                     <div class="action-buttons-new">
-                        <button class="btn-new btn-primary-new" onclick="toggleEditMode()">✏️ Edit Profile</button>
-                        <button class="btn-new btn-secondary-new" onclick="shareProfile()">🔗 Share Profile</button>
-                        <button class="btn-new btn-danger-new" onclick="deleteAccount()">🗑️ Delete Account</button>
+                        <button class="btn-new btn-primary-new" onclick="toggleEditMode()">Edit Profile</button>
+                        <button class="btn-new btn-secondary-new" onclick="shareProfile()">Share Profile</button>
+                        <button class="btn-new btn-danger-new" onclick="deleteAccount()">Delete Account</button>
                     </div>
 
                     <!-- EDIT MODE FORM (Hidden by default) -->
@@ -2432,6 +2553,23 @@
             </div>
         </div>
     </div>
+    <div id="exitAnonModal" class="modal" style="z-index: 11000;">
+        <div class="modal-content" style="max-width: 350px; text-align: center;">
+            <h3 style="margin-bottom: 15px; color: var(--text-main);">Exit Anonymous mode</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
+                Enter your password to exit Incognito Mode.
+            </p>
+            <input type="password" id="exitAnonPassword" placeholder="Enter Password"
+                style="margin-bottom: 20px; text-align: center;">
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" style="flex:1"
+                    onclick="document.getElementById('exitAnonModal').classList.remove('active')">Cancel</button>
+                <button class="btn btn-primary" style="flex:1" onclick="confirmExitAnon()">Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="customToast">Action Restricted</div>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -2448,7 +2586,7 @@
             measurementId: "G-G6MN80S4LM"
         };
 
-        let app, auth, db, currentUser, currentUserData;
+        let app, auth, db;
 
         try {
             app = firebase.initializeApp(firebaseConfig);
@@ -2457,48 +2595,18 @@
             console.log("Firebase initialized");
         } catch (error) { console.error(error); }
 
-        // --- MOCK USERS ---
-        //const MOCK_USER_ID = "rZTJaAZXbVml1SpAzsdz"; // SELVA
-        const MOCK_USER_ID = "4UvojVrHYVFBiOtRbHoD"; // PRAJWAL
+        let letcurrentUser = null;
+        let currentUserData = null;
 
-        currentUser = { uid: MOCK_USER_ID };
 
-        // --- MOCK USERS & DATA ---
-        const MOCK_USERS = {
-            "rZTJaAZXbVml1SpAzsdz": {
-                userId: "rZTJaAZXbVml1SpAzsdz",
-                name: "selva",
-                email: "selva@vit.com",
-                role: "mentor",
-                college: "VIT",
-                year: "3rd Year",
-                isVerified: true // ✅ Verified Mentor (Green Tick)
-            },
-            "4UvojVrHYVFBiOtRbHoD": {
-                userId: "4UvojVrHYVFBiOtRbHoD",
-                name: "prajwal",
-                email: "prajwal@vit.com",
-                role: "student",
-                college: "Vidyalankar Poly",
-                bio: "CSE Alumni",
-                isVerified: false
-            },
-            "new_user_andy_id": {
-                userId: "new_user_andy_id",
-                name: "Andy",
-                email: "andy@test.com",
-                role: "mentor",
-                college: "MIT",
-                isVerified: false // ❌ Unverified Mentor (No Tick)
-            }
+        // FIX 1: Initialize this globally right here
+        window.activeFilters = {
+            sortBy: 'latest', 
+            years: [],        
+            tags: []          
         };
 
-        currentUserData = MOCK_USERS[MOCK_USER_ID];
-        // --- AUTH LOGIC ---
-        // --- INIT APP (FIXED) ---
-        // 1. Reset User State
-        currentUser = null;
-        currentUserData = null;
+        loadDevUsers();
 
         // 2. Force Show Login Screen, Hide App
         document.getElementById('authScreen').classList.remove('hidden');
@@ -2582,6 +2690,12 @@
 
             modal.classList.add('active');
         }
+        function showToast(message) {
+            const x = document.getElementById("customToast");
+            x.innerText = message;
+            x.className = "show";
+            setTimeout(function () { x.className = x.className.replace("show", ""); }, 3000);
+        }
 
         function closeConfirmModal() {
             document.getElementById('confirmModal').classList.remove('active');
@@ -2639,49 +2753,34 @@
         }
         function handleLogin(e) {
             e.preventDefault();
-
-            const btn = e.target.querySelector('button');
+            const btn = e.target.querySelector('button[type="submit"]');
             const originalText = btn.innerText;
 
-            // 🚨 FIX: Force lowercase to match registration
             const email = document.getElementById('loginEmail').value.trim().toLowerCase();
             const password = document.getElementById('loginPassword').value.trim();
+            // CAPTURE CHECKBOX STATE
+            const isAnon = document.getElementById('loginAnon').checked;
 
-            if (!email || !password) {
-                alert("Please enter both email and password.");
-                return;
-            }
+            if (!email || !password) return showToast("Please enter credentials.");
 
             btn.innerText = "Verifying...";
             btn.disabled = true;
 
-            console.log("Attempting login for:", email);
-
-            // 1. Check Hardcoded Mock Users
-            const mockUser = Object.values(MOCK_USERS).find(u => u.email.toLowerCase() === email);
-            if (mockUser) {
-                console.log("Found in Mock Data");
-                simulateLogin(mockUser.userId);
-                return;
-            }
-
-            // 2. Check Firestore Database
+            // Check DB
             db.collection('users').where('email', '==', email).get()
                 .then(snap => {
                     if (!snap.empty) {
                         const userDoc = snap.docs[0];
-                        console.log("Found in Firestore:", userDoc.id);
-                        simulateLogin(userDoc.id);
+                        // In a real app, verify password here. For demo, we trust it.
+                        simulateLogin(userDoc.id, isAnon);
                     } else {
-                        console.log("Email not found in DB.");
-                        alert("❌ Account not found.\n(Check for typos or Register first)");
+                        showToast("Account not found.");
                         btn.innerText = originalText;
                         btn.disabled = false;
                     }
                 })
                 .catch(err => {
-                    console.error("Login Error:", err);
-                    alert("Network error: " + err.message);
+                    console.error(err);
                     btn.innerText = originalText;
                     btn.disabled = false;
                 });
@@ -2730,57 +2829,65 @@
             loadDevUsers(); // Load the list immediately on startup
         });
 
-        // Helper to ensure Selva/Prajwal/Andy exist in DB for testing
-        function seedMockData() {
-            const batch = db.batch();
-            Object.values(MOCK_USERS).forEach(user => {
-                const ref = db.collection('users').doc(user.userId);
-                // Only write if not exists (to preserve chats/edits made by you)
-                // Actually for dev switcher simplicity, let's just set merge:true so they definitely exist
-                batch.set(ref, user, { merge: true });
-            });
-            return batch.commit();
-        }
-        seedMockData().then(() => {
-            loadDevUsers(); // Load the list immediately on startup
-        });
-
-
-        function seedMockData() {
-            const batch = db.batch();
-            Object.values(MOCK_USERS).forEach(user => {
-                const ref = db.collection('users').doc(user.userId);
-                // Only write if not exists (to preserve chats/edits made by you)
-                // Actually for dev switcher simplicity, let's just set merge:true so they definitely exist
-                batch.set(ref, user, { merge: true });
-            });
-            return batch.commit();
-        }
         // --- 2. UPDATE LOGIN TO START TRACKING ---
-        function simulateLogin(uid) {
+        function simulateLogin(uid, isAnonSession) {
             db.collection('users').doc(uid).get().then(doc => {
-                // FIX: Explicitly save to 'window' so the Post button can see it
-                window.currentUser = { uid: doc.id };
-                window.currentUserData = doc.data();
+                const realData = doc.data();
 
-                // Also update the local variables just in case
+                // 1. Create Session Data
+                if (isAnonSession) {
+                    window.currentUserData = {
+                        ...realData,
+                        // MASKED DATA FOR FRONTEND LOGIC
+                        displayNameOverride: "Anonymous",
+                        roleOverride: "Guest",
+                        profilePicOverride: "",
+                        isAnonymousSession: true,
+                        realYear: realData.year // Keep real year accessible for logic but not display
+                    };
+                } else {
+                    window.currentUserData = { ...realData, isAnonymousSession: false };
+                }
+                window.currentUser = { uid: doc.id };
                 currentUser = window.currentUser;
                 currentUserData = window.currentUserData;
 
+                // 2. UI Switch
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('appScreen').classList.remove('hidden');
 
-                updateUserInfo();
-                loadDevUsers();
-                initNotificationListener();
+                // 3. UI Restrictions for Anonymous
+                if (isAnonSession) {
+                    // HIDE TABS
+                    const tabs = document.querySelectorAll('.tab-button');
+                    tabs.forEach(t => {
+                        if (t.innerText === "Messages" || t.innerText === "Explore") {
+                            t.style.display = 'none';
+                        }
+                    });
 
-                // START PRESENCE TRACKING HERE
-                startPresenceHeartbeat();
+                    // HIDE NAVBAR ICONS
+                    const navRight = document.querySelector('.navbar-right');
+                    // Hide connection/request icons (first 2 children)
+                    navRight.children[0].children[0].classList.add('hidden');
+                    navRight.children[0].children[1].classList.add('hidden');
 
-                switchTab('community');
-            }).catch(err => {
-                console.error("Login Error:", err);
-                alert("Login failed: " + err.message);
+                    updateUserInfo();
+                    loadCommunity(); // Only load community
+                    switchTab('community');
+                } else {
+                    // RESTORE UI (In case of re-login)
+                    document.querySelectorAll('.tab-button').forEach(t => t.style.display = 'block');
+                    const navRight = document.querySelector('.navbar-right');
+                    navRight.children[0].children[0].classList.remove('hidden');
+                    navRight.children[0].children[1].classList.remove('hidden');
+
+                    updateUserInfo();
+                    loadDevUsers();
+                    initNotificationListener();
+                    startPresenceHeartbeat();
+                    switchTab('community');
+                }
             });
         }
         // --- AUTH: TOGGLE UI ---
@@ -2857,66 +2964,90 @@
         // --- AUTH: REGISTER HANDLER ---
         // --- AUTH: REGISTER HANDLER (FIXED) ---
         // --- AUTH: REGISTER HANDLER (FIXED) ---
+        function handleLogin(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const password = document.getElementById('loginPassword').value.trim();
+            // CAPTURE CHECKBOX STATE
+            const isAnon = document.getElementById('loginAnon').checked;
+
+            if (!email || !password) return showToast("Please enter credentials.");
+
+            btn.innerText = "Verifying...";
+            btn.disabled = true;
+
+            // Check DB
+            db.collection('users').where('email', '==', email).get()
+                .then(snap => {
+                    if (!snap.empty) {
+                        const userDoc = snap.docs[0];
+                        // In a real app, verify password here. For demo, we trust it.
+                        simulateLogin(userDoc.id, isAnon);
+                    } else {
+                        showToast("Account not found.");
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                });
+        }
+
         function handleRegister(e) {
             e.preventDefault();
             const submitBtn = e.target.querySelector('button[type="submit"]');
-            const originalText = submitBtn.textContent;
+            const originalText = submitBtn.innerText;
 
-            submitBtn.textContent = "Creating Account...";
-            submitBtn.disabled = true;
-
-            // 1. Collect Data & SANITIZE EMAIL
+            // 1. Get Values
+            const isAnon = document.getElementById('regAnon').checked;
             const name = document.getElementById('regName').value.trim();
-            // 🚨 FIX: Force lowercase to ensure login works later
             const email = document.getElementById('regEmail').value.trim().toLowerCase();
-            const age = document.getElementById('regAge').value;
-            const gender = document.getElementById('regGender').value;
-            const role = document.getElementById('regRole').value;
+            const password = document.getElementById('regPass').value;
+            const year = document.getElementById('regYear').value;
             const college = document.getElementById('regCollege').value;
-            const gradYear = document.getElementById('regYear').value;
-            const fileInput = document.getElementById('regFile');
-
-            const expertise = [];
-            document.querySelectorAll('.exp-input').forEach(input => {
-                if (input.value.trim()) expertise.push(input.value.trim());
-            });
+            
+            // FIX: 'regRole' didn't exist in HTML, so we default to 'student'
+            const role = "student"; 
 
             const performRegistration = (base64Pic) => {
                 const newUserId = "user_" + Date.now();
-
+                
                 const newUser = {
                     userId: newUserId,
                     name: name,
-                    email: email, // Saved as lowercase
+                    email: email,
+                    year: year,
                     role: role,
-                    age: age,
-                    gender: gender,
-                    college: college,
-                    year: gradYear,
-                    expertise: expertise,
+                    college: college, // Added college to DB object
                     profilePic: base64Pic || "",
                     isVerified: false,
-                    createdAt: new Date()
+                    createdAt: new Date(),
+                    password: password // Saving plainly as requested for demo
                 };
 
+                // 2. Save to Firestore
                 db.collection('users').doc(newUserId).set(newUser)
                     .then(() => {
-                        currentUser = { uid: newUserId };
-                        currentUserData = newUser;
-                        alert("Account created successfully!");
-                        document.getElementById('authScreen').classList.add('hidden');
-                        document.getElementById('appScreen').classList.remove('hidden');
-                        updateUserInfo();
-                        switchTab('community');
+                        if(typeof showToast === 'function') showToast("Account created!");
+                        // 3. Log them in immediately
+                        simulateLogin(newUserId, isAnon);
                     })
                     .catch(err => {
-                        console.error("Registration Error:", err);
-                        alert("Error creating account: " + err.message);
-                        submitBtn.textContent = originalText;
+                        console.error(err);
+                        alert("Error: " + err.message);
+                        submitBtn.innerText = originalText;
                         submitBtn.disabled = false;
                     });
             };
 
+            // 4. Handle File Upload (if any)
+            const fileInput = document.getElementById('regFile');
             if (fileInput.files.length > 0) {
                 const reader = new FileReader();
                 reader.onload = function (e) { performRegistration(e.target.result); };
@@ -2958,48 +3089,78 @@
         // --- DEV: LOAD ALL USERS (Fixed) ---
         function loadDevUsers() {
             const container = document.getElementById('devUserList');
-            container.innerHTML = ''; // Clear loading text
+            container.innerHTML = '<p style="color:#666; font-size:13px;">Loading accounts...</p>';
 
-            // 1. Render Hardcoded Mock Users FIRST (Guaranteed to show)
-            Object.values(MOCK_USERS).forEach(user => {
-                container.innerHTML += generateUserButtonHtml(user);
-            });
-
-            // 2. Fetch "Real" Registered Users from DB
+            // Only fetch real users from Firestore
             db.collection('users').orderBy('createdAt', 'desc').get().then(snap => {
-                snap.forEach(doc => {
-                    // Check if this ID is already in MOCK_USERS to avoid duplicates
-                    if (!MOCK_USERS[doc.id]) {
-                        const u = doc.data();
-                        u.userId = doc.id; // Ensure ID is attached
-                        container.innerHTML += generateUserButtonHtml(u);
-                    }
-                });
+                container.innerHTML = ''; // Clear loading text
 
-                if (container.innerHTML === '') {
+                if (snap.empty) {
                     container.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">No accounts found.</p>';
+                    return;
                 }
+
+                snap.forEach(doc => {
+                    const u = doc.data();
+                    u.userId = doc.id; 
+                    container.innerHTML += generateUserButtonHtml(u);
+                });
             }).catch(e => {
                 console.error("Dev list error:", e);
-                // Even if DB fails, Mock users are already visible!
+                container.innerHTML = '<p style="color:var(--danger-color);">Error loading users.</p>';
             });
         }
-        function deleteAccount() {
-            if (!confirm("⚠️ Are you sure you want to permanently delete your account? This action cannot be undone.")) return;
 
-            const userId = currentUser.uid;
 
-            // 1. Delete User Document from Firestore
-            db.collection('users').doc(userId).delete()
-                .then(() => {
-                    alert("Your account has been deleted.");
-                    // 2. Force Reload to Logout
-                    window.location.reload();
-                })
-                .catch(error => {
-                    console.error("Error deleting account:", error);
+        async function deleteAccount() {
+            if (!confirm("⚠️ FINAL WARNING: This will delete your account, posts, chats, and connections. This cannot be undone.")) return;
+
+            const user = auth.currentUser;
+            const userId = user.uid;
+
+            try {
+                // 1. Delete My Posts
+                const postsSnap = await db.collection('posts').where('authorId', '==', userId).get();
+                const batch1 = db.batch();
+                postsSnap.forEach(doc => batch1.delete(doc.ref));
+                await batch1.commit();
+                console.log("User posts deleted");
+
+                // 2. Delete My Chats (and the messages inside)
+                // Note: In a real app we'd delete subcollections recursively, but here we delete the chat doc handle
+                const chatsSnap = await db.collection('chats').where('participants', 'array-contains', userId).get();
+                const batch2 = db.batch();
+                chatsSnap.forEach(doc => batch2.delete(doc.ref));
+                await batch2.commit();
+                console.log("User chats deleted");
+
+                // 3. Delete Connection Requests (Sent & Received)
+                const sentSnap = await db.collection('connection_requests').where('senderId', '==', userId).get();
+                const recSnap = await db.collection('connection_requests').where('recipientId', '==', userId).get();
+                const batch3 = db.batch();
+                sentSnap.forEach(doc => batch3.delete(doc.ref));
+                recSnap.forEach(doc => batch3.delete(doc.ref));
+                await batch3.commit();
+                console.log("Connections deleted");
+
+                // 4. Delete User Profile
+                await db.collection('users').doc(userId).delete();
+                
+                // 5. Delete Auth Credential
+                await user.delete();
+
+                alert("Account and all associated data deleted.");
+                sessionStorage.clear();
+                window.location.reload();
+
+            } catch (error) {
+                console.error("Error deleting account:", error);
+                if (error.code === 'auth/requires-recent-login') {
+                    alert("Security Check: Please log out and log back in, then try deleting your account again.");
+                } else {
                     alert("Failed to delete account: " + error.message);
-                });
+                }
+            }
         }
 
 
@@ -3232,29 +3393,31 @@
         }
         // --- NAVBAR & USER INFO ---
         function updateUserInfo() {
-            if (currentUserData) {
-                db.collection('users').doc(currentUser.uid).get().then(doc => {
-                    const dbData = doc.exists ? doc.data() : {};
-                    const data = { ...currentUserData, ...dbData }; // Merge safe data
+            if (window.currentUserData) {
+                const data = window.currentUserData;
 
-                    const rawName = data.name || "User";
-                    const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
-                    const picUrl = data.profilePic;
+                let displayName, picUrl;
 
-                    document.getElementById('userInfo').textContent = `${displayName} (${(data.role || '').toUpperCase()})`;
+                if (data.isAnonymousSession) {
+                    displayName = "Anonymous";
+                    // QUESTION MARK AVATAR
+                    document.getElementById('navProfileContainer').innerHTML = `<div style="font-size:20px; font-weight:bold;">?</div>`;
+                    document.getElementById('navProfileContainer').style.backgroundImage = 'none';
+                    document.getElementById('navProfileContainer').style.border = '2px dashed #666';
+                } else {
+                    displayName = (data.name || "User").charAt(0).toUpperCase() + (data.name || "User").slice(1);
+                    picUrl = data.profilePic;
 
                     const profileIcon = document.getElementById('navProfileContainer');
-                    profileIcon.style.backgroundImage = '';
-                    profileIcon.innerHTML = '';
-
+                    profileIcon.style.border = '1px solid var(--border-color)';
                     if (picUrl) {
                         profileIcon.innerHTML = `<img src="${picUrl}" class="navbar-pic">`;
-                        profileIcon.style.border = 'none';
                     } else {
                         profileIcon.innerHTML = displayName.charAt(0);
-                        profileIcon.style.border = '1px solid var(--border-color)';
                     }
-                });
+                }
+
+                document.getElementById('userInfo').textContent = `${displayName}`;
             }
         }
 
@@ -3658,9 +3821,7 @@
         // --- CHATS ---
         function createChat(otherId) {
             const chatId = [currentUser.uid, otherId].sort().join('_');
-            const otherUser = MOCK_USERS[otherId] || { name: 'Unknown' };
-            const otherName = otherUser.name.charAt(0).toUpperCase() + otherUser.name.slice(1);
-
+            
             // Just create the document logic, NO system message added
             return db.collection('chats').doc(chatId).set({
                 participants: [currentUser.uid, otherId],
@@ -3694,8 +3855,6 @@
                 sentSnap.forEach(doc => connectedUserIds.add(doc.data().recipientId));
                 recSnap.forEach(doc => connectedUserIds.add(doc.data().senderId));
 
-                let html = '';
-
                 const renderPromises = Array.from(connectedUserIds).map(async (otherId) => {
                     let otherUser = null;
                     try {
@@ -3703,20 +3862,20 @@
                         if (uDoc.exists) otherUser = uDoc.data();
                     } catch (e) { }
 
-                    if (!otherUser) otherUser = MOCK_USERS[otherId];
-                    if (!otherUser) return;
+                    // FIX: If user not found, just return empty string (don't look for MOCK_USERS)
+                    if (!otherUser) return '';
 
                     const name = (otherUser.name || 'User').toLowerCase();
-                    if (searchTerm && !name.includes(searchTerm)) return;
+                    if (searchTerm && !name.includes(searchTerm)) return '';
 
                     const displayName = otherUser.name.charAt(0).toUpperCase() + otherUser.name.slice(1);
                     const role = (otherUser.role || '').toUpperCase();
 
-                    // STATUS DOT COLOR LOGIC
-                    let statusColor = '#636366'; // Gray
+                    // STATUS DOT
+                    let statusColor = '#636366'; 
                     if (otherUser.lastSeen) {
                         const diffMins = (new Date() - otherUser.lastSeen.toDate()) / 60000;
-                        if (diffMins < 5) statusColor = '#30D158'; // Green
+                        if (diffMins < 5) statusColor = '#30D158'; 
                     }
 
                     let avatarContent = otherUser.profilePic
@@ -3724,34 +3883,33 @@
                         : `<div style="width:45px; height:45px; border-radius:50%; background:black; color:white; display:flex; align-items:center; justify-content:center; border:1px solid var(--border-color); font-weight:bold; font-size:18px;">${displayName.charAt(0)}</div>`;
 
                     const avatarHtml = `
-                <div style="position: relative; flex-shrink: 0;">
-                    ${avatarContent}
-                    <div style="position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; background: ${statusColor}; border: 2px solid var(--bg-card); border-radius: 50%;"></div>
-                </div>`;
+                    <div style="position: relative; flex-shrink: 0;">
+                        ${avatarContent}
+                        <div style="position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; background: ${statusColor}; border: 2px solid var(--bg-card); border-radius: 50%;"></div>
+                    </div>`;
 
                     const existingChat = chatMap[otherId];
                     const lastMsg = existingChat ? (existingChat.lastMessage || 'Sent media') : 'Start a conversation';
                     const msgColor = existingChat ? 'var(--text-secondary)' : 'var(--primary-color)';
                     const chatId = existingChat ? existingChat.id : [currentUser.uid, otherId].sort().join('_');
 
-                    // IMPORTANT: Passing 'otherId' to openInlineChat now
                     return `
-            <div class="card chat-item" onclick="openInlineChat('${chatId}', '${otherId}', '${displayName}')" 
-                 style="cursor:pointer; padding: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 12px; user-select: none;"
-                 oncontextmenu="showContextMenu(event, 'chat', '${chatId}')"
-                 ontouchstart="startLongPress(event, 'chat', '${chatId}')"
-                 ontouchend="cancelLongPress()"
-                 ontouchmove="cancelLongPress()">
-                ${avatarHtml}
-                <div style="flex: 1; min-width: 0;">
-                    <div style="font-weight: 600; font-size: 15px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        ${displayName} <span style="font-size: 11px; color: var(--text-secondary);">(${role})</span>
-                    </div>
-                    <small style="color: ${msgColor}; display: block; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        ${lastMsg}
-                    </small>
-                </div>
-            </div>`;
+                    <div class="card chat-item" onclick="openInlineChat('${chatId}', '${otherId}', '${displayName}')" 
+                         style="cursor:pointer; padding: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 12px; user-select: none;"
+                         oncontextmenu="showContextMenu(event, 'chat', '${chatId}')"
+                         ontouchstart="startLongPress(event, 'chat', '${chatId}')"
+                         ontouchend="cancelLongPress()"
+                         ontouchmove="cancelLongPress()">
+                        ${avatarHtml}
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-weight: 600; font-size: 15px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${displayName} <span style="font-size: 11px; color: var(--text-secondary);">(${role})</span>
+                            </div>
+                            <small style="color: ${msgColor}; display: block; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${lastMsg}
+                            </small>
+                        </div>
+                    </div>`;
                 });
 
                 const renderedItems = await Promise.all(renderPromises);
@@ -3761,6 +3919,55 @@
                 console.error(e);
                 listEl.innerHTML = '<p style="color:var(--danger-color)">Error loading chats.</p>';
             });
+        }
+        // --- ADMIN: WIPE EVERYTHING ---
+        async function adminWipeDB() {
+            const code = prompt("Type 'CONFIRM' to delete ALL posts, chats, and users from the database.");
+            if (code !== 'CONFIRM') return;
+
+            const btn = document.querySelector('button[onclick="adminWipeDB()"]');
+            const originalText = btn.innerText;
+            btn.innerText = "Wiping Database...";
+            btn.disabled = true;
+
+            try {
+                // 1. Delete All Users Config
+                const users = await db.collection('users').get();
+                const userBatch = db.batch();
+                users.forEach(doc => userBatch.delete(doc.ref));
+                await userBatch.commit();
+                console.log("Users wiped.");
+
+                // 2. Delete All Posts
+                const posts = await db.collection('posts').get();
+                const postBatch = db.batch();
+                posts.forEach(doc => postBatch.delete(doc.ref));
+                await postBatch.commit();
+                console.log("Posts wiped.");
+
+                // 3. Delete All Chats
+                const chats = await db.collection('chats').get();
+                const chatBatch = db.batch();
+                chats.forEach(doc => chatBatch.delete(doc.ref));
+                await chatBatch.commit();
+                console.log("Chats wiped.");
+
+                // 4. Delete Requests
+                const reqs = await db.collection('connection_requests').get();
+                const reqBatch = db.batch();
+                reqs.forEach(doc => reqBatch.delete(doc.ref));
+                await reqBatch.commit();
+                console.log("Requests wiped.");
+
+                alert("Database Wiped Clean. You can now register fresh accounts.");
+                window.location.reload();
+
+            } catch (e) {
+                console.error(e);
+                alert("Error wiping DB: " + e.message);
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         }
 
         function deleteChat(chatId, event) {
@@ -3926,9 +4133,16 @@
         }
 
         function clearAllFilters() {
+            // 1. Reset the global filter state
             window.activeFilters = { sortBy: 'latest', years: [], tags: [] };
-            updateFilterUI();
-            renderFilterTags();
+
+            // 2. Reset the visual "pills" inside the Sort Modal
+            // (This ensures next time you open the menu, nothing is highlighted)
+            if (typeof updateFilterUI === "function") updateFilterUI();
+            if (typeof renderFilterTags === "function") renderFilterTags();
+
+            // 3. IMPORTANT: Actually reload the feed to show posts again
+            loadCommunity();
         }
 
         function toggleSort(type) {
@@ -3989,78 +4203,129 @@
         /* =========================================
    FIXED POST SUBMIT HANDLER (Prevents Freezing)
    ========================================= */
-        async function handleCreatePostSubmit(e) {
+        /* =========================================
+   FIXED POST SUBMIT HANDLER (With Anonymous Logic)
+   ========================================= */
+        window.handleCreatePostSubmit = async function (e) {
             e.preventDefault();
+            console.log("Attempting to create post...");
+
             const submitBtn = document.getElementById('submitPostBtn');
 
-            if (!currentUser || !currentUserData) {
-                alert("Please login first.");
-                return;
-            }
-
+            // 1. Disable button immediately
             submitBtn.disabled = true;
             submitBtn.innerText = "Posting...";
 
             try {
-                const title = document.getElementById('communityPostTitle').value;
-                const body = document.getElementById('communityPostBody').value;
-                const fileInput = document.getElementById('postFileInput');
+                // 2. Safety Check: User Login
+                if (!window.currentUser || !window.currentUserData) {
+                    throw new Error("You must be logged in to post.");
+                }
 
-                const tagsToSave = (window.selectedTags || []).map(t => ({
+                // 3. Get Values Safely
+                const titleEl = document.getElementById('communityPostTitle');
+                const bodyEl = document.getElementById('communityPostBody');
+                const linkEl = document.getElementById('postLinkInput'); // Might be missing in HTML, handled safely
+                const fileEl = document.getElementById('postFileInput');
+
+                const title = titleEl ? titleEl.value : "Untitled";
+                const body = bodyEl ? bodyEl.value : "";
+                const link = linkEl ? linkEl.value.trim() : "";
+
+                // 4. Prepare Tags
+                const safeTags = window.selectedTags || [];
+                const finalTags = safeTags.map(t => ({
                     name: t.text,
                     color: t.colorClass,
                     hex: t.hex
                 }));
 
+                // 5. Define the Save Logic
                 const performSave = async (fileUrl, mediaType) => {
+
+                    // --- ANONYMOUS CHECK ---
+                    const isAnon = window.currentUserData.isAnonymousSession;
+                    // Get the year (In anon mode, it's stored in realYear, otherwise in year)
+                    const currentYear = isAnon ? window.currentUserData.realYear : window.currentUserData.year;
+
                     await db.collection('posts').add({
                         title: title,
                         body: body,
-                        tags: tagsToSave,
+                        linkUrl: link,
+                        tags: finalTags,
                         imageUrl: fileUrl || "",
                         mediaType: mediaType || 'image',
-                        authorName: window.currentUserData.name || "Anonymous",
-                        authorId: currentUser.uid,
-                        authorRole: window.currentUserData.role || "Student",
 
-                        // --- THIS SAVES THE YEAR TO THE POST ---
-                        authorYear: window.currentUserData.year || "",
-                        // ---------------------------------------
+                        // --- IDENTITY LOGIC ---
+                        // 1. Real ID: Saved so developers know who posted
+                        authorId: window.currentUser.uid,
+
+                        // 2. Display Name: Masked if Anon
+                        authorName: isAnon ? "Anonymous" : (window.currentUserData.name || "Anonymous"),
+
+                        // 3. Role: Masked if Anon
+                        authorRole: isAnon ? "Guest" : (window.currentUserData.role || "Student"),
+
+                        // 4. Year: Visible PUBLICLY even if Anonymous (as requested)
+                        authorYear: currentYear || "",
+                        // ----------------------
 
                         upvotes: 0,
                         upvoters: [],
                         createdAt: new Date()
                     });
 
-                    // Reset UI
-                    document.getElementById('createPostModal').classList.remove('active');
-                    document.getElementById('communityPostTitle').value = "";
-                    document.getElementById('communityPostBody').value = "";
-                    removePostImage();
-                    window.selectedTags = [];
-                    renderTagsOnMainForm();
+                    console.log("Post saved successfully!");
 
-                    loadCommunity();
+                    // 6. Success Cleanup
+                    const modal = document.getElementById('createPostModal');
+                    if (modal) modal.classList.remove('active');
+
+                    // Clear Form
+                    if (titleEl) titleEl.value = "";
+                    if (bodyEl) bodyEl.value = "";
+                    if (linkEl) linkEl.value = "";
+
+                    // Clear File & Tags
+                    if (window.removePostImage) window.removePostImage();
+                    window.selectedTags = [];
+                    if (window.renderTagsOnMainForm) window.renderTagsOnMainForm();
+
+                    // Refresh Feed
+                    if (window.loadCommunity) window.loadCommunity();
+
+                    // Reset Button
                     submitBtn.disabled = false;
                     submitBtn.innerText = "Post";
                 };
 
-                if (fileInput.files.length > 0) {
-                    const file = fileInput.files[0];
+                // 7. Handle File Upload (if exists)
+                if (fileEl && fileEl.files.length > 0) {
+                    const file = fileEl.files[0];
                     const fileType = file.type.startsWith('video/') ? 'video' : 'image';
+
                     const reader = new FileReader();
-                    reader.onload = function (e) { performSave(e.target.result, fileType); };
+                    reader.onload = function (evt) {
+                        performSave(evt.target.result, fileType).catch(err => {
+                            console.error("Save Error (With File):", err);
+                            alert("Error saving post: " + err.message);
+                            submitBtn.disabled = false;
+                            submitBtn.innerText = "Post";
+                        });
+                    };
                     reader.readAsDataURL(file);
                 } else {
+                    // No file, just save
                     await performSave(null, null);
                 }
 
             } catch (error) {
-                console.error("Post Error:", error);
+                console.error("CRITICAL POST ERROR:", error);
+                alert("Failed to post: " + error.message);
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Post";
             }
-        }
+        };
 
         function deletePost(postId) {
             showConfirm(
@@ -4132,6 +4397,9 @@
         // --- OPTIMISTIC UPVOTE HANDLERS (NO RELOAD) ---
 
         function handleUpvote(event, postId) {
+            if (window.currentUserData.isAnonymousSession) {
+                return showToast("Restricted: Cannot upvote as Anonymous.");
+            }
             event.stopPropagation(); // Prevent clicking the card behind the button
             const btn = event.currentTarget;
             const isUpvoted = btn.classList.contains('btn-primary');
@@ -4216,141 +4484,155 @@
         // --- PROFILE ---
         // --- PROFILE ---
         function loadProfile() {
-            // 1. Fetch Basic User Profile Data
-            db.collection('users').doc(currentUser.uid).get().then(doc => {
-                const dbData = doc.exists ? doc.data() : {};
-                const data = { ...currentUserData, ...dbData };
+    // 1. ANONYMOUS CHECK
+    if (window.currentUserData && window.currentUserData.isAnonymousSession) {
+        const profileTab = document.getElementById('profile');
+        
+        // Year badge logic for Anon
+        const yearHtml = (typeof getYearBadgeHtml === 'function') 
+            ? getYearBadgeHtml(window.currentUserData.realYear) 
+            : ""; 
 
-                const rawName = data.name || "User";
-                const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+        profileTab.innerHTML = `
+            <div style="max-width: 500px; margin: 60px auto; text-align: center; padding: 40px; background: var(--bg-card); border-radius: 24px; border: 1px dashed var(--border-color);">
+                
+                <div style="width: 120px; height: 120px; border-radius: 50%; background: #333; color: #666; display: flex; align-items: center; justify-content: center; font-size: 60px; font-weight: bold; border: 4px dashed #555; margin: 0 auto 25px;">?</div>
+                
+                <h1 style="color: var(--text-main); margin-bottom: 10px;">Anonymous</h1>
+                <div style="margin-bottom: 20px;">${yearHtml}</div>
+                
+                <p style="color: var(--text-secondary); margin-bottom: 30px; font-size: 14px; line-height: 1.6;">
+                    You are in Anonymous mode.<br>
+                    Social features and profile editing are disabled.
+                </p>
+                
+                <div style="display: flex; flex-direction: column; gap: 15px; align-items: center;">
+                    
+                    <div class="sort-btn-style anon-exit-override" 
+                         onclick="document.getElementById('exitAnonModal').classList.add('active')" 
+                         style="background-color: var(--primary-color); box-shadow: 0 8px 50px rgba(10, 132, 255, 0.4);"> 
+                        
+                        <div class="sort-btn-icon">🔓</div>
+                        <span class="sort-btn-text">Exit Anonymous mode</span>
+                    </div>
 
-                // --- UPDATE NAME (With Tick for Verified Mentors) ---
-                const nameEl = document.getElementById('profileName');
-                if (data.role === 'mentor' && data.isVerified) {
-                    // Add Green Tick
-                    nameEl.innerHTML = `${displayName} <span style="color:#30D158; font-size:0.8em; vertical-align: middle;">✔</span>`;
-                } else {
-                    nameEl.textContent = displayName;
-                }
+                    <div style="display:flex; gap:10px; margin-top:20px;">
+                        <button class="btn btn-secondary" onclick="window.location.reload()">Logout</button>
+                        <button class="btn btn-danger" onclick="deleteAccount()">Delete Account</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        return;
+    }
 
-                // --- UPDATE BADGE (Color & Text Logic) ---
-                const badgeEl = document.getElementById('profileBadge');
-                let badgeText = (data.role || 'student').toUpperCase();
-                let badgeColor = 'var(--primary-color)'; // Default Blue for Students
+    // 2. STANDARD USER LOGIC
+    db.collection('users').doc(currentUser.uid).get().then(doc => {
+        const dbData = doc.exists ? doc.data() : {};
+        const data = { ...currentUserData, ...dbData };
 
-                if (data.role === 'mentor') {
-                    if (data.isVerified) {
-                        badgeText = "VERIFIED MENTOR";
-                        badgeColor = "#30D158"; // Green
-                    } else {
-                        badgeText = "MENTOR";
-                        badgeColor = "#636366"; // Gray for Unverified
-                    }
-                }
+        const rawName = data.name || "User";
+        const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
 
-                badgeEl.textContent = badgeText;
-                badgeEl.style.background = badgeColor;
+        // --- Update Name & Verification Tick ---
+        const nameEl = document.getElementById('profileName');
+        if (data.role === 'mentor' && data.isVerified) {
+            nameEl.innerHTML = `${displayName} <span style="color:#30D158; font-size:0.8em; vertical-align: middle;">✔</span>`;
+        } else {
+            nameEl.textContent = displayName;
+        }
 
-                // --- PROFILE PICTURE ---
-                const picContainer = document.getElementById('profilePicContainer');
-                const picUrl = data.profilePic;
-                if (picUrl) {
-                    picContainer.innerHTML = `<img src="${picUrl}" class="profile-pic-large-new">`;
-                } else {
-                    const initials = displayName.split(' ').map(n => n).join('');
-                    picContainer.innerHTML = `<div class="profile-initial-large-new">${initials}</div>`;
-                }
+        // --- Update Badge ---
+        const badgeEl = document.getElementById('profileBadge');
+        let badgeText = (data.role || 'student').toUpperCase();
+        let badgeColor = 'var(--primary-color)'; 
 
-                // --- SKILLS ---
-                const skillsContainer = document.getElementById('skillsContainer');
-                if (data.skills && data.skills.length > 0) {
-                    skillsContainer.innerHTML = data.skills.map(skill =>
-                        `<div class="skill-tag-new">${skill}</div>`
-                    ).join('');
-                } else {
-                    skillsContainer.innerHTML = '<div class="empty-state-new">No skills added yet. Click Edit Profile to add your expertise.</div>';
-                }
+        if (data.role === 'mentor') {
+            if (data.isVerified) {
+                badgeText = "VERIFIED MENTOR";
+                badgeColor = "#30D158"; 
+            } else {
+                badgeText = "MENTOR";
+                badgeColor = "#636366"; 
+            }
+        }
+        badgeEl.textContent = badgeText;
+        badgeEl.style.background = badgeColor;
 
-                // --- INFO SECTION ---
-                document.getElementById('profileEmail').textContent = data.email || 'email@example.com';
-                document.getElementById('infoCollege').textContent = data.college || 'Not specified';
-                // --- UPDATE YEAR DISPLAY ---
-                const yearContainer = document.getElementById('infoYear');
-                // Clear text content first
-                yearContainer.innerHTML = '';
-                if (data.year && ['FE', 'SE', 'TE', 'BE'].includes(data.year)) {
-                    // Use HTML badge
-                    yearContainer.innerHTML = getYearBadgeHtml(data.year);
-                } else {
-                    // Fallback for old numeric data or empty
-                    yearContainer.textContent = data.year || 'Not specified';
-                }
-                document.getElementById('infoRole').textContent = data.role ? data.role.charAt(0).toUpperCase() + data.role.slice(1) : 'Not specified';
+        // --- Profile Picture Logic ---
+        const picContainer = document.getElementById('profilePicContainer');
+        const picUrl = data.profilePic;
+        
+        if (picUrl) {
+            picContainer.innerHTML = `<img src="${picUrl}" class="profile-pic-large-new">`;
+        } else {
+            const initial = displayName.charAt(0).toUpperCase();
+            picContainer.innerHTML = `<div class="profile-initial-large-new">${initial}</div>`;
+        }
 
-                if (data.joinedDate) {
-                    const joinedMonth = new Date(data.joinedDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-                    document.getElementById('infoJoined').textContent = joinedMonth;
-                }
+        // --- Skills ---
+        const skillsContainer = document.getElementById('skillsContainer');
+        if (data.skills && data.skills.length > 0) {
+            skillsContainer.innerHTML = data.skills.map(skill =>
+                `<div class="skill-tag-new">${skill}</div>`
+            ).join('');
+        } else {
+            skillsContainer.innerHTML = '<div class="empty-state-new">No skills added yet. Click Edit Profile to add your expertise.</div>';
+        }
 
-                // --- POPULATE EDIT FORM ---
-                document.getElementById('editName').value = data.name || '';
-                document.getElementById('editCollege').value = data.college || '';
-                document.getElementById('editYear').value = data.year || 'FE';
-                document.getElementById('editSkills').value = (data.skills || []).join(', ');
+        // --- Info Section ---
+        document.getElementById('profileEmail').textContent = data.email || 'email@example.com';
+        document.getElementById('infoCollege').textContent = data.college || 'Not specified';
+        
+        // Year Badge Logic
+        const yearContainer = document.getElementById('infoYear');
+        yearContainer.innerHTML = ''; 
+        if (data.year && ['FE','SE','TE','BE'].includes(data.year)) {
+            if(typeof getYearBadgeHtml === 'function') {
+                yearContainer.innerHTML = getYearBadgeHtml(data.year);
+            } else {
+                yearContainer.textContent = data.year;
+            }
+        } else {
+            yearContainer.textContent = data.year || 'Not specified';
+        }
 
-            }).catch(e => {
-                console.error("Profile load error:", e);
-                document.getElementById('profileName').textContent = 'Error loading profile';
-            });
+        document.getElementById('infoRole').textContent = data.role ? data.role.charAt(0).toUpperCase() + data.role.slice(1) : 'Not specified';
 
-            // 2. --- CALCULATE REAL STATS ---
+        if (data.joinedDate) {
+            const dateObj = data.joinedDate.toDate ? data.joinedDate.toDate() : new Date(data.joinedDate);
+            const joinedMonth = dateObj.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            document.getElementById('infoJoined').textContent = joinedMonth;
+        }
 
-            const sentPromise = db.collection('connection_requests')
-                .where('senderId', '==', currentUser.uid)
-                .where('status', '==', 'accepted').get();
+        // --- Populate Edit Form ---
+        document.getElementById('editName').value = data.name || '';
+        document.getElementById('editCollege').value = data.college || '';
+        document.getElementById('editYear').value = data.year || 'FE'; 
+        document.getElementById('editSkills').value = (data.skills || []).join(', ');
 
-            const receivedPromise = db.collection('connection_requests')
-                .where('recipientId', '==', currentUser.uid)
-                .where('status', '==', 'accepted').get();
+    }).catch(e => {
+        console.error("Profile load error:", e);
+        document.getElementById('profileName').textContent = 'Error loading profile';
+    });
 
-            Promise.all([sentPromise, receivedPromise]).then(([sentSnap, receivedSnap]) => {
-                // A. Total Connections
-                const totalConnections = sentSnap.size + receivedSnap.size;
-                document.getElementById('statConnections').textContent = totalConnections;
+    // 3. Refresh Stats
+    updateProfileStats(); 
+}
 
-                // B. Calculate Mentor Connections
-                // Collect IDs of everyone I'm connected to
-                const connectedIds = new Set();
-                sentSnap.forEach(doc => connectedIds.add(doc.data().recipientId));
-                receivedSnap.forEach(doc => connectedIds.add(doc.data().senderId));
+        // Function to handle the Exit password check
+        function confirmExitAnon() {
+            const inputPass = document.getElementById('exitAnonPassword').value;
+            const realPass = window.currentUserData.password; // In a real app, verify against backend
 
-                if (connectedIds.size === 0) {
-                    document.getElementById('statMentors').textContent = 0;
-                    return;
-                }
-
-                // Query DB for Verified Mentors and check overlap
-                db.collection('users')
-                    .where('role', '==', 'mentor')
-                    .where('isVerified', '==', true)
-                    .get()
-                    .then(mentorSnap => {
-                        let mentorCount = 0;
-                        mentorSnap.forEach(doc => {
-                            // If a verified mentor is in my connected list, count them
-                            if (connectedIds.has(doc.id)) {
-                                mentorCount++;
-                            }
-                        });
-                        document.getElementById('statMentors').textContent = mentorCount;
-                    });
-            });
-
-            // Count My Posts
-            db.collection('posts').where('authorId', '==', currentUser.uid).get()
-                .then(snap => {
-                    document.getElementById('statPosts').textContent = snap.size;
-                });
+            if (inputPass === realPass) {
+                document.getElementById('exitAnonModal').classList.remove('active');
+                showToast("Terminated anonymous session");
+                // Reload session as normal user
+                simulateLogin(window.currentUser.uid, false);
+            } else {
+                alert("Incorrect Password");
+            }
         }
 
         function toggleEditMode() {
@@ -4602,39 +4884,68 @@
    ========================================================================== */
 
         // --- 1. DEFINE MISSING COMMENT HANDLER ---
-        window.handleNewComment = function (e) {
-            e.preventDefault();
-            const postId = document.getElementById('currentPostId').value;
-            const textInput = document.getElementById('commentText');
-            const text = textInput.value.trim();
+        /* =========================================
+   FIXED COMMENT HANDLER (Prevents Logout)
+   ========================================= */
+/* =========================================
+   FIXED COMMENT HANDLER (Enter Key Compatible)
+   ========================================= */
+window.handleNewComment = function(e) {
+    // 1. Prevent default behavior (Form submit OR Textarea newline)
+    e.preventDefault(); 
 
-            if (!text) return;
-            if (!window.currentUser) return alert("Please login to comment.");
+    // 2. Check for Anonymous Mode
+    if (window.currentUserData && window.currentUserData.isAnonymousSession) {
+        if (typeof showToast === "function") {
+            showToast("Restricted: Cannot comment as Anonymous.");
+        } else {
+            alert("Restricted: Cannot comment as Anonymous.");
+        }
+        return;
+    }
 
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerText;
-            submitBtn.disabled = true;
-            submitBtn.innerText = "...";
+    // 3. Regular Logic
+    const postId = document.getElementById('currentPostId').value;
+    const textInput = document.getElementById('commentText');
+    const text = textInput.value.trim();
 
-            db.collection('posts').doc(postId).collection('comments').add({
-                text: text,
-                authorId: window.currentUser.uid,
-                authorName: window.currentUserData.name,
-                timestamp: new Date(),
-                upvotes: 0,
-                upvoters: []
-            }).then(() => {
-                textInput.value = "";
-                // Refresh comments list
-                if (window.loadComments) window.loadComments(postId);
-                submitBtn.disabled = false;
-                submitBtn.innerText = originalText;
-            }).catch(err => {
-                console.error(err);
-                submitBtn.disabled = false;
-                submitBtn.innerText = originalText;
-            });
-        };
+    if (!text) return;
+    if (!window.currentUser) return alert("Please login to comment.");
+
+    // --- FIX: Find button robustly (Independent of e.target) ---
+    // We select the submit button specifically inside the postDetailModal
+    const submitBtn = document.querySelector('#postDetailModal button[type="submit"]');
+    
+    // Safety check just in case
+    if (submitBtn) {
+        var originalText = submitBtn.innerText;
+        submitBtn.disabled = true;
+        submitBtn.innerText = "...";
+    }
+
+    db.collection('posts').doc(postId).collection('comments').add({
+        text: text,
+        authorId: window.currentUser.uid,
+        authorName: window.currentUserData.name,
+        timestamp: new Date(),
+        upvotes: 0,
+        upvoters: []
+    }).then(() => {
+        textInput.value = "";
+        if(window.loadComments) window.loadComments(postId); 
+        
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = originalText;
+        }
+    }).catch(err => {
+        console.error(err);
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = originalText;
+        }
+    });
+};
 
         // --- 2. FIX CRASH IN POST MODAL (Safety Checks) ---
         window.openCreatePostModal = function () {
@@ -4687,39 +4998,54 @@
         };
 
         // --- 4. RE-INIT ENTER KEY LISTENERS (Safe Version) ---
-        function setupEnterKeySubmits() {
-            const addListener = (id, fn) => {
-                const el = document.getElementById(id);
-                if (el) {
-                    // Remove old listener to prevent duplicates then add new one
-                    const newEl = el.cloneNode(true);
-                    el.parentNode.replaceChild(newEl, el);
-
-                    newEl.addEventListener('keydown', function (e) {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            fn(e);
-                        }
-                    });
-                }
-            };
-
-            // Only attach if functions exist
-            if (window.handleSendMessage) addListener('messageText', window.handleSendMessage);
-            if (window.handleNewComment) addListener('commentText', window.handleNewComment);
-
-            // For Post Body, trigger the button click
-            const postBody = document.getElementById('communityPostBody');
-            if (postBody) {
-                postBody.addEventListener('keydown', function (e) {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        const btn = document.getElementById('submitPostBtn');
-                        if (btn) btn.click();
-                    }
-                });
+        // --- ENABLE ENTER TO SEND (Shift+Enter for New Line) ---
+function setupEnterKeySubmits() {
+    
+    // 1. CHAT MESSAGES
+    const chatInput = document.getElementById('messageText');
+    if (chatInput) {
+        const newChatInput = chatInput.cloneNode(true);
+        chatInput.parentNode.replaceChild(newChatInput, chatInput);
+        
+        newChatInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                window.handleSendMessage(e);
             }
-        }
+        });
+    }
+
+    // 2. COMMENTS (The fix you requested)
+    const commentInput = document.getElementById('commentText');
+    if (commentInput) {
+        // Clone to remove old listeners
+        const newCommentInput = commentInput.cloneNode(true);
+        commentInput.parentNode.replaceChild(newCommentInput, commentInput);
+
+        newCommentInput.addEventListener('keydown', function(e) {
+            // IF Enter is pressed AND Shift is NOT held down
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault(); // Stop New Line
+                window.handleNewComment(e); // Trigger Submit
+            }
+            // Else: It does the default (adds a new line)
+        });
+    }
+
+    // 3. CREATE POST BODY (Trigger Button Click)
+    const postBody = document.getElementById('communityPostBody');
+    if (postBody) {
+        const newPostBody = postBody.cloneNode(true);
+        postBody.parentNode.replaceChild(newPostBody, postBody);
+
+        newPostBody.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById('submitPostBtn').click();
+            }
+        });
+    }
+}
 
         // Run setup immediately
         setupEnterKeySubmits();
@@ -4931,6 +5257,14 @@
         vertical-align: middle;
     ">${label}</span>`;
         }
+        // --- CLOSE MODALS ON OUTSIDE CLICK ---
+        window.addEventListener('mousedown', function(e) {
+            // Checks if the element clicked is the dark overlay (class 'modal')
+            // and NOT the white box inside it.
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        });
     </script>
 
 </body>
