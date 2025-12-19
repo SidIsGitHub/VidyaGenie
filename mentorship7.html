@@ -2595,18 +2595,42 @@
             console.log("Firebase initialized");
         } catch (error) { console.error(error); }
 
-        let letcurrentUser = null;
+        // --- GLOBAL STATE ---
+        let currentUser = null; // FIXED: Removed "letlet" typo
         let currentUserData = null;
 
+        // --- CONSTANTS (Moved to Top) ---
+        const TAG_DATA = [
+            { name: "Technical", class: "tag-technical", hex: "#0079D3" },
+            { name: "Academic", class: "tag-academic", hex: "#FF4500" },
+            { name: "Council / Committee", class: "tag-council", hex: "#46D160", hasSub: true },
+            { name: "Faculty Related", class: "tag-faculty", hex: "#D93A00" },
+            { name: "Career Advice", class: "tag-career", hex: "#7193FF" },
+            { name: "Placements / Internships", class: "tag-placements", hex: "#FFB000" },
+            { name: "Campus / Infrastructure", class: "tag-campus", hex: "#0DD3BB" },
+            { name: "Sports", class: "tag-sports", hex: "#CC3600" },
+            { name: "Honest Review", class: "tag-review", hex: "#FF585B" },
+            { name: "General", class: "tag-general", hex: "#878A8C" },
+            { name: "Gossip", class: "tag-gossip", hex: "#A335EE" }
+        ];
 
-        // FIX 1: Initialize this globally right here
+        const COUNCIL_SUBS = [
+            "Technical Council", "Cultural Council", "Sports Council",
+            "CESA", "CSI", "GDG", "NSS", "IEEE", "V-Club", "Music Club"
+        ];
+
+        // --- FILTERS ---
         window.activeFilters = {
             sortBy: 'latest', 
             years: [],        
             tags: []          
         };
 
-        loadDevUsers();
+        // --- STARTUP ---
+        document.getElementById('authScreen').classList.remove('hidden');
+        document.getElementById('appScreen').classList.add('hidden');
+        
+        loadDevUsers(); // Load users immediately
 
         // 2. Force Show Login Screen, Hide App
         document.getElementById('authScreen').classList.remove('hidden');
@@ -2824,10 +2848,7 @@
         document.getElementById('authScreen').classList.remove('hidden');
         document.getElementById('appScreen').classList.add('hidden');
 
-        // 3. 🚨 Seed Mock Data & Load List
-        seedMockData().then(() => {
-            loadDevUsers(); // Load the list immediately on startup
-        });
+        
 
         // --- 2. UPDATE LOGIN TO START TRACKING ---
         function simulateLogin(uid, isAnonSession) {
@@ -4206,33 +4227,30 @@
         /* =========================================
    FIXED POST SUBMIT HANDLER (With Anonymous Logic)
    ========================================= */
+        /* =========================================
+           FIXED POST SUBMIT HANDLER
+           ========================================= */
         window.handleCreatePostSubmit = async function (e) {
             e.preventDefault();
-            console.log("Attempting to create post...");
-
             const submitBtn = document.getElementById('submitPostBtn');
 
-            // 1. Disable button immediately
             submitBtn.disabled = true;
             submitBtn.innerText = "Posting...";
 
             try {
-                // 2. Safety Check: User Login
                 if (!window.currentUser || !window.currentUserData) {
                     throw new Error("You must be logged in to post.");
                 }
 
-                // 3. Get Values Safely
                 const titleEl = document.getElementById('communityPostTitle');
                 const bodyEl = document.getElementById('communityPostBody');
-                const linkEl = document.getElementById('postLinkInput'); // Might be missing in HTML, handled safely
                 const fileEl = document.getElementById('postFileInput');
 
                 const title = titleEl ? titleEl.value : "Untitled";
                 const body = bodyEl ? bodyEl.value : "";
-                const link = linkEl ? linkEl.value.trim() : "";
+                const link = ""; // Default empty since input was removed
 
-                // 4. Prepare Tags
+                // Prepare Tags
                 const safeTags = window.selectedTags || [];
                 const finalTags = safeTags.map(t => ({
                     name: t.text,
@@ -4240,12 +4258,8 @@
                     hex: t.hex
                 }));
 
-                // 5. Define the Save Logic
                 const performSave = async (fileUrl, mediaType) => {
-
-                    // --- ANONYMOUS CHECK ---
                     const isAnon = window.currentUserData.isAnonymousSession;
-                    // Get the year (In anon mode, it's stored in realYear, otherwise in year)
                     const currentYear = isAnon ? window.currentUserData.realYear : window.currentUserData.year;
 
                     await db.collection('posts').add({
@@ -4255,75 +4269,51 @@
                         tags: finalTags,
                         imageUrl: fileUrl || "",
                         mediaType: mediaType || 'image',
-
-                        // --- IDENTITY LOGIC ---
-                        // 1. Real ID: Saved so developers know who posted
                         authorId: window.currentUser.uid,
-
-                        // 2. Display Name: Masked if Anon
                         authorName: isAnon ? "Anonymous" : (window.currentUserData.name || "Anonymous"),
-
-                        // 3. Role: Masked if Anon
                         authorRole: isAnon ? "Guest" : (window.currentUserData.role || "Student"),
-
-                        // 4. Year: Visible PUBLICLY even if Anonymous (as requested)
                         authorYear: currentYear || "",
-                        // ----------------------
-
                         upvotes: 0,
                         upvoters: [],
                         createdAt: new Date()
                     });
 
-                    console.log("Post saved successfully!");
-
-                    // 6. Success Cleanup
+                    // Cleanup
                     const modal = document.getElementById('createPostModal');
                     if (modal) modal.classList.remove('active');
 
-                    // Clear Form
                     if (titleEl) titleEl.value = "";
                     if (bodyEl) bodyEl.value = "";
-                    if (linkEl) linkEl.value = "";
-
-                    // Clear File & Tags
                     if (window.removePostImage) window.removePostImage();
                     window.selectedTags = [];
                     if (window.renderTagsOnMainForm) window.renderTagsOnMainForm();
-
-                    // Refresh Feed
                     if (window.loadCommunity) window.loadCommunity();
 
-                    // Reset Button
                     submitBtn.disabled = false;
                     submitBtn.innerText = "Post";
                 };
 
-                // 7. Handle File Upload (if exists)
+                // File Upload Logic
                 if (fileEl && fileEl.files.length > 0) {
                     const file = fileEl.files[0];
                     const fileType = file.type.startsWith('video/') ? 'video' : 'image';
-
                     const reader = new FileReader();
                     reader.onload = function (evt) {
                         performSave(evt.target.result, fileType).catch(err => {
-                            console.error("Save Error (With File):", err);
+                            console.error(err);
                             alert("Error saving post: " + err.message);
                             submitBtn.disabled = false;
-                            submitBtn.innerText = "Post";
                         });
                     };
                     reader.readAsDataURL(file);
                 } else {
-                    // No file, just save
                     await performSave(null, null);
                 }
 
             } catch (error) {
-                console.error("CRITICAL POST ERROR:", error);
+                console.error("POST ERROR:", error);
                 alert("Failed to post: " + error.message);
                 submitBtn.disabled = false;
-                submitBtn.innerText = "Post";
             }
         };
 
@@ -4619,6 +4609,36 @@
     // 3. Refresh Stats
     updateProfileStats(); 
 }
+// --- MISSING FUNCTION FIX ---
+        function updateProfileStats() {
+            if (!currentUser) return;
+            const uid = currentUser.uid;
+
+            // 1. Count My Posts
+            db.collection('posts').where('authorId', '==', uid).get()
+                .then(snap => {
+                    const el = document.getElementById('statPosts');
+                    if (el) el.innerText = snap.size;
+                })
+                .catch(e => console.log("Error counting posts", e));
+
+            // 2. Count Connections (Sent + Received)
+            const sentPromise = db.collection('connection_requests').where('senderId', '==', uid).where('status', '==', 'accepted').get();
+            const recPromise = db.collection('connection_requests').where('recipientId', '==', uid).where('status', '==', 'accepted').get();
+
+            Promise.all([sentPromise, recPromise])
+                .then(([sentSnap, recSnap]) => {
+                    const total = sentSnap.size + recSnap.size;
+                    
+                    const elConn = document.getElementById('statConnections');
+                    if (elConn) elConn.innerText = total;
+
+                    // For now, we'll set Mentors to 0 or you can implement specific mentor logic here
+                    const elMentors = document.getElementById('statMentors');
+                    if (elMentors) elMentors.innerText = 0; 
+                })
+                .catch(e => console.log("Error counting connections", e));
+        }
 
         // Function to handle the Exit password check
         function confirmExitAnon() {
@@ -4948,22 +4968,21 @@ window.handleNewComment = function(e) {
 };
 
         // --- 2. FIX CRASH IN POST MODAL (Safety Checks) ---
+        // --- 2. FIX CRASH IN POST MODAL (Safety Checks) ---
         window.openCreatePostModal = function () {
             const modal = document.getElementById('createPostModal');
             if (!modal) return console.error("Modal ID 'createPostModal' missing");
 
             modal.classList.add('active');
 
-            // Safe Reset: Only clear elements if they actually exist in HTML
+            // Safe Reset: Only clear elements that ACTUALLY exist
             const titleEl = document.getElementById('communityPostTitle');
             if (titleEl) titleEl.value = "";
 
             const bodyEl = document.getElementById('communityPostBody');
             if (bodyEl) bodyEl.value = "";
 
-            // This was causing the "properties of null" error because postLinkInput didn't exist in your HTML
-            const linkEl = document.getElementById('postLinkInput');
-            if (linkEl) linkEl.value = "";
+            // REMOVED: postLinkInput reset (This was causing the crash)
 
             const fileEl = document.getElementById('postFileInput');
             if (fileEl) fileEl.value = "";
@@ -4979,7 +4998,7 @@ window.handleNewComment = function(e) {
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Post";
             }
-        };
+        };  
 
         // --- 3. FIX TAG MENU (Global Scope) ---
         window.openTagMenu = function () {
@@ -5056,25 +5075,7 @@ function setupEnterKeySubmits() {
         // 1. Initialize Global Variables
         window.selectedTags = window.selectedTags || [];
 
-        // 2. Define Tag Data
-        const TAG_DATA = [
-            { name: "Technical", class: "tag-technical", hex: "#0079D3" },
-            { name: "Academic", class: "tag-academic", hex: "#FF4500" },
-            { name: "Council / Committee", class: "tag-council", hex: "#46D160", hasSub: true },
-            { name: "Faculty Related", class: "tag-faculty", hex: "#D93A00" },
-            { name: "Career Advice", class: "tag-career", hex: "#7193FF" },
-            { name: "Placements / Internships", class: "tag-placements", hex: "#FFB000" },
-            { name: "Campus / Infrastructure", class: "tag-campus", hex: "#0DD3BB" },
-            { name: "Sports", class: "tag-sports", hex: "#CC3600" },
-            { name: "Honest Review", class: "tag-review", hex: "#FF585B" },
-            { name: "General", class: "tag-general", hex: "#878A8C" },
-            { name: "Gossip", class: "tag-gossip", hex: "#A335EE" }
-        ];
-
-        const COUNCIL_SUBS = [
-            "Technical Council", "Cultural Council", "Sports Council",
-            "CESA", "CSI", "GDG", "NSS", "IEEE", "V-Club", "Music Club"
-        ];
+        
 
         // 3. Global Open/Close Functions
         window.openTagMenu = function () {
