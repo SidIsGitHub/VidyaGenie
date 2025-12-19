@@ -6,6 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VidyaGenie</title>
     <style>
+        /* --- NEW POST AVATAR STYLE --- */
+        .post-avatar-small {
+            width: 80px;
+            height: 80px;
+            min-width: 80px; /* Prevent squishing */
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+        }
         /* --- PRETTY CHECKBOX (TOGGLE SWITCH) --- */
         .anon-toggle-wrapper {
             display: flex;
@@ -2401,8 +2410,8 @@
                         </div>
 
                         <div style="display: flex; gap: 12px; margin-top: 30px;">
-                            <button class="btn-new btn-primary-new" onclick="saveProfile()">💾 Save Changes</button>
-                            <button class="btn-new btn-secondary-new" onclick="toggleEditMode()">✕ Cancel</button>
+                            <button class="btn-new btn-primary-new" onclick="saveProfile()">Save Changes</button>
+                            <button class="btn-new btn-secondary-new" onclick="toggleEditMode()">Cancel</button>
                         </div>
                     </div>
 
@@ -4030,58 +4039,49 @@
             if (!listEl) return;
             if (!currentUser) return;
 
-            // Show loading only if empty or explicitly refreshing
             if (listEl.innerHTML.trim() === '' || listEl.textContent.includes('No posts')) {
                 listEl.innerHTML = '<p style="text-align:center; color:var(--text-secondary); margin-top:20px;">Loading posts...</p>';
             }
 
             try {
-                // 1. Fetch ALL recent posts (Limit 50 for performance)
-                // Note: Firestore can't do complex OR queries across fields easily, so we filter client-side for this feature set.
                 const snap = await db.collection('posts').orderBy('createdAt', 'desc').limit(50).get();
                 let posts = snap.docs.map(doc => ({ ...doc.data(), id: doc.id }));
 
-                // --- 2. APPLY FILTERS ---
-
-                // A. Filter by Year (OR logic within years)
+                // --- APPLY FILTERS ---
                 if (window.activeFilters.years.length > 0) {
                     posts = posts.filter(p => window.activeFilters.years.includes(p.authorYear));
                 }
-
-                // B. Filter by Tags (OR logic: if post has ANY of the selected tags)
                 if (window.activeFilters.tags.length > 0) {
                     posts = posts.filter(p => {
                         if (!p.tags) return false;
-                        // Check if at least one post tag exists in the active filter list
                         return p.tags.some(t => window.activeFilters.tags.includes(t.name));
                     });
                 }
 
-                // --- 3. APPLY SORTING ---
+                // --- APPLY SORTING ---
                 if (window.activeFilters.sortBy === 'upvotes') {
                     posts.sort((a, b) => (b.upvotes || 0) - (a.upvotes || 0));
                 } else {
-                    // Default: Latest (Date Descending)
-                    // They are already fetched by createdAt desc, but filtering might mess order if we changed logic
                     posts.sort((a, b) => b.createdAt - a.createdAt);
                 }
 
-                // --- 4. RENDER ---
+                // --- RENDER ---
                 if (posts.length === 0) {
                     listEl.innerHTML = `
-                <div style="text-align:center; margin-top:40px;">
-                    <div style="font-size:30px; margin-bottom:10px;">🔍</div>
-                    <p style="color:var(--text-secondary);">No posts found matching your filters.</p>
-                    <button class="btn btn-secondary" onclick="clearAllFilters()" style="margin-top:10px; font-size:12px;">Clear Filters</button>
-                </div>`;
+                    <div style="text-align:center; margin-top:40px;">
+                        <div style="font-size:30px; margin-bottom:10px;">🔍</div>
+                        <p style="color:var(--text-secondary);">No posts found matching your filters.</p>
+                        <button class="btn btn-secondary" onclick="clearAllFilters()" style="margin-top:10px; font-size:12px;">Clear Filters</button>
+                    </div>`;
                     return;
                 }
 
                 const htmlArray = posts.map(p => {
                     const isAuthor = currentUser && p.authorId === currentUser.uid;
-
-                    // Year Badge
                     const yearBadge = getYearBadgeHtml(p.authorYear);
+                    
+                    // NEW: Calculate Relative Time
+                    const timeString = timeAgo(p.createdAt);
 
                     // Tags HTML
                     let tagsHtml = '';
@@ -4109,27 +4109,50 @@
                     const linkHtml = p.linkUrl ? `<a href="${p.linkUrl}" target="_blank" class="post-link" onclick="event.stopPropagation()">🔗 ${p.linkUrl}</a>` : '';
                     const processedBody = p.body.replace(/(https?:\/\/[^\s]+)/g, (url) => `<a href="${url}" target="_blank" style="color:var(--primary-color); text-decoration:underline;">${url}</a>`);
 
+                    // Avatar Logic
+                    const authorPic = p.authorPic || ""; 
+                    let avatarHtml;
+                    if (authorPic && p.authorName !== "Anonymous") {
+                        avatarHtml = `<img src="${authorPic}" class="post-avatar-small">`;
+                    } else {
+                        const initial = p.authorName.charAt(0).toUpperCase();
+                        avatarHtml = `<div class="post-avatar-small" style="background:#333; display:flex; align-items:center; justify-content:center; color:#ccc; font-weight:bold; font-size:16px;">${initial}</div>`;
+                    }
+
                     return `
-            <div class="card">
-                <div style="cursor:pointer;" onclick="viewPost('${p.id}')">
-                    <div class="card-header" style="align-items:center;">
-                        <span style="margin-right:8px;">${p.title}</span> 
-                        <div style="display:inline-block;">${tagsHtml}</div>
-                        <span class="badge badge-verified" style="font-size:10px; margin-left:auto;">${p.authorRole || 'User'}</span>
-                    </div>
-                    <div class="card-body" style="white-space: pre-wrap;">${processedBody}${linkHtml}${mediaHtml}</div>
-                </div>
-                <div class="card-footer" style="justify-content: space-between; align-items: center;">
-                    <small style="color:var(--text-secondary); display:flex; align-items:center;">
-                        By ${p.authorName} ${yearBadge}
-                    </small>
-                    <div style="display:flex; gap:10px;">
-                        <button class="btn btn-secondary" onclick="viewPost('${p.id}')">💬 Comment</button>
-                        ${isAuthor ? `<button class="btn btn-danger" onclick="deletePost('${p.id}')">Delete</button>` : ''}
-                        <button class="btn ${pUpvoteClass}" onclick="handleUpvote(event, '${p.id}')">↑ ${p.upvotes || 0}</button>
-                    </div>
-                </div>
-            </div>`;
+                    <div class="card">
+                        <div style="cursor:pointer;" onclick="viewPost('${p.id}')">
+                            
+                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.05);">
+                                ${avatarHtml}
+                                <div>
+                                    <div style="color:var(--text-main); font-weight:700; font-size:15px; line-height:1.2;">
+                                        ${p.authorName} <span class="badge badge-verified" style="font-size:9px; margin-left:4px; vertical-align:middle;">${p.authorRole || 'User'}</span>
+                                    </div>
+                                    <div style="color:var(--text-secondary); font-size:12px;">
+                                        ${yearBadge} <span style="opacity:0.6;">• ${timeString}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom:8px;">
+                                <div style="font-size:17px; font-weight:700; color:var(--text-main); margin-bottom:6px;">
+                                    ${p.title}
+                                </div>
+                                <div>${tagsHtml}</div>
+                            </div>
+
+                            <div class="card-body" style="white-space: pre-wrap; margin-top:0;">${processedBody}${linkHtml}${mediaHtml}</div>
+                        </div>
+
+                        <div class="card-footer" style="justify-content: flex-end; align-items: center; margin-top:15px;">
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn btn-secondary" onclick="viewPost('${p.id}')">💬 Comment</button>
+                                ${isAuthor ? `<button class="btn btn-danger" onclick="deletePost('${p.id}')">Delete</button>` : ''}
+                                <button class="btn ${pUpvoteClass}" onclick="handleUpvote(event, '${p.id}')">↑ ${p.upvotes || 0}</button>
+                            </div>
+                        </div>
+                    </div>`;
                 });
 
                 listEl.innerHTML = htmlArray.join('');
@@ -4233,7 +4256,6 @@
         window.handleCreatePostSubmit = async function (e) {
             e.preventDefault();
             const submitBtn = document.getElementById('submitPostBtn');
-
             submitBtn.disabled = true;
             submitBtn.innerText = "Posting...";
 
@@ -4248,7 +4270,7 @@
 
                 const title = titleEl ? titleEl.value : "Untitled";
                 const body = bodyEl ? bodyEl.value : "";
-                const link = ""; // Default empty since input was removed
+                const link = ""; 
 
                 // Prepare Tags
                 const safeTags = window.selectedTags || [];
@@ -4269,19 +4291,26 @@
                         tags: finalTags,
                         imageUrl: fileUrl || "",
                         mediaType: mediaType || 'image',
+                        
+                        // --- AUTHOR INFO ---
                         authorId: window.currentUser.uid,
                         authorName: isAnon ? "Anonymous" : (window.currentUserData.name || "Anonymous"),
                         authorRole: isAnon ? "Guest" : (window.currentUserData.role || "Student"),
                         authorYear: currentYear || "",
+                        // NEW: Save the profile pic URL (or empty string if Anon)
+                        authorPic: isAnon ? "" : (window.currentUserData.profilePic || ""),
+                        // -------------------
+
                         upvotes: 0,
                         upvoters: [],
                         createdAt: new Date()
                     });
 
+                    console.log("Post saved successfully!");
+
                     // Cleanup
                     const modal = document.getElementById('createPostModal');
                     if (modal) modal.classList.remove('active');
-
                     if (titleEl) titleEl.value = "";
                     if (bodyEl) bodyEl.value = "";
                     if (window.removePostImage) window.removePostImage();
@@ -4663,32 +4692,35 @@
         function saveProfile() {
             const name = document.getElementById('editName').value.trim();
             const college = document.getElementById('editCollege').value.trim();
-
-            // CHANGE: Don't parse as Int, keep as String (FE, SE, TE, BE)
             const year = document.getElementById('editYear').value;
-
             const skillsInput = document.getElementById('editSkills').value.trim();
             const skills = skillsInput ? skillsInput.split(',').map(s => s.trim()).filter(s => s) : [];
 
-            if (!name) {
-                alert('Please enter your name');
-                return;
-            }
+            if (!name) return alert('Please enter your name');
 
             db.collection('users').doc(currentUser.uid).update({
                 name: name,
                 college: college,
-                year: year, // Saving as string now
+                year: year,
                 skills: skills,
                 updatedAt: new Date()
             }).then(() => {
-                alert('✓ Profile updated successfully!');
+                // --- FIX: Update Global Memory ---
+                if (window.currentUserData) {
+                    window.currentUserData.name = name;
+                    window.currentUserData.college = college;
+                    window.currentUserData.year = year;
+                    window.currentUserData.skills = skills;
+                }
+                // ---------------------------------
+
+                alert('Profile updated successfully!');
                 toggleEditMode();
-                loadProfile(); // Refresh the profile view
-                updateUserInfo(); // Refresh the navbar
+                loadProfile(); 
+                updateUserInfo(); 
             }).catch(error => {
                 console.error('Error saving profile:', error);
-                alert('❌ Error saving profile: ' + error.message);
+                alert('Error saving profile: ' + error.message);
             });
         }
 
@@ -4716,6 +4748,11 @@
                 () => {
                     db.collection('users').doc(currentUser.uid).update({ profilePic: "" })
                         .then(() => {
+                            // --- FIX: Clear Global Memory Immediately ---
+                            if (window.currentUserData) {
+                                window.currentUserData.profilePic = "";
+                            }
+                            // --------------------------------------------
                             loadProfile();
                             updateUserInfo();
                         });
@@ -4726,10 +4763,28 @@
         function uploadProfilePic() {
             const fileInput = document.getElementById('fileInput');
             if (fileInput.files.length === 0) return alert("Choose photo first.");
+            
             const file = fileInput.files[0];
-            if (file.size > 800 * 1024) return alert("File too large.");
+            if (file.size > 2 * 1024 * 1024) return alert("File too large (Max 2MB)."); // Increased limit slightly
+
             const reader = new FileReader();
-            reader.onload = function (e) { db.collection('users').doc(currentUser.uid).set({ profilePic: e.target.result }, { merge: true }).then(() => { alert("Updated!"); loadProfile(); updateUserInfo(); }); };
+            reader.onload = function (e) {
+                const newPic = e.target.result;
+
+                db.collection('users').doc(currentUser.uid).set({ profilePic: newPic }, { merge: true })
+                .then(() => {
+                    // --- FIX: Update Global Memory Immediately ---
+                    if (window.currentUserData) {
+                        window.currentUserData.profilePic = newPic;
+                    }
+                    // ---------------------------------------------
+                    
+                    alert("Updated!"); 
+                    loadProfile(); 
+                    updateUserInfo(); 
+                })
+                .catch(err => console.error(err));
+            };
             reader.readAsDataURL(file);
         }
         // --- UNSEND & CHAT FUNCTIONS ---
@@ -5232,7 +5287,32 @@ function setupEnterKeySubmits() {
             window.selectedTags.splice(index, 1);
             window.renderTagsOnMainForm();
         };
-        // --- YEAR BADGE HELPER ---
+        // --- TIME AGO HELPER (Instagram Style) ---
+        function timeAgo(dateInput) {
+            if (!dateInput) return 'Just now';
+
+            // Handle Firestore Timestamp or standard Date object
+            const date = dateInput.toDate ? dateInput.toDate() : new Date(dateInput);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+
+            let interval = Math.floor(seconds / 31536000);
+            if (interval >= 1) return interval + "y ago";
+
+            interval = Math.floor(seconds / 2592000);
+            if (interval >= 1) return interval + "mo ago";
+
+            interval = Math.floor(seconds / 86400);
+            if (interval >= 1) return interval + "d ago";
+
+            interval = Math.floor(seconds / 3600);
+            if (interval >= 1) return interval + "h ago";
+
+            interval = Math.floor(seconds / 60);
+            if (interval >= 1) return interval + "m ago";
+
+            return "Just now";
+        }
         function getYearBadgeHtml(yearCode) {
             if (!yearCode) return '';
 
