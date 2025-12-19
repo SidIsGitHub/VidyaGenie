@@ -30,8 +30,8 @@
             font-weight: bold;
             color: var(--primary-color);
         }
-        
-        
+
+
         /* The Preview Box on the Main Feed */
         .top-comment-preview {
             background: rgba(255, 255, 255, 0.05);
@@ -43,6 +43,7 @@
             cursor: pointer;
             transition: background 0.2s;
         }
+
         .top-comment-preview:hover {
             background: rgba(255, 255, 255, 0.08);
         }
@@ -56,24 +57,28 @@
         /* The Visual Thread Line (Reddit Style) */
         .comment-thread-line {
             position: absolute;
-            left: 20px; /* Aligned with avatar center */
+            left: 20px;
+            /* Aligned with avatar center */
             top: 45px;
             bottom: 0;
             width: 2px;
             background: #333;
             z-index: 0;
         }
-        
+
         .comment-thread-line:hover {
-            background: var(--primary-color); /* Highlight path on hover */
+            background: var(--primary-color);
+            /* Highlight path on hover */
         }
 
         /* Indentation for Child Comments */
         .comment-children {
-            margin-left: 35px; /* Push children to the right */
+            margin-left: 35px;
+            /* Push children to the right */
             /* border-left: 2px solid #333; Optional extra guide */
             padding-left: 10px;
-            display: none; /* Hidden by default (Dropdown style) */
+            display: none;
+            /* Hidden by default (Dropdown style) */
         }
 
         .comment-children.open {
@@ -87,6 +92,7 @@
             margin-top: 10px;
             display: none;
         }
+
         /* --- POST OPTIONS MENU (3 DOTS) --- */
         .post-options-wrapper {
             position: absolute;
@@ -125,7 +131,8 @@
             border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             overflow: hidden;
-            display: none; /* Hidden by default */
+            display: none;
+            /* Hidden by default */
             transform-origin: top right;
         }
 
@@ -135,8 +142,15 @@
         }
 
         @keyframes menuPop {
-            from { opacity: 0; transform: scale(0.8); }
-            to { opacity: 1; transform: scale(1); }
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         .menu-item {
@@ -155,21 +169,25 @@
         }
 
         .menu-item.danger {
-            color: #ff453a; /* System Red */
+            color: #ff453a;
+            /* System Red */
         }
-        
+
         .menu-item.danger:hover {
             background: rgba(255, 69, 58, 0.15);
         }
+
         /* --- NEW POST AVATAR STYLE --- */
         .post-avatar-small {
             width: 80px;
             height: 80px;
-            min-width: 80px; /* Prevent squishing */
+            min-width: 80px;
+            /* Prevent squishing */
             border-radius: 50%;
             object-fit: cover;
             border: 1px solid var(--border-color);
         }
+
         /* --- PRETTY CHECKBOX (TOGGLE SWITCH) --- */
         .anon-toggle-wrapper {
             display: flex;
@@ -243,22 +261,22 @@
             z-index: 10005;
             left: 50%;
             /* CHANGE: Move to top */
-            top: 30px; 
-            bottom: auto; 
+            top: 30px;
+            bottom: auto;
             transform: translateX(-50%);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             border: 1px solid var(--border-color);
             font-size: 14px;
             opacity: 0;
             /* CHANGE: Animate 'top' instead of 'bottom' */
-            transition: opacity 0.3s, top 0.3s; 
+            transition: opacity 0.3s, top 0.3s;
         }
 
         #customToast.show {
             visibility: visible;
             opacity: 1;
             /* CHANGE: Slide down slightly */
-            top: 50px; 
+            top: 50px;
         }
 
         /* --- ANONYMOUS SPECIFIC --- */
@@ -338,9 +356,12 @@
 
         /* --- ADD THIS NEW BLOCK --- */
         .anon-exit-override:hover {
-            width: 260px !important; /* Wider to fit "Exit Anonymous mode" */
-            background-color: #333 !important; /* Dark grey background on hover */
-            color: white !important; /* Force text to be White */
+            width: 260px !important;
+            /* Wider to fit "Exit Anonymous mode" */
+            background-color: #333 !important;
+            /* Dark grey background on hover */
+            color: white !important;
+            /* Force text to be White */
         }
 
         /* --- FILTER MODAL PILLS --- */
@@ -2302,11 +2323,11 @@
                 </div>
                 <button class="btn btn-secondary" onclick="loadDevUsers()"
                     style="margin-top: 15px; font-size: 12px; width: 100%;">↻ Refresh List</button>
-                    <button class="btn btn-danger" onclick="adminWipeDB()" 
+                <button class="btn btn-danger" onclick="adminWipeDB()"
                     style="margin-top: 10px; font-size: 12px; width: 100%; border: 1px solid #ff453a; background: rgba(255, 69, 58, 0.1);">
-                     Factory Reset (Delete All Data)
+                    Factory Reset (Delete All Data)
                 </button>
-                <button class="btn btn-secondary" onclick="openAdminPanel()" 
+                <button class="btn btn-secondary" onclick="openAdminPanel()"
                     style="margin-top: 10px; font-size: 12px; width: 100%; border: 1px solid #ff453a; color: #ff453a;">
                     👮‍♂️ Open Admin Dashboard
                 </button>
@@ -2541,17 +2562,21 @@
 
                         <h2 style="margin-bottom: 25px; font-size: 20px;">Edit Your Profile</h2>
 
-                        <div style="margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                        <div
+                            style="margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
                             <label style="margin-bottom: 10px;">Profile Picture</label>
                             <div style="display: flex; gap: 10px;">
-                                <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()" style="font-size: 13px;">
+                                <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()"
+                                    style="font-size: 13px;">
                                     Change Photo
                                 </button>
-                                <button class="btn btn-danger" onclick="removeProfilePic()" style="font-size: 13px; background: rgba(255,69,58,0.1); border: 1px solid #ff453a;">
+                                <button class="btn btn-danger" onclick="removeProfilePic()"
+                                    style="font-size: 13px; background: rgba(255,69,58,0.1); border: 1px solid #ff453a;">
                                     Remove
                                 </button>
                             </div>
-                            <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="uploadProfilePic()">
+                            <input type="file" id="fileInput" accept="image/*" style="display: none;"
+                                onchange="uploadProfilePic()">
                         </div>
                         <div class="form-group-new">
                             <label>Full Name</label>
@@ -2733,7 +2758,7 @@
             </div>
         </div>
     </div>
-    
+
     <div id="exitAnonModal" class="modal" style="z-index: 11000;">
         <div class="modal-content" style="max-width: 350px; text-align: center;">
             <h3 style="margin-bottom: 15px; color: var(--text-main);">Exit Anonymous mode</h3>
@@ -2751,16 +2776,21 @@
     </div>
     <div id="adminPanelModal" class="modal" style="z-index: 12000;">
         <div class="modal-content" style="max-width: 700px; max-height: 90vh; display: flex; flex-direction: column;">
-            <div class="modal-header" style="border-bottom: 1px solid #ff453a; color: #ff453a; display:flex; justify-content:space-between; align-items:center;">
+            <div class="modal-header"
+                style="border-bottom: 1px solid #ff453a; color: #ff453a; display:flex; justify-content:space-between; align-items:center;">
                 <span>👮‍♂️ Admin Dashboard</span>
-                <span id="reportCountBadge" style="font-size:14px; background:#333; padding:4px 10px; border-radius:10px; color:white;">0 Reports</span>
+                <span id="reportCountBadge"
+                    style="font-size:14px; background:#333; padding:4px 10px; border-radius:10px; color:white;">0
+                    Reports</span>
             </div>
-            
-            <div id="adminReportsList" style="flex: 1; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 12px; margin-top: 10px;">
-                </div>
+
+            <div id="adminReportsList"
+                style="flex: 1; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 12px; margin-top: 10px;">
+            </div>
 
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="document.getElementById('adminPanelModal').classList.remove('active')">Close Panel</button>
+                <button class="btn btn-secondary"
+                    onclick="document.getElementById('adminPanelModal').classList.remove('active')">Close Panel</button>
             </div>
         </div>
     </div>
@@ -2817,15 +2847,15 @@
 
         // --- FILTERS ---
         window.activeFilters = {
-            sortBy: 'latest', 
-            years: [],        
-            tags: []          
+            sortBy: 'latest',
+            years: [],
+            tags: []
         };
 
         // --- STARTUP ---
         document.getElementById('authScreen').classList.remove('hidden');
         document.getElementById('appScreen').classList.add('hidden');
-        
+
         loadDevUsers(); // Load users immediately
 
         // 2. Force Show Login Screen, Hide App
@@ -3044,7 +3074,7 @@
         document.getElementById('authScreen').classList.remove('hidden');
         document.getElementById('appScreen').classList.add('hidden');
 
-        
+
 
         // --- 2. UPDATE LOGIN TO START TRACKING ---
         function simulateLogin(uid, isAnonSession) {
@@ -3228,13 +3258,13 @@
             const password = document.getElementById('regPass').value;
             const year = document.getElementById('regYear').value;
             const college = document.getElementById('regCollege').value;
-            
+
             // FIX: 'regRole' didn't exist in HTML, so we default to 'student'
-            const role = "student"; 
+            const role = "student";
 
             const performRegistration = (base64Pic) => {
                 const newUserId = "user_" + Date.now();
-                
+
                 const newUser = {
                     userId: newUserId,
                     name: name,
@@ -3251,7 +3281,7 @@
                 // 2. Save to Firestore
                 db.collection('users').doc(newUserId).set(newUser)
                     .then(() => {
-                        if(typeof showToast === 'function') showToast("Account created!");
+                        if (typeof showToast === 'function') showToast("Account created!");
                         // 3. Log them in immediately
                         simulateLogin(newUserId, isAnon);
                     })
@@ -3319,7 +3349,7 @@
 
                 snap.forEach(doc => {
                     const u = doc.data();
-                    u.userId = doc.id; 
+                    u.userId = doc.id;
                     container.innerHTML += generateUserButtonHtml(u);
                 });
             }).catch(e => {
@@ -3362,7 +3392,7 @@
 
                 // 4. Delete User Profile
                 await db.collection('users').doc(userId).delete();
-                
+
                 // 5. Delete Auth Credential
                 await user.delete();
 
@@ -3490,7 +3520,7 @@
         // --- POST OPTIONS LOGIC ---
         function togglePostMenu(event, postId) {
             event.stopPropagation(); // Prevent opening post detail
-            
+
             // Close all other open menus first
             document.querySelectorAll('.options-menu').forEach(el => {
                 if (el.id !== `menu-${postId}`) el.classList.remove('active');
@@ -3507,13 +3537,13 @@
 
         function reportPost(event, postId) {
             event.stopPropagation();
-            
+
             // Close menu visually
             const menu = document.getElementById(`menu-${postId}`);
-            if(menu) menu.classList.remove('active');
+            if (menu) menu.classList.remove('active');
 
             if (!currentUser) {
-                if(typeof showToast === 'function') showToast("Please login to report.");
+                if (typeof showToast === 'function') showToast("Please login to report.");
                 return;
             }
 
@@ -3663,7 +3693,7 @@
             }
         }
         // --- ADMIN PANEL LOGIC ---
-        
+
         async function openAdminPanel() {
             // 1. Security Check
             const pin = prompt("Enter Admin PIN:");
@@ -3672,16 +3702,16 @@
             const modal = document.getElementById('adminPanelModal');
             const listEl = document.getElementById('adminReportsList');
             const badge = document.getElementById('reportCountBadge');
-            
+
             modal.classList.add('active');
             listEl.innerHTML = '<p style="text-align:center; padding:20px; color:#aaa;">Loading reports...</p>';
 
             try {
                 // 2. Query posts with > 0 reports AND Sort by Count (Highest first)
                 const snap = await db.collection('posts')
-                                     .where('reportCount', '>', 0)
-                                     .orderBy('reportCount', 'desc') // Sorts 10 reports before 1 report
-                                     .get();
+                    .where('reportCount', '>', 0)
+                    .orderBy('reportCount', 'desc') // Sorts 10 reports before 1 report
+                    .get();
 
                 badge.innerText = `${snap.size} Issues`;
 
@@ -3697,11 +3727,11 @@
                 let html = '';
                 snap.forEach(doc => {
                     const p = doc.data();
-                    
+
                     // Visual urgency based on count
                     let urgencyColor = '#ff453a'; // Default Red
-                    if(p.reportCount > 5) urgencyColor = '#ff0000'; // Bright Red for mass reports
-                    if(p.reportCount > 10) urgencyColor = '#ff00d4'; // Purple/Pink for extreme
+                    if (p.reportCount > 5) urgencyColor = '#ff0000'; // Bright Red for mass reports
+                    if (p.reportCount > 10) urgencyColor = '#ff00d4'; // Purple/Pink for extreme
 
                     html += `
                     <div class="card" style="border: 1px solid ${urgencyColor}; background: #1a0505; margin-bottom: 15px;">
@@ -3741,18 +3771,18 @@
 
         // Action: Delete the post permanently
         function adminDeletePost(postId) {
-            if(!confirm("Permanently delete this post?")) return;
-            
+            if (!confirm("Permanently delete this post?")) return;
+
             db.collection('posts').doc(postId).delete().then(() => {
                 showToast("Content removed.");
                 // Refresh the panel
-                openAdminPanel(); 
+                openAdminPanel();
             }).catch(e => alert(e.message));
         }
 
         // Action: Keep the post (Clear reports)
         function adminIgnoreReport(postId) {
-            if(!confirm("Clear reports and keep this post?")) return;
+            if (!confirm("Clear reports and keep this post?")) return;
 
             db.collection('posts').doc(postId).update({
                 reportCount: 0,
@@ -3765,7 +3795,7 @@
         function insertEmoji(emoji) {
             const input = document.getElementById('messageText');
             input.value += emoji;
-            input.focus(); 
+            input.focus();
         }
         // --- NAVBAR & USER INFO ---
         function updateUserInfo() {
@@ -3841,7 +3871,7 @@
                     // Fallback Name
                     const displayName = (otherUser.name || data.senderName || "Unknown").charAt(0).toUpperCase() + (otherUser.name || data.senderName || "User").slice(1);
                     const safeNameEncoded = encodeURIComponent(displayName);
-                    
+
                     // Badges
                     const role = (otherUser.role || "Student").charAt(0).toUpperCase() + (otherUser.role || "Student").slice(1);
                     const yearBadge = getYearBadgeHtml(otherUser.year);
@@ -4170,17 +4200,17 @@
 
                     const renderPromises = pendingDocs.map(async (doc) => {
                         const req = doc.data();
-                        
+
                         // Fetch Sender Profile
                         let senderUser = {};
                         try {
                             const userSnap = await db.collection('users').doc(req.senderId).get();
                             if (userSnap.exists) senderUser = userSnap.data();
-                        } catch(e) {}
+                        } catch (e) { }
 
                         const senderName = (senderUser.name || req.senderName || "Unknown").charAt(0).toUpperCase() + (senderUser.name || req.senderName || "User").slice(1);
                         const dateStr = req.createdAt ? req.createdAt.toDate().toLocaleDateString() : 'Recently';
-                        
+
                         // Badges
                         const role = (senderUser.role || "Student").charAt(0).toUpperCase() + (senderUser.role || "Student").slice(1);
                         const yearBadge = getYearBadgeHtml(senderUser.year);
@@ -4249,7 +4279,7 @@
         // --- CHATS ---
         function createChat(otherId) {
             const chatId = [currentUser.uid, otherId].sort().join('_');
-            
+
             // Just create the document logic, NO system message added
             return db.collection('chats').doc(chatId).set({
                 participants: [currentUser.uid, otherId],
@@ -4300,10 +4330,10 @@
                     const role = (otherUser.role || '').toUpperCase();
 
                     // STATUS DOT
-                    let statusColor = '#636366'; 
+                    let statusColor = '#636366';
                     if (otherUser.lastSeen) {
                         const diffMins = (new Date() - otherUser.lastSeen.toDate()) / 60000;
-                        if (diffMins < 5) statusColor = '#30D158'; 
+                        if (diffMins < 5) statusColor = '#30D158';
                     }
 
                     let avatarContent = otherUser.profilePic
@@ -4471,16 +4501,24 @@
                 // We map to Promises to handle the async "Top Comment" fetch
                 const htmlPromises = posts.map(async p => {
                     const isAuthor = currentUser && p.authorId === currentUser.uid;
-                    const yearBadge = getYearBadgeHtml(p.authorYear);
+
+                    // --- VISUAL OVERRIDE: If I am the author, use my FRESH session data ---
+                    const displayPic = isAuthor && !window.currentUserData.isAnonymousSession ? (window.currentUserData.profilePic || "") : (p.authorPic || "");
+                    const displayName = isAuthor && !window.currentUserData.isAnonymousSession ? window.currentUserData.name : p.authorName;
+                    const displayRole = isAuthor && !window.currentUserData.isAnonymousSession ? (window.currentUserData.role || "Student") : (p.authorRole || "Student");
+                    const displayYear = isAuthor && !window.currentUserData.isAnonymousSession ? (window.currentUserData.year || "") : (p.authorYear || "");
+                    // ----------------------------------------------------------------------
+
+                    const yearBadge = getYearBadgeHtml(displayYear);
                     const timeString = timeAgo(p.createdAt);
 
-                    // Tags
+                    // ... (Tags logic stays same) ...
                     let tagsHtml = '';
                     if (p.tags) p.tags.forEach(tag => {
                         tagsHtml += `<span style="background:${tag.hex || '#555'}; color:white; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; margin-right:5px;">${tag.name}</span>`;
                     });
 
-                    // Media & Body
+                    // ... (Media Logic stays same) ...
                     let mediaHtml = '';
                     if (p.imageUrl) {
                         if (p.mediaType === 'video') mediaHtml = `<video src="${p.imageUrl}" controls class="post-image" onclick="event.stopPropagation()"></video>`;
@@ -4488,20 +4526,15 @@
                     }
                     const processedBody = p.body.replace(/(https?:\/\/[^\s]+)/g, (url) => `<a href="${url}" target="_blank" style="color:var(--primary-color); text-decoration:underline;">${url}</a>`);
 
-                    // Avatar
-                    const authorPic = p.authorPic || ""; 
-                    let avatarHtml = authorPic && p.authorName !== "Anonymous" 
-                        ? `<img src="${authorPic}" class="post-avatar-small">` 
-                        : `<div class="post-avatar-small" style="background:#333; display:flex; align-items:center; justify-content:center; color:#ccc; font-weight:bold;">${p.authorName.charAt(0)}</div>`;
+                    // Avatar Logic using overridden 'displayPic'
+                    let avatarHtml = displayPic && displayName !== "Anonymous"
+                        ? `<img src="${displayPic}" class="post-avatar-small">`
+                        : `<div class="post-avatar-small" style="background:#333; display:flex; align-items:center; justify-content:center; color:#ccc; font-weight:bold;">${displayName.charAt(0)}</div>`;
 
-                    // --- NEW: FETCH TOP COMMENT ---
+                    // ... (Top Comment Preview logic stays same) ...
                     let topCommentHtml = '';
                     try {
-                        const cSnap = await db.collection('posts').doc(p.id).collection('comments')
-                            .orderBy('upvotes', 'desc')
-                            .limit(1) // Only get the best one
-                            .get();
-                        
+                        const cSnap = await db.collection('posts').doc(p.id).collection('comments').orderBy('upvotes', 'desc').limit(1).get();
                         if (!cSnap.empty) {
                             const c = cSnap.docs[0].data();
                             topCommentHtml = `
@@ -4512,15 +4545,15 @@
                                 <div style="color:#ccc; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">"${c.text}"</div>
                             </div>`;
                         }
-                    } catch(e) { console.log("No comments or error"); }
+                    } catch (e) { }
 
                     return `
                     <div class="card" style="position: relative;">
-                         <div class="post-options-wrapper">
+                        <div class="post-options-wrapper">
                             <div class="three-dots-btn" onclick="togglePostMenu(event, '${p.id}')">⋮</div>
                             <div id="menu-${p.id}" class="options-menu">
-                                <div class="menu-item danger" onclick="reportPost(event, '${p.id}')"><span>🚩</span> Report</div>
-                                ${isAuthor ? `<div class="menu-item danger" onclick="deletePost('${p.id}')"><span>🗑</span> Delete</div>` : ''}
+                                <div class="menu-item danger" onclick="reportPost(event, '${p.id}')">Report</div>
+                                ${isAuthor ? `<div class="menu-item danger" onclick="deletePost('${p.id}')">Delete</div>` : ''}
                             </div>
                         </div>
 
@@ -4529,7 +4562,7 @@
                                 ${avatarHtml}
                                 <div>
                                     <div style="color:var(--text-main); font-weight:700; font-size:15px; line-height:1.2;">
-                                        ${p.authorName} <span class="badge badge-verified" style="font-size:9px;">${p.authorRole}</span>
+                                        ${displayName} <span class="badge badge-verified" style="font-size:9px;">${displayRole}</span>
                                     </div>
                                     <div style="color:var(--text-secondary); font-size:12px;">${yearBadge} • ${timeString}</div>
                                 </div>
@@ -4545,7 +4578,7 @@
 
                         <div class="card-footer" style="justify-content: flex-end; margin-top:15px;">
                             <div style="display:flex; gap:10px;">
-                                <button class="btn btn-secondary" onclick="viewPost('${p.id}')">💬 Comment</button>
+                                <button class="btn btn-secondary" onclick="viewPost('${p.id}')">Comment</button>
                                 <button class="btn ${currentUser && (p.upvoters || []).includes(currentUser.uid) ? 'btn-primary' : 'btn-secondary'}" onclick="handleUpvote(event, '${p.id}')">↑ ${p.upvotes || 0}</button>
                             </div>
                         </div>
@@ -4568,15 +4601,51 @@
             renderFilterTags();
             updateFilterUI();
         }
+        // --- SYNC PROFILE CHANGES TO OLD POSTS ---
+        async function syncUserProfileToContent() {
+            if (!currentUser) return;
+
+            const uData = window.currentUserData;
+
+            // Prepare the up-to-date data object
+            const updates = {
+                authorName: uData.name,
+                authorPic: uData.profilePic || "",
+                authorRole: uData.role || "Student",
+                authorYear: uData.year || ""
+            };
+
+            console.log("Syncing profile to old posts...");
+
+            try {
+                // 1. Find all my posts
+                const postsSnap = await db.collection('posts').where('authorId', '==', currentUser.uid).get();
+
+                // 2. Batch update them (batches allow 500 ops at once)
+                const batch = db.batch();
+                postsSnap.forEach(doc => {
+                    batch.update(doc.ref, updates);
+                });
+
+                await batch.commit();
+                console.log("Old posts updated.");
+
+                // Note: Updating old COMMENTS in Firestore client-side is very expensive 
+                // (requires reading every post). Instead, we use the "Visual Override" 
+                // in Step 4 to fix comments visually instantly.
+
+            } catch (e) {
+                console.error("Sync error:", e);
+            }
+        }
 
         // Update uploadProfilePic to close modal on success
         const originalUpload = window.uploadProfilePic; // Save ref if exists logic is complex
-        
+
         // Overwrite slightly to close modal
-        window.uploadProfilePic = function() {
+        window.uploadProfilePic = function () {
             const fileInput = document.getElementById('fileInput');
             if (fileInput.files.length === 0) return;
-            
             const file = fileInput.files[0];
             if (file.size > 2 * 1024 * 1024) return alert("File too large.");
 
@@ -4584,27 +4653,37 @@
             reader.onload = function (e) {
                 const newPic = e.target.result;
                 db.collection('users').doc(currentUser.uid).update({ profilePic: newPic, updatedAt: new Date() })
-                .then(() => {
-                    if (window.currentUserData) window.currentUserData.profilePic = newPic;
-                    document.getElementById('profilePicModal').classList.remove('active');
-                    loadProfile(); 
-                    updateUserInfo(); 
-                    showToast("Profile Picture Updated");
-                });
+                    .then(() => {
+                        if (window.currentUserData) window.currentUserData.profilePic = newPic;
+                        document.getElementById('profilePicModal').classList.remove('active');
+
+                        loadProfile();
+                        updateUserInfo();
+
+                        // TRIGGER SYNC
+                        syncUserProfileToContent();
+
+                        showToast("Profile Picture Updated");
+                    });
             };
             reader.readAsDataURL(file);
         };
-        
+
         // Update removeProfilePic to close modal
-        window.removeProfilePic = function() {
-             if(!confirm("Remove current photo?")) return;
-             
-             db.collection('users').doc(currentUser.uid).update({ profilePic: "" })
+        window.removeProfilePic = function () {
+            if (!confirm("Remove current photo?")) return;
+
+            db.collection('users').doc(currentUser.uid).update({ profilePic: "" })
                 .then(() => {
                     if (window.currentUserData) window.currentUserData.profilePic = "";
                     document.getElementById('profilePicModal').classList.remove('active');
+
                     loadProfile();
                     updateUserInfo();
+
+                    // TRIGGER SYNC
+                    syncUserProfileToContent();
+
                     showToast("Photo Removed");
                 });
         };
@@ -4708,7 +4787,7 @@
 
                 const title = titleEl ? titleEl.value : "Untitled";
                 const body = bodyEl ? bodyEl.value : "";
-                const link = ""; 
+                const link = "";
 
                 // Prepare Tags
                 const safeTags = window.selectedTags || [];
@@ -4729,7 +4808,7 @@
                         tags: finalTags,
                         imageUrl: fileUrl || "",
                         mediaType: mediaType || 'image',
-                        
+
                         // --- AUTHOR INFO ---
                         authorId: window.currentUser.uid,
                         authorName: isAnon ? "Anonymous" : (window.currentUserData.name || "Anonymous"),
@@ -4820,12 +4899,12 @@
         function loadComments(postId) {
             const list = document.getElementById('commentsList');
             list.innerHTML = '<p style="color:var(--text-secondary);">Loading...</p>';
-            
+
             // Fetch ALL comments, we sort them in JS to handle nesting
             db.collection('posts').doc(postId).collection('comments')
                 .orderBy('timestamp', 'asc') // Chronological ensures parents exist before children usually
                 .get().then(snap => {
-                    const comments = snap.docs.map(d => ({...d.data(), id: d.id}));
+                    const comments = snap.docs.map(d => ({ ...d.data(), id: d.id }));
                     renderThreadedComments(comments, list, postId);
                 })
                 .catch(err => console.error(err));
@@ -4851,7 +4930,7 @@
             });
 
             // Sort Roots by Upvotes
-            rootComments.sort((a,b) => (b.upvotes || 0) - (a.upvotes || 0));
+            rootComments.sort((a, b) => (b.upvotes || 0) - (a.upvotes || 0));
 
             // 2. Generate HTML
             if (rootComments.length === 0) {
@@ -4864,21 +4943,27 @@
 
         function buildCommentNode(c, postId) {
             const isAuthor = currentUser && c.authorId === currentUser.uid;
-            const yearBadge = getYearBadgeHtml(c.authorYear); 
+
+            // --- VISUAL OVERRIDE FOR COMMENTS ---
+            const displayPic = isAuthor && !window.currentUserData.isAnonymousSession ? (window.currentUserData.profilePic || "") : (c.authorPic || "");
+            const displayName = isAuthor && !window.currentUserData.isAnonymousSession ? window.currentUserData.name : c.authorName;
+            const displayRole = isAuthor && !window.currentUserData.isAnonymousSession ? (window.currentUserData.role || "Student") : (c.authorRole || "Student");
+            const displayYear = isAuthor && !window.currentUserData.isAnonymousSession ? (window.currentUserData.year || "") : (c.authorYear || "");
+            // ------------------------------------
+
+            const yearBadge = getYearBadgeHtml(displayYear);
             const timeString = timeAgo(c.timestamp);
-            
-            // Avatar
-            let avatarHtml = c.authorPic 
-                ? `<img src="${c.authorPic}" class="post-avatar-small" style="width:30px; height:30px; min-width:30px;">`
-                : `<div class="post-avatar-small" style="width:30px; height:30px; min-width:30px; background:#333; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#ccc;">${(c.authorName||"U").charAt(0)}</div>`;
 
-            // Children Logic
+            let avatarHtml = displayPic
+                ? `<img src="${displayPic}" class="post-avatar-small" style="width:30px; height:30px; min-width:30px;">`
+                : `<div class="post-avatar-small" style="width:30px; height:30px; min-width:30px; background:#333; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#ccc;">${(displayName || "U").charAt(0)}</div>`;
+
             const hasChildren = c.children && c.children.length > 0;
-            const childHtml = hasChildren 
+            const childHtml = hasChildren
                 ? `<div id="children-${c.id}" class="comment-children">${c.children.map(child => buildCommentNode(child, postId)).join('')}</div>`
-                : `<div id="children-${c.id}" class="comment-children"></div>`; // Empty container for potential future replies
+                : `<div id="children-${c.id}" class="comment-children"></div>`;
 
-            const toggleBtn = hasChildren 
+            const toggleBtn = hasChildren
                 ? `<span style="font-size:11px; color:var(--primary-color); cursor:pointer; margin-left:10px;" onclick="toggleChildren('${c.id}')">▼ View Replies (${c.children.length})</span>`
                 : '';
 
@@ -4890,8 +4975,8 @@
                     ${avatarHtml}
                     <div style="flex:1;">
                         <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                            <span style="color:var(--text-main); font-weight:700; font-size:13px;">${c.authorName}</span>
-                            <span class="badge badge-verified" style="font-size:9px; padding:1px 4px;">${c.authorRole || 'Student'}</span>
+                            <span style="color:var(--text-main); font-weight:700; font-size:13px;">${displayName}</span>
+                            <span class="badge badge-verified" style="font-size:9px; padding:1px 4px;">${displayRole}</span>
                             ${yearBadge}
                             <span style="color:var(--text-secondary); font-size:11px;">• ${timeString}</span>
                         </div>
@@ -4912,15 +4997,13 @@
 
                         <div id="reply-box-${c.id}" class="reply-input-container">
                             <form onsubmit="handleNewComment(event, '${c.id}')" style="display:flex; gap:8px;">
-                                <input id="reply-input-${c.id}" type="text" placeholder="Reply to ${c.authorName}..." 
-                                    style="padding:8px; font-size:13px; border-radius:15px; border:1px solid #444;">
+                                <input id="reply-input-${c.id}" type="text" placeholder="Reply to ${displayName}..." 
+                                    style="padding:8px; font-size:13px; border-radius:15px; border:1px solid #444; background:var(--bg-input); color:white; flex:1;">
                                 <button type="submit" class="btn btn-primary" style="padding:5px 12px; font-size:12px;">Post</button>
                             </form>
                         </div>
-
                     </div>
                 </div>
-                
                 ${childHtml}
             </div>`;
         }
@@ -4936,14 +5019,14 @@
         function showReplyBox(commentId) {
             // Close all other reply boxes first (optional UX choice)
             document.querySelectorAll('.reply-input-container').forEach(el => el.style.display = 'none');
-            
+
             const box = document.getElementById(`reply-box-${commentId}`);
             if (box) {
                 box.style.display = 'block';
                 // Focus the input
                 setTimeout(() => {
                     const input = document.getElementById(`reply-input-${commentId}`);
-                    if(input) input.focus();
+                    if (input) input.focus();
                 }, 100);
             }
         }
@@ -5005,7 +5088,7 @@
             if (window.currentUserData && window.currentUserData.isAnonymousSession) {
                 const profileTab = document.getElementById('profile');
                 const yearHtml = (typeof getYearBadgeHtml === 'function') ? getYearBadgeHtml(window.currentUserData.realYear) : "";
-                
+
                 profileTab.innerHTML = `
                     <div style="max-width: 500px; margin: 60px auto; text-align: center; padding: 40px; background: var(--bg-card); border-radius: 24px; border: 1px dashed var(--border-color);">
                         <div style="width: 120px; height: 120px; border-radius: 50%; background: #333; color: #666; display: flex; align-items: center; justify-content: center; font-size: 60px; font-weight: bold; border: 4px dashed #555; margin: 0 auto 25px;">?</div>
@@ -5058,8 +5141,8 @@
                 const wrapper = document.querySelector('.profile-pic-wrapper-new');
                 if (wrapper) {
                     // Remove click events, make it static
-                    wrapper.onclick = null; 
-                    
+                    wrapper.onclick = null;
+
                     const picUrl = data.profilePic;
                     if (picUrl) {
                         wrapper.innerHTML = `<img src="${picUrl}" class="profile-pic-large-new">`;
@@ -5081,18 +5164,18 @@
                 // Info Section
                 document.getElementById('profileEmail').textContent = data.email || 'email@example.com';
                 document.getElementById('infoCollege').textContent = data.college || 'Not specified';
-                
+
                 const yearContainer = document.getElementById('infoYear');
                 yearContainer.innerHTML = '';
-                if (data.year && ['FE','SE','TE','BE'].includes(data.year)) {
-                    if(typeof getYearBadgeHtml === 'function') yearContainer.innerHTML = getYearBadgeHtml(data.year);
+                if (data.year && ['FE', 'SE', 'TE', 'BE'].includes(data.year)) {
+                    if (typeof getYearBadgeHtml === 'function') yearContainer.innerHTML = getYearBadgeHtml(data.year);
                     else yearContainer.textContent = data.year;
                 } else {
                     yearContainer.textContent = data.year || 'Not specified';
                 }
-                
+
                 document.getElementById('infoRole').textContent = data.role ? data.role.charAt(0).toUpperCase() + data.role.slice(1) : 'Not specified';
-                
+
                 if (data.joinedDate) {
                     const dateObj = data.joinedDate.toDate ? data.joinedDate.toDate() : new Date(data.joinedDate);
                     document.getElementById('infoJoined').textContent = dateObj.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -5101,7 +5184,7 @@
                 // Populate Edit Form
                 document.getElementById('editName').value = data.name || '';
                 document.getElementById('editCollege').value = data.college || '';
-                document.getElementById('editYear').value = data.year || 'FE'; 
+                document.getElementById('editYear').value = data.year || 'FE';
                 document.getElementById('editSkills').value = (data.skills || []).join(', ');
 
             }).catch(e => {
@@ -5110,9 +5193,9 @@
             });
 
             // Refresh Stats
-            if(typeof updateProfileStats === 'function') updateProfileStats(); 
+            if (typeof updateProfileStats === 'function') updateProfileStats();
         }
-// --- MISSING FUNCTION FIX ---
+        // --- MISSING FUNCTION FIX ---
         function updateProfileStats() {
             if (!currentUser) return;
             const uid = currentUser.uid;
@@ -5132,13 +5215,13 @@
             Promise.all([sentPromise, recPromise])
                 .then(([sentSnap, recSnap]) => {
                     const total = sentSnap.size + recSnap.size;
-                    
+
                     const elConn = document.getElementById('statConnections');
                     if (elConn) elConn.innerText = total;
 
                     // For now, we'll set Mentors to 0 or you can implement specific mentor logic here
                     const elMentors = document.getElementById('statMentors');
-                    if (elMentors) elMentors.innerText = 0; 
+                    if (elMentors) elMentors.innerText = 0;
                 })
                 .catch(e => console.log("Error counting connections", e));
         }
@@ -5190,8 +5273,9 @@
 
                 alert('Profile updated successfully!');
                 toggleEditMode();
-                loadProfile(); 
-                updateUserInfo(); 
+                loadProfile();
+                updateUserInfo();
+                syncUserProfileToContent();
             }).catch(error => {
                 console.error('Error saving profile:', error);
                 alert('Error saving profile: ' + error.message);
@@ -5237,7 +5321,7 @@
         function uploadProfilePic() {
             const fileInput = document.getElementById('fileInput');
             if (fileInput.files.length === 0) return alert("Choose photo first.");
-            
+
             const file = fileInput.files[0];
             if (file.size > 2 * 1024 * 1024) return alert("File too large (Max 2MB)."); // Increased limit slightly
 
@@ -5246,18 +5330,18 @@
                 const newPic = e.target.result;
 
                 db.collection('users').doc(currentUser.uid).set({ profilePic: newPic }, { merge: true })
-                .then(() => {
-                    // --- FIX: Update Global Memory Immediately ---
-                    if (window.currentUserData) {
-                        window.currentUserData.profilePic = newPic;
-                    }
-                    // ---------------------------------------------
-                    
-                    alert("Updated!"); 
-                    loadProfile(); 
-                    updateUserInfo(); 
-                })
-                .catch(err => console.error(err));
+                    .then(() => {
+                        // --- FIX: Update Global Memory Immediately ---
+                        if (window.currentUserData) {
+                            window.currentUserData.profilePic = newPic;
+                        }
+                        // ---------------------------------------------
+
+                        alert("Updated!");
+                        loadProfile();
+                        updateUserInfo();
+                    })
+                    .catch(err => console.error(err));
             };
             reader.readAsDataURL(file);
         }
@@ -5427,12 +5511,12 @@
         }
 
 
-/* =========================================
-           FIXED COMMENT HANDLER (Saves Profile Data)
-           ========================================= */
-        window.handleNewComment = function(e, parentId = null) {
-            e.preventDefault(); 
-            
+        /* =========================================
+                   FIXED COMMENT HANDLER (Saves Profile Data)
+                   ========================================= */
+        window.handleNewComment = function (e, parentId = null) {
+            e.preventDefault();
+
             // Determine logic based on if it's a Reply or a Root comment
             let text, inputId;
             if (parentId) {
@@ -5446,7 +5530,7 @@
             }
 
             if (!text) return;
-            
+
             // Anon Check
             if (window.currentUserData && window.currentUserData.isAnonymousSession) {
                 if (typeof showToast === "function") showToast("Restricted: Cannot comment as Anonymous.");
@@ -5471,7 +5555,7 @@
                 parentId: parentId // Null for root, ID for child
             }).then(() => {
                 document.getElementById(inputId).value = "";
-                if(window.loadComments) window.loadComments(postId); 
+                if (window.loadComments) window.loadComments(postId);
             }).catch(err => console.error(err));
         };
 
@@ -5506,7 +5590,7 @@
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Post";
             }
-        };  
+        };
 
         // --- 3. FIX TAG MENU (Global Scope) ---
         window.openTagMenu = function () {
@@ -5526,53 +5610,53 @@
 
         // --- 4. RE-INIT ENTER KEY LISTENERS (Safe Version) ---
         // --- ENABLE ENTER TO SEND (Shift+Enter for New Line) ---
-function setupEnterKeySubmits() {
-    
-    // 1. CHAT MESSAGES
-    const chatInput = document.getElementById('messageText');
-    if (chatInput) {
-        const newChatInput = chatInput.cloneNode(true);
-        chatInput.parentNode.replaceChild(newChatInput, chatInput);
-        
-        newChatInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                window.handleSendMessage(e);
+        function setupEnterKeySubmits() {
+
+            // 1. CHAT MESSAGES
+            const chatInput = document.getElementById('messageText');
+            if (chatInput) {
+                const newChatInput = chatInput.cloneNode(true);
+                chatInput.parentNode.replaceChild(newChatInput, chatInput);
+
+                newChatInput.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        window.handleSendMessage(e);
+                    }
+                });
             }
-        });
-    }
 
-    // 2. COMMENTS (The fix you requested)
-    const commentInput = document.getElementById('commentText');
-    if (commentInput) {
-        // Clone to remove old listeners
-        const newCommentInput = commentInput.cloneNode(true);
-        commentInput.parentNode.replaceChild(newCommentInput, commentInput);
+            // 2. COMMENTS (The fix you requested)
+            const commentInput = document.getElementById('commentText');
+            if (commentInput) {
+                // Clone to remove old listeners
+                const newCommentInput = commentInput.cloneNode(true);
+                commentInput.parentNode.replaceChild(newCommentInput, commentInput);
 
-        newCommentInput.addEventListener('keydown', function(e) {
-            // IF Enter is pressed AND Shift is NOT held down
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault(); // Stop New Line
-                window.handleNewComment(e); // Trigger Submit
+                newCommentInput.addEventListener('keydown', function (e) {
+                    // IF Enter is pressed AND Shift is NOT held down
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault(); // Stop New Line
+                        window.handleNewComment(e); // Trigger Submit
+                    }
+                    // Else: It does the default (adds a new line)
+                });
             }
-            // Else: It does the default (adds a new line)
-        });
-    }
 
-    // 3. CREATE POST BODY (Trigger Button Click)
-    const postBody = document.getElementById('communityPostBody');
-    if (postBody) {
-        const newPostBody = postBody.cloneNode(true);
-        postBody.parentNode.replaceChild(newPostBody, postBody);
+            // 3. CREATE POST BODY (Trigger Button Click)
+            const postBody = document.getElementById('communityPostBody');
+            if (postBody) {
+                const newPostBody = postBody.cloneNode(true);
+                postBody.parentNode.replaceChild(newPostBody, postBody);
 
-        newPostBody.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                document.getElementById('submitPostBtn').click();
+                newPostBody.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        document.getElementById('submitPostBtn').click();
+                    }
+                });
             }
-        });
-    }
-}
+        }
 
         // Run setup immediately
         setupEnterKeySubmits();
@@ -5583,7 +5667,7 @@ function setupEnterKeySubmits() {
         // 1. Initialize Global Variables
         window.selectedTags = window.selectedTags || [];
 
-        
+
 
         // 3. Global Open/Close Functions
         window.openTagMenu = function () {
@@ -5792,7 +5876,7 @@ function setupEnterKeySubmits() {
     ">${label}</span>`;
         }
         // --- CLOSE MODALS ON OUTSIDE CLICK ---
-        window.addEventListener('mousedown', function(e) {
+        window.addEventListener('mousedown', function (e) {
             // Checks if the element clicked is the dark overlay (class 'modal')
             // and NOT the white box inside it.
             if (e.target.classList.contains('modal')) {
