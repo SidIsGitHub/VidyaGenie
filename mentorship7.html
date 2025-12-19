@@ -6,6 +6,161 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VidyaGenie</title>
     <style>
+        .profile-pic-wrapper-new {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 25px;
+            border-radius: 50%;
+            border: 4px solid var(--primary-color);
+            background: var(--bg-input);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-pic-large-new {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-initial-large-new {
+            font-size: 60px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        
+        /* The Preview Box on the Main Feed */
+        .top-comment-preview {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid var(--primary-color);
+            padding: 10px 15px;
+            margin-top: 10px;
+            border-radius: 0 8px 8px 0;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .top-comment-preview:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Thread Container */
+        .comment-thread-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        /* The Visual Thread Line (Reddit Style) */
+        .comment-thread-line {
+            position: absolute;
+            left: 20px; /* Aligned with avatar center */
+            top: 45px;
+            bottom: 0;
+            width: 2px;
+            background: #333;
+            z-index: 0;
+        }
+        
+        .comment-thread-line:hover {
+            background: var(--primary-color); /* Highlight path on hover */
+        }
+
+        /* Indentation for Child Comments */
+        .comment-children {
+            margin-left: 35px; /* Push children to the right */
+            /* border-left: 2px solid #333; Optional extra guide */
+            padding-left: 10px;
+            display: none; /* Hidden by default (Dropdown style) */
+        }
+
+        .comment-children.open {
+            display: block;
+            animation: slideDown 0.2s ease-out;
+        }
+
+        /* Reply Input Box */
+        .reply-input-container {
+            margin-left: 40px;
+            margin-top: 10px;
+            display: none;
+        }
+        /* --- POST OPTIONS MENU (3 DOTS) --- */
+        .post-options-wrapper {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 5;
+        }
+
+        .three-dots-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 20px;
+            font-weight: bold;
+            transition: background 0.2s;
+            user-select: none;
+        }
+
+        .three-dots-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .options-menu {
+            position: absolute;
+            right: 0;
+            top: 35px;
+            width: 140px;
+            background: #2a2a2a;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: none; /* Hidden by default */
+            transform-origin: top right;
+        }
+
+        .options-menu.active {
+            display: block;
+            animation: menuPop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes menuPop {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .menu-item {
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .menu-item.danger {
+            color: #ff453a; /* System Red */
+        }
+        
+        .menu-item.danger:hover {
+            background: rgba(255, 69, 58, 0.15);
+        }
         /* --- NEW POST AVATAR STYLE --- */
         .post-avatar-small {
             width: 80px;
@@ -2151,6 +2306,10 @@
                     style="margin-top: 10px; font-size: 12px; width: 100%; border: 1px solid #ff453a; background: rgba(255, 69, 58, 0.1);">
                      Factory Reset (Delete All Data)
                 </button>
+                <button class="btn btn-secondary" onclick="openAdminPanel()" 
+                    style="margin-top: 10px; font-size: 12px; width: 100%; border: 1px solid #ff453a; color: #ff453a;">
+                    👮‍♂️ Open Admin Dashboard
+                </button>
             </div>
         </div>
     </div>
@@ -2382,6 +2541,18 @@
 
                         <h2 style="margin-bottom: 25px; font-size: 20px;">Edit Your Profile</h2>
 
+                        <div style="margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                            <label style="margin-bottom: 10px;">Profile Picture</label>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()" style="font-size: 13px;">
+                                    Change Photo
+                                </button>
+                                <button class="btn btn-danger" onclick="removeProfilePic()" style="font-size: 13px; background: rgba(255,69,58,0.1); border: 1px solid #ff453a;">
+                                    Remove
+                                </button>
+                            </div>
+                            <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="uploadProfilePic()">
+                        </div>
                         <div class="form-group-new">
                             <label>Full Name</label>
                             <input type="text" id="editName" placeholder="Your name...">
@@ -2562,6 +2733,7 @@
             </div>
         </div>
     </div>
+    
     <div id="exitAnonModal" class="modal" style="z-index: 11000;">
         <div class="modal-content" style="max-width: 350px; text-align: center;">
             <h3 style="margin-bottom: 15px; color: var(--text-main);">Exit Anonymous mode</h3>
@@ -2574,6 +2746,21 @@
                 <button class="btn btn-secondary" style="flex:1"
                     onclick="document.getElementById('exitAnonModal').classList.remove('active')">Cancel</button>
                 <button class="btn btn-primary" style="flex:1" onclick="confirmExitAnon()">Exit</button>
+            </div>
+        </div>
+    </div>
+    <div id="adminPanelModal" class="modal" style="z-index: 12000;">
+        <div class="modal-content" style="max-width: 700px; max-height: 90vh; display: flex; flex-direction: column;">
+            <div class="modal-header" style="border-bottom: 1px solid #ff453a; color: #ff453a; display:flex; justify-content:space-between; align-items:center;">
+                <span>👮‍♂️ Admin Dashboard</span>
+                <span id="reportCountBadge" style="font-size:14px; background:#333; padding:4px 10px; border-radius:10px; color:white;">0 Reports</span>
+            </div>
+            
+            <div id="adminReportsList" style="flex: 1; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 12px; margin-top: 10px;">
+                </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="document.getElementById('adminPanelModal').classList.remove('active')">Close Panel</button>
             </div>
         </div>
     </div>
@@ -3300,6 +3487,68 @@
         function cancelLongPress() {
             clearTimeout(longPressTimer);
         }
+        // --- POST OPTIONS LOGIC ---
+        function togglePostMenu(event, postId) {
+            event.stopPropagation(); // Prevent opening post detail
+            
+            // Close all other open menus first
+            document.querySelectorAll('.options-menu').forEach(el => {
+                if (el.id !== `menu-${postId}`) el.classList.remove('active');
+            });
+
+            const menu = document.getElementById(`menu-${postId}`);
+            if (menu) menu.classList.toggle('active');
+        }
+
+        // Close menus when clicking anywhere else
+        window.addEventListener('click', () => {
+            document.querySelectorAll('.options-menu').forEach(el => el.classList.remove('active'));
+        });
+
+        function reportPost(event, postId) {
+            event.stopPropagation();
+            
+            // Close menu visually
+            const menu = document.getElementById(`menu-${postId}`);
+            if(menu) menu.classList.remove('active');
+
+            if (!currentUser) {
+                if(typeof showToast === 'function') showToast("Please login to report.");
+                return;
+            }
+
+            // 1. Fetch the post first to check if already reported
+            db.collection('posts').doc(postId).get().then(doc => {
+                if (!doc.exists) return;
+
+                const data = doc.data();
+                const reports = data.reports || [];
+
+                // 2. Check if MY ID is already in the array
+                if (reports.includes(currentUser.uid)) {
+                    showToast("⚠️ You have already reported this post.");
+                    return;
+                }
+
+                // 3. REPLACED Browser Confirm with Custom Modal
+                showConfirm(
+                    "Report Post?",
+                    "Are you sure you want to flag this content for developer review?",
+                    () => {
+                        // This code runs only if user clicks "CONFIRM"
+                        db.collection('posts').doc(postId).update({
+                            reports: firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
+                            reportCount: firebase.firestore.FieldValue.increment(1)
+                        }).then(() => {
+                            showToast("Post Reported. Thank you.");
+                        }).catch(e => {
+                            console.error(e);
+                            showToast("Error reporting post.");
+                        });
+                    }
+                );
+            });
+        }
 
         // --- POST FILE HANDLING ---
         function handlePostFileSelect() {
@@ -3413,13 +3662,110 @@
                 });
             }
         }
+        // --- ADMIN PANEL LOGIC ---
+        
+        async function openAdminPanel() {
+            // 1. Security Check
+            const pin = prompt("Enter Admin PIN:");
+            if (pin !== "1234") return alert("Access Denied");
 
+            const modal = document.getElementById('adminPanelModal');
+            const listEl = document.getElementById('adminReportsList');
+            const badge = document.getElementById('reportCountBadge');
+            
+            modal.classList.add('active');
+            listEl.innerHTML = '<p style="text-align:center; padding:20px; color:#aaa;">Loading reports...</p>';
+
+            try {
+                // 2. Query posts with > 0 reports AND Sort by Count (Highest first)
+                const snap = await db.collection('posts')
+                                     .where('reportCount', '>', 0)
+                                     .orderBy('reportCount', 'desc') // Sorts 10 reports before 1 report
+                                     .get();
+
+                badge.innerText = `${snap.size} Issues`;
+
+                if (snap.empty) {
+                    listEl.innerHTML = `
+                        <div style="text-align:center; padding:40px; opacity:0.6;">
+                            <div style="font-size:40px;">✅</div>
+                            <p style="color:#fff;">All clear! No reported posts.</p>
+                        </div>`;
+                    return;
+                }
+
+                let html = '';
+                snap.forEach(doc => {
+                    const p = doc.data();
+                    
+                    // Visual urgency based on count
+                    let urgencyColor = '#ff453a'; // Default Red
+                    if(p.reportCount > 5) urgencyColor = '#ff0000'; // Bright Red for mass reports
+                    if(p.reportCount > 10) urgencyColor = '#ff00d4'; // Purple/Pink for extreme
+
+                    html += `
+                    <div class="card" style="border: 1px solid ${urgencyColor}; background: #1a0505; margin-bottom: 15px;">
+                        <div class="card-header" style="color: ${urgencyColor}; font-size:14px; display:flex; align-items:center; gap:8px;">
+                            <span><b>${p.reportCount} Reports</b></span>
+                            ${p.reportCount > 5 ? '<span class="badge" style="background:red; color:white;">URGENT</span>' : ''}
+                        </div>
+                        <div class="card-body" style="color: #ddd;">
+                            <div style="font-weight:bold; margin-bottom:5px; font-size:16px;">${p.title}</div>
+                            <p style="font-size:13px; opacity:0.8; margin-bottom:10px; border-left:2px solid #555; padding-left:10px;">${p.body}</p>
+                            
+                            ${p.imageUrl ? `<img src="${p.imageUrl}" style="height:120px; border-radius:8px; border:1px solid #333; margin-top:5px;">` : ''}
+                            
+                            <div style="margin-top:10px; font-size:11px; color:#888; border-top:1px solid #333; padding-top:8px;">
+                                Posted by: <b style="color:#fff;">${p.authorName}</b> (${p.authorRole})<br>
+                                Posted: ${p.createdAt ? p.createdAt.toDate().toLocaleString() : 'N/A'}
+                            </div>
+                        </div>
+                        <div class="card-footer" style="gap: 10px; border-top:1px solid rgba(255, 69, 58, 0.2);">
+                            <button class="btn btn-secondary" style="flex:1; font-size:12px;" onclick="adminIgnoreReport('${doc.id}')">
+                                ✅ Ignore (Clear Reports)
+                            </button>
+                            <button class="btn btn-danger" style="flex:1; font-size:12px;" onclick="adminDeletePost('${doc.id}')">
+                                 Ban & Delete
+                            </button>
+                        </div>
+                    </div>`;
+                });
+
+                listEl.innerHTML = html;
+
+            } catch (e) {
+                console.error(e);
+                listEl.innerHTML = `<p style="color:red; text-align:center;">Error: ${e.message}<br><small>Make sure to create an Index in Firebase Console if asked.</small></p>`;
+            }
+        }
+
+        // Action: Delete the post permanently
+        function adminDeletePost(postId) {
+            if(!confirm("Permanently delete this post?")) return;
+            
+            db.collection('posts').doc(postId).delete().then(() => {
+                showToast("Content removed.");
+                // Refresh the panel
+                openAdminPanel(); 
+            }).catch(e => alert(e.message));
+        }
+
+        // Action: Keep the post (Clear reports)
+        function adminIgnoreReport(postId) {
+            if(!confirm("Clear reports and keep this post?")) return;
+
+            db.collection('posts').doc(postId).update({
+                reportCount: 0,
+                reports: [] // Clear the array of reporters
+            }).then(() => {
+                showToast("Reports cleared.");
+                openAdminPanel(); // Refresh
+            }).catch(e => alert(e.message));
+        }
         function insertEmoji(emoji) {
             const input = document.getElementById('messageText');
             input.value += emoji;
-            input.focus(); // Keep focus on input so user can keep typing
-            // Optional: Close picker after selection? 
-            // document.getElementById('emojiPicker').classList.add('hidden'); 
+            input.focus(); 
         }
         // --- NAVBAR & USER INFO ---
         function updateUserInfo() {
@@ -3465,8 +3811,7 @@
             const sentPromise = db.collection('connection_requests').where('senderId', '==', currentUser.uid).where('status', '==', 'accepted').get();
             const receivedPromise = db.collection('connection_requests').where('recipientId', '==', currentUser.uid).where('status', '==', 'accepted').get();
 
-            Promise.all([sentPromise, receivedPromise]).then(([sentSnap, receivedSnap]) => {
-                let html = '';
+            Promise.all([sentPromise, receivedPromise]).then(async ([sentSnap, receivedSnap]) => {
                 const allDocs = [...sentSnap.docs, ...receivedSnap.docs];
 
                 if (allDocs.length === 0) {
@@ -3474,39 +3819,69 @@
                     return;
                 }
 
-                allDocs.forEach(doc => {
+                // Map docs to a list of Promises to fetch user details
+                const renderPromises = allDocs.map(async (doc) => {
                     const data = doc.data();
-                    let otherId, otherName;
+                    let otherId;
 
+                    // Determine who the "other" person is
                     if (data.senderId === currentUser.uid) {
                         otherId = data.recipientId;
-                        otherName = data.recipientName;
                     } else {
                         otherId = data.senderId;
-                        otherName = data.senderName;
                     }
 
-                    // Sanitize Name
-                    if (!otherName || otherName === 'undefined') otherName = "Unknown User";
-                    const displayName = otherName.charAt(0).toUpperCase() + otherName.slice(1);
+                    // Fetch their latest profile data
+                    let otherUser = {};
+                    try {
+                        const userSnap = await db.collection('users').doc(otherId).get();
+                        if (userSnap.exists) otherUser = userSnap.data();
+                    } catch (e) { console.error(e); }
 
-                    // 🚨 FIX: Encode name to prevent button breakage
+                    // Fallback Name
+                    const displayName = (otherUser.name || data.senderName || "Unknown").charAt(0).toUpperCase() + (otherUser.name || data.senderName || "User").slice(1);
                     const safeNameEncoded = encodeURIComponent(displayName);
+                    
+                    // Badges
+                    const role = (otherUser.role || "Student").charAt(0).toUpperCase() + (otherUser.role || "Student").slice(1);
+                    const yearBadge = getYearBadgeHtml(otherUser.year);
 
-                    html += `
-                    <div class="card" style="margin-bottom: 15px; padding: 15px;">
-                        <div class="card-header" style="font-size: 15px; margin-bottom:5px;">
-                            ${displayName} 
-                            <span class="badge badge-verified">Connected</span>
+                    // Avatar Logic
+                    let avatarHtml;
+                    if (otherUser.profilePic) {
+                        avatarHtml = `<img src="${otherUser.profilePic}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid var(--border-color);">`;
+                    } else {
+                        const initial = displayName.charAt(0);
+                        avatarHtml = `<div style="width:40px; height:40px; border-radius:50%; background:#333; display:flex; align-items:center; justify-content:center; color:#ccc; font-weight:bold; font-size:16px; border:1px solid var(--border-color);">${initial}</div>`;
+                    }
+
+                    return `
+                    <div class="card" style="margin-bottom: 10px; padding: 15px;">
+                        
+                        <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                            ${avatarHtml}
+                            <div>
+                                <div style="color:var(--text-main); font-weight:700; font-size:15px; line-height:1.2;">
+                                    ${displayName}
+                                </div>
+                                <div style="display:flex; align-items:center; gap:5px; margin-top:2px;">
+                                    <span class="badge badge-verified" style="font-size:9px; padding:1px 6px;">${role}</span>
+                                    ${yearBadge}
+                                </div>
+                            </div>
                         </div>
+
                         <div style="display:flex; gap:10px;">
-                            <button class="btn btn-primary" style="flex:1; padding:8px;" onclick="goToChatFromModal('${otherId}', '${safeNameEncoded}')">Message</button>
-                            <button class="btn btn-danger" style="padding:8px;" onclick="unfriend('${otherId}', '${doc.id}')">Unfriend</button>
+                            <button class="btn btn-primary" style="flex:1; padding:8px; font-size:13px;" onclick="goToChatFromModal('${otherId}', '${safeNameEncoded}')">Message</button>
+                            <button class="btn btn-danger" style="padding:8px; font-size:13px;" onclick="unfriend('${otherId}', '${doc.id}')">Unfriend</button>
                         </div>
                     </div>`;
                 });
 
-                listEl.innerHTML = html;
+                // Wait for all user profiles to load
+                const renderedItems = await Promise.all(renderPromises);
+                listEl.innerHTML = renderedItems.join('');
+
             }).catch(e => {
                 console.error("Error loading connections:", e);
                 listEl.innerHTML = '<p style="color:var(--danger-color); text-align:center;">Failed to load.</p>';
@@ -3785,43 +4160,66 @@
             db.collection('connection_requests')
                 .where('recipientId', '==', currentUser.uid)
                 .get()
-                .then(snap => {
-                    let html = '';
-                    let count = 0;
+                .then(async (snap) => {
+                    const pendingDocs = snap.docs.filter(d => d.data().status === 'pending');
 
-                    snap.forEach(doc => {
+                    if (pendingDocs.length === 0) {
+                        list.innerHTML = '<p style="text-align:center; color:var(--text-secondary);">No pending requests.</p>';
+                        return;
+                    }
+
+                    const renderPromises = pendingDocs.map(async (doc) => {
                         const req = doc.data();
+                        
+                        // Fetch Sender Profile
+                        let senderUser = {};
+                        try {
+                            const userSnap = await db.collection('users').doc(req.senderId).get();
+                            if (userSnap.exists) senderUser = userSnap.data();
+                        } catch(e) {}
 
-                        // Strict check for pending
-                        if (req.status !== 'pending') return;
-
-                        count++;
-                        // Fallback for missing name to prevent "undefined"
-                        const senderName = req.senderName || 'Unknown User';
+                        const senderName = (senderUser.name || req.senderName || "Unknown").charAt(0).toUpperCase() + (senderUser.name || req.senderName || "User").slice(1);
                         const dateStr = req.createdAt ? req.createdAt.toDate().toLocaleDateString() : 'Recently';
+                        
+                        // Badges
+                        const role = (senderUser.role || "Student").charAt(0).toUpperCase() + (senderUser.role || "Student").slice(1);
+                        const yearBadge = getYearBadgeHtml(senderUser.year);
 
-                        html += `
+                        // Avatar
+                        let avatarHtml;
+                        if (senderUser.profilePic) {
+                            avatarHtml = `<img src="${senderUser.profilePic}" style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:1px solid var(--border-color);">`;
+                        } else {
+                            const initial = senderName.charAt(0);
+                            avatarHtml = `<div style="width:100px; height:100px; border-radius:50%; background:#333; display:flex; align-items:center; justify-content:center; color:#ccc; font-weight:bold; font-size:18px; border:1px solid var(--border-color);">${initial}</div>`;
+                        }
+
+                        return `
                         <div class="card">
-                            <div class="card-header">
-                                ${senderName} 
-                                <span class="badge badge-pending">Request</span>
+                            <div class="card-header" style="justify-content:flex-start; gap:12px; border-bottom:none; padding-bottom:0;">
+                                ${avatarHtml}
+                                <div>
+                                    <div style="font-size:16px; font-weight:700;">${senderName}</div>
+                                    <div style="display:flex; align-items:center; gap:5px; margin-top:3px;">
+                                        
+                                        <span class="badge" style="font-size:9px; background:rgba(255,255,255,0.1); color:#ccc;">${role}</span>
+                                        ${yearBadge}
+                                    </div>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <p>${req.message}</p>
-                                <small style="color:var(--text-secondary);">Received: ${dateStr}</small>
+                            
+                            <div class="card-body" style="padding-top:10px; padding-left: 60px;"> <p style="font-style:italic; margin-bottom:5px;">"${req.message}"</p>
+                                <small style="color:var(--text-secondary); font-size:11px;">Received: ${dateStr}</small>
                             </div>
-                            <div class="card-footer" style="gap: 10px;">
-                                <button class="btn btn-secondary" onclick="updateRequest('${doc.id}', 'accepted', '${req.senderId}')">Accept</button>
+                            
+                            <div class="card-footer" style="gap: 10px; padding-left: 60px;"> <button class="btn btn-secondary" onclick="updateRequest('${doc.id}', 'accepted', '${req.senderId}')">Accept</button>
                                 <button class="btn btn-danger" onclick="updateRequest('${doc.id}', 'rejected')">Decline</button>
                             </div>
                         </div>`;
                     });
 
-                    if (count === 0) {
-                        list.innerHTML = '<p style="text-align:center; color:var(--text-secondary);">No pending requests.</p>';
-                    } else {
-                        list.innerHTML = html;
-                    }
+                    const html = await Promise.all(renderPromises);
+                    list.innerHTML = html.join('');
                 })
                 .catch(e => {
                     console.error("Error loading requests:", e);
@@ -4044,10 +4442,11 @@
             }
 
             try {
+                // 1. Get Posts
                 const snap = await db.collection('posts').orderBy('createdAt', 'desc').limit(50).get();
                 let posts = snap.docs.map(doc => ({ ...doc.data(), id: doc.id }));
 
-                // --- APPLY FILTERS ---
+                // --- FILTERS & SORTING (Keep your existing logic) ---
                 if (window.activeFilters.years.length > 0) {
                     posts = posts.filter(p => window.activeFilters.years.includes(p.authorYear));
                 }
@@ -4057,105 +4456,104 @@
                         return p.tags.some(t => window.activeFilters.tags.includes(t.name));
                     });
                 }
-
-                // --- APPLY SORTING ---
                 if (window.activeFilters.sortBy === 'upvotes') {
                     posts.sort((a, b) => (b.upvotes || 0) - (a.upvotes || 0));
                 } else {
                     posts.sort((a, b) => b.createdAt - a.createdAt);
                 }
 
-                // --- RENDER ---
+                // 2. Render Posts
                 if (posts.length === 0) {
-                    listEl.innerHTML = `
-                    <div style="text-align:center; margin-top:40px;">
-                        <div style="font-size:30px; margin-bottom:10px;">🔍</div>
-                        <p style="color:var(--text-secondary);">No posts found matching your filters.</p>
-                        <button class="btn btn-secondary" onclick="clearAllFilters()" style="margin-top:10px; font-size:12px;">Clear Filters</button>
-                    </div>`;
+                    listEl.innerHTML = `<p style="text-align:center; color:var(--text-secondary); margin-top:30px;">No posts found.</p>`;
                     return;
                 }
 
-                const htmlArray = posts.map(p => {
+                // We map to Promises to handle the async "Top Comment" fetch
+                const htmlPromises = posts.map(async p => {
                     const isAuthor = currentUser && p.authorId === currentUser.uid;
                     const yearBadge = getYearBadgeHtml(p.authorYear);
-                    
-                    // NEW: Calculate Relative Time
                     const timeString = timeAgo(p.createdAt);
 
-                    // Tags HTML
+                    // Tags
                     let tagsHtml = '';
-                    if (p.tags && Array.isArray(p.tags)) {
-                        p.tags.forEach(tag => {
-                            tagsHtml += `<span style="background:${tag.hex || '#555'}; color:white; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; margin-right:5px; vertical-align:middle;">${tag.name}</span>`;
-                        });
-                    }
+                    if (p.tags) p.tags.forEach(tag => {
+                        tagsHtml += `<span style="background:${tag.hex || '#555'}; color:white; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:700; margin-right:5px;">${tag.name}</span>`;
+                    });
 
-                    // Upvote Logic
-                    const pUpvoters = p.upvoters || [];
-                    const pHasUpvoted = currentUser && pUpvoters.includes(currentUser.uid);
-                    const pUpvoteClass = pHasUpvoted ? 'btn-primary' : 'btn-secondary';
-
-                    // Media
+                    // Media & Body
                     let mediaHtml = '';
                     if (p.imageUrl) {
-                        if (p.mediaType === 'video') {
-                            mediaHtml = `<video src="${p.imageUrl}" controls class="post-image" onclick="event.stopPropagation()" style="background:black; max-height:400px; width:100%; border-radius:12px; margin-top:15px;"></video>`;
-                        } else {
-                            mediaHtml = `<img src="${p.imageUrl}" class="post-image" onclick="event.stopPropagation(); openLightbox(this.src)" style="cursor:pointer;">`;
-                        }
+                        if (p.mediaType === 'video') mediaHtml = `<video src="${p.imageUrl}" controls class="post-image" onclick="event.stopPropagation()"></video>`;
+                        else mediaHtml = `<img src="${p.imageUrl}" class="post-image" onclick="event.stopPropagation(); openLightbox(this.src)">`;
                     }
-
-                    const linkHtml = p.linkUrl ? `<a href="${p.linkUrl}" target="_blank" class="post-link" onclick="event.stopPropagation()">🔗 ${p.linkUrl}</a>` : '';
                     const processedBody = p.body.replace(/(https?:\/\/[^\s]+)/g, (url) => `<a href="${url}" target="_blank" style="color:var(--primary-color); text-decoration:underline;">${url}</a>`);
 
-                    // Avatar Logic
+                    // Avatar
                     const authorPic = p.authorPic || ""; 
-                    let avatarHtml;
-                    if (authorPic && p.authorName !== "Anonymous") {
-                        avatarHtml = `<img src="${authorPic}" class="post-avatar-small">`;
-                    } else {
-                        const initial = p.authorName.charAt(0).toUpperCase();
-                        avatarHtml = `<div class="post-avatar-small" style="background:#333; display:flex; align-items:center; justify-content:center; color:#ccc; font-weight:bold; font-size:16px;">${initial}</div>`;
-                    }
+                    let avatarHtml = authorPic && p.authorName !== "Anonymous" 
+                        ? `<img src="${authorPic}" class="post-avatar-small">` 
+                        : `<div class="post-avatar-small" style="background:#333; display:flex; align-items:center; justify-content:center; color:#ccc; font-weight:bold;">${p.authorName.charAt(0)}</div>`;
+
+                    // --- NEW: FETCH TOP COMMENT ---
+                    let topCommentHtml = '';
+                    try {
+                        const cSnap = await db.collection('posts').doc(p.id).collection('comments')
+                            .orderBy('upvotes', 'desc')
+                            .limit(1) // Only get the best one
+                            .get();
+                        
+                        if (!cSnap.empty) {
+                            const c = cSnap.docs[0].data();
+                            topCommentHtml = `
+                            <div class="top-comment-preview" onclick="viewPost('${p.id}')">
+                                <div style="font-weight:bold; color:var(--text-main); font-size:12px; margin-bottom:2px;">
+                                    ${c.authorName} <span style="font-weight:normal; color:var(--text-secondary);">commented:</span>
+                                </div>
+                                <div style="color:#ccc; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">"${c.text}"</div>
+                            </div>`;
+                        }
+                    } catch(e) { console.log("No comments or error"); }
 
                     return `
-                    <div class="card">
+                    <div class="card" style="position: relative;">
+                         <div class="post-options-wrapper">
+                            <div class="three-dots-btn" onclick="togglePostMenu(event, '${p.id}')">⋮</div>
+                            <div id="menu-${p.id}" class="options-menu">
+                                <div class="menu-item danger" onclick="reportPost(event, '${p.id}')"><span>🚩</span> Report</div>
+                                ${isAuthor ? `<div class="menu-item danger" onclick="deletePost('${p.id}')"><span>🗑</span> Delete</div>` : ''}
+                            </div>
+                        </div>
+
                         <div style="cursor:pointer;" onclick="viewPost('${p.id}')">
-                            
-                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.05);">
+                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.05); padding-right: 30px;">
                                 ${avatarHtml}
                                 <div>
                                     <div style="color:var(--text-main); font-weight:700; font-size:15px; line-height:1.2;">
-                                        ${p.authorName} <span class="badge badge-verified" style="font-size:9px; margin-left:4px; vertical-align:middle;">${p.authorRole || 'User'}</span>
+                                        ${p.authorName} <span class="badge badge-verified" style="font-size:9px;">${p.authorRole}</span>
                                     </div>
-                                    <div style="color:var(--text-secondary); font-size:12px;">
-                                        ${yearBadge} <span style="opacity:0.6;">• ${timeString}</span>
-                                    </div>
+                                    <div style="color:var(--text-secondary); font-size:12px;">${yearBadge} • ${timeString}</div>
                                 </div>
                             </div>
-
                             <div style="margin-bottom:8px;">
-                                <div style="font-size:17px; font-weight:700; color:var(--text-main); margin-bottom:6px;">
-                                    ${p.title}
-                                </div>
+                                <div style="font-size:17px; font-weight:700; margin-bottom:6px;">${p.title}</div>
                                 <div>${tagsHtml}</div>
                             </div>
-
-                            <div class="card-body" style="white-space: pre-wrap; margin-top:0;">${processedBody}${linkHtml}${mediaHtml}</div>
+                            <div class="card-body" style="white-space: pre-wrap; margin-top:0;">${processedBody}${mediaHtml}</div>
+                            
+                            ${topCommentHtml}
                         </div>
 
-                        <div class="card-footer" style="justify-content: flex-end; align-items: center; margin-top:15px;">
+                        <div class="card-footer" style="justify-content: flex-end; margin-top:15px;">
                             <div style="display:flex; gap:10px;">
                                 <button class="btn btn-secondary" onclick="viewPost('${p.id}')">💬 Comment</button>
-                                ${isAuthor ? `<button class="btn btn-danger" onclick="deletePost('${p.id}')">Delete</button>` : ''}
-                                <button class="btn ${pUpvoteClass}" onclick="handleUpvote(event, '${p.id}')">↑ ${p.upvotes || 0}</button>
+                                <button class="btn ${currentUser && (p.upvoters || []).includes(currentUser.uid) ? 'btn-primary' : 'btn-secondary'}" onclick="handleUpvote(event, '${p.id}')">↑ ${p.upvotes || 0}</button>
                             </div>
                         </div>
                     </div>`;
                 });
 
-                listEl.innerHTML = htmlArray.join('');
+                const finalHtml = await Promise.all(htmlPromises);
+                listEl.innerHTML = finalHtml.join('');
 
             } catch (e) {
                 console.error(e);
@@ -4170,6 +4568,46 @@
             renderFilterTags();
             updateFilterUI();
         }
+
+        // Update uploadProfilePic to close modal on success
+        const originalUpload = window.uploadProfilePic; // Save ref if exists logic is complex
+        
+        // Overwrite slightly to close modal
+        window.uploadProfilePic = function() {
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput.files.length === 0) return;
+            
+            const file = fileInput.files[0];
+            if (file.size > 2 * 1024 * 1024) return alert("File too large.");
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const newPic = e.target.result;
+                db.collection('users').doc(currentUser.uid).update({ profilePic: newPic, updatedAt: new Date() })
+                .then(() => {
+                    if (window.currentUserData) window.currentUserData.profilePic = newPic;
+                    document.getElementById('profilePicModal').classList.remove('active');
+                    loadProfile(); 
+                    updateUserInfo(); 
+                    showToast("Profile Picture Updated");
+                });
+            };
+            reader.readAsDataURL(file);
+        };
+        
+        // Update removeProfilePic to close modal
+        window.removeProfilePic = function() {
+             if(!confirm("Remove current photo?")) return;
+             
+             db.collection('users').doc(currentUser.uid).update({ profilePic: "" })
+                .then(() => {
+                    if (window.currentUserData) window.currentUserData.profilePic = "";
+                    document.getElementById('profilePicModal').classList.remove('active');
+                    loadProfile();
+                    updateUserInfo();
+                    showToast("Photo Removed");
+                });
+        };
 
         function applyFilters() {
             document.getElementById('sortFilterModal').classList.remove('active');
@@ -4382,74 +4820,131 @@
         function loadComments(postId) {
             const list = document.getElementById('commentsList');
             list.innerHTML = '<p style="color:var(--text-secondary);">Loading...</p>';
-            db.collection('posts').doc(postId).collection('comments').orderBy('upvotes', 'desc').orderBy('timestamp', 'desc').get().then(snap => renderComments(snap, list, postId))
-                .catch(err => db.collection('posts').doc(postId).collection('comments').orderBy('timestamp', 'desc').get().then(snap => renderComments(snap, list, postId)));
+            
+            // Fetch ALL comments, we sort them in JS to handle nesting
+            db.collection('posts').doc(postId).collection('comments')
+                .orderBy('timestamp', 'asc') // Chronological ensures parents exist before children usually
+                .get().then(snap => {
+                    const comments = snap.docs.map(d => ({...d.data(), id: d.id}));
+                    renderThreadedComments(comments, list, postId);
+                })
+                .catch(err => console.error(err));
         }
 
-        function renderComments(snap, list, postId) {
-            let html = '';
-            snap.forEach(doc => {
-                const c = doc.data();
-                const isAuthor = c.authorId === currentUser.uid;
-                const upvoters = c.upvoters || [];
-                const hasUpvoted = upvoters.includes(currentUser.uid);
-                const upvoteClass = hasUpvoted ? 'btn-primary' : 'btn-secondary';
+        // --- RECURSIVE THREAD RENDERER ---
+        function renderThreadedComments(allComments, container, postId) {
+            // 1. Build the Tree
+            const commentMap = {};
+            const rootComments = [];
 
-                html += `
-        <div style="border:1px solid var(--border-color); padding:15px; margin-bottom:10px; border-radius:12px; background:var(--bg-input);">
-            <p style="color: var(--text-main); margin-bottom: 8px;">${c.text}</p>
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-top:5px;">
-                <span style="color: var(--text-secondary);">${c.authorName}</span>
-                <div style="display:flex; gap:5px;">
-                    ${!isAuthor
-                        // CHANGED: Now calls handleCommentUpvote with event
-                        ? `<button class="btn ${upvoteClass}" style="padding:4px 8px; font-size:11px;" onclick="handleCommentUpvote(event, '${postId}', '${doc.id}')">↑ (${c.upvotes || 0})</button>`
-                        : `<span style="padding:4px 8px; color: var(--text-secondary);">↑ ${c.upvotes || 0}</span>`
-                    }
-                    ${isAuthor ? `<button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteComment('${postId}', '${doc.id}')">Delete</button>` : ''}
-                </div>
-            </div>
-        </div>`;
+            allComments.forEach(c => {
+                c.children = [];
+                commentMap[c.id] = c;
             });
-            list.innerHTML = html || '<p style="color:var(--text-secondary);">No comments.</p>';
+
+            allComments.forEach(c => {
+                if (c.parentId && commentMap[c.parentId]) {
+                    commentMap[c.parentId].children.push(c);
+                } else {
+                    rootComments.push(c);
+                }
+            });
+
+            // Sort Roots by Upvotes
+            rootComments.sort((a,b) => (b.upvotes || 0) - (a.upvotes || 0));
+
+            // 2. Generate HTML
+            if (rootComments.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary);">No comments yet.</div>';
+                return;
+            }
+
+            container.innerHTML = rootComments.map(c => buildCommentNode(c, postId)).join('');
         }
-        // --- OPTIMISTIC UPVOTE HANDLERS (NO RELOAD) ---
 
-        function handleUpvote(event, postId) {
-            if (window.currentUserData.isAnonymousSession) {
-                return showToast("Restricted: Cannot upvote as Anonymous.");
+        function buildCommentNode(c, postId) {
+            const isAuthor = currentUser && c.authorId === currentUser.uid;
+            const yearBadge = getYearBadgeHtml(c.authorYear); 
+            const timeString = timeAgo(c.timestamp);
+            
+            // Avatar
+            let avatarHtml = c.authorPic 
+                ? `<img src="${c.authorPic}" class="post-avatar-small" style="width:30px; height:30px; min-width:30px;">`
+                : `<div class="post-avatar-small" style="width:30px; height:30px; min-width:30px; background:#333; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#ccc;">${(c.authorName||"U").charAt(0)}</div>`;
+
+            // Children Logic
+            const hasChildren = c.children && c.children.length > 0;
+            const childHtml = hasChildren 
+                ? `<div id="children-${c.id}" class="comment-children">${c.children.map(child => buildCommentNode(child, postId)).join('')}</div>`
+                : `<div id="children-${c.id}" class="comment-children"></div>`; // Empty container for potential future replies
+
+            const toggleBtn = hasChildren 
+                ? `<span style="font-size:11px; color:var(--primary-color); cursor:pointer; margin-left:10px;" onclick="toggleChildren('${c.id}')">▼ View Replies (${c.children.length})</span>`
+                : '';
+
+            return `
+            <div class="comment-thread-container" id="comment-${c.id}">
+                ${hasChildren ? '<div class="comment-thread-line"></div>' : ''}
+
+                <div style="display:flex; gap:10px; padding:10px 0;">
+                    ${avatarHtml}
+                    <div style="flex:1;">
+                        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                            <span style="color:var(--text-main); font-weight:700; font-size:13px;">${c.authorName}</span>
+                            <span class="badge badge-verified" style="font-size:9px; padding:1px 4px;">${c.authorRole || 'Student'}</span>
+                            ${yearBadge}
+                            <span style="color:var(--text-secondary); font-size:11px;">• ${timeString}</span>
+                        </div>
+
+                        <div style="color:#ddd; font-size:14px; margin:4px 0 6px 0;">${c.text}</div>
+
+                        <div style="display:flex; gap:12px; align-items:center;">
+                            <button class="btn btn-secondary" style="padding:2px 8px; font-size:11px; height:auto; min-height:0;" 
+                                onclick="handleCommentUpvote(event, '${postId}', '${c.id}')">↑ ${c.upvotes || 0}</button>
+                            
+                            <span style="font-size:11px; color:#aaa; cursor:pointer; font-weight:600;" 
+                                onclick="showReplyBox('${c.id}')">Reply</span>
+
+                            ${isAuthor ? `<span style="font-size:11px; color:#ff453a; cursor:pointer;" onclick="deleteComment('${postId}', '${c.id}')">Delete</span>` : ''}
+                            
+                            ${toggleBtn}
+                        </div>
+
+                        <div id="reply-box-${c.id}" class="reply-input-container">
+                            <form onsubmit="handleNewComment(event, '${c.id}')" style="display:flex; gap:8px;">
+                                <input id="reply-input-${c.id}" type="text" placeholder="Reply to ${c.authorName}..." 
+                                    style="padding:8px; font-size:13px; border-radius:15px; border:1px solid #444;">
+                                <button type="submit" class="btn btn-primary" style="padding:5px 12px; font-size:12px;">Post</button>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+                
+                ${childHtml}
+            </div>`;
+        }
+
+        // --- HELPER FUNCTIONS FOR COMMENTS ---
+        function toggleChildren(commentId) {
+            const childContainer = document.getElementById(`children-${commentId}`);
+            if (childContainer) {
+                childContainer.classList.toggle('open');
             }
-            event.stopPropagation(); // Prevent clicking the card behind the button
-            const btn = event.currentTarget;
-            const isUpvoted = btn.classList.contains('btn-primary');
+        }
 
-            // 1. UI Update (Immediate)
-            let count = parseInt(btn.innerText.replace(/\D/g, '')) || 0;
-
-            if (isUpvoted) {
-                // Remove Upvote
-                btn.classList.remove('btn-primary');
-                btn.classList.add('btn-secondary');
-                btn.innerText = `↑ ${Math.max(0, count - 1)}`;
-            } else {
-                // Add Upvote
-                btn.classList.remove('btn-secondary');
-                btn.classList.add('btn-primary');
-                btn.innerText = `↑ ${count + 1}`;
-            }
-
-            // 2. DB Update (Silent)
-            const ref = db.collection('posts').doc(postId);
-            if (isUpvoted) {
-                ref.update({
-                    upvotes: firebase.firestore.FieldValue.increment(-1),
-                    upvoters: firebase.firestore.FieldValue.arrayRemove(currentUser.uid)
-                });
-            } else {
-                ref.update({
-                    upvotes: firebase.firestore.FieldValue.increment(1),
-                    upvoters: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
-                });
+        function showReplyBox(commentId) {
+            // Close all other reply boxes first (optional UX choice)
+            document.querySelectorAll('.reply-input-container').forEach(el => el.style.display = 'none');
+            
+            const box = document.getElementById(`reply-box-${commentId}`);
+            if (box) {
+                box.style.display = 'block';
+                // Focus the input
+                setTimeout(() => {
+                    const input = document.getElementById(`reply-input-${commentId}`);
+                    if(input) input.focus();
+                }, 100);
             }
         }
 
@@ -4503,141 +4998,120 @@
         // --- PROFILE ---
         // --- PROFILE ---
         function loadProfile() {
-    // 1. ANONYMOUS CHECK
-    if (window.currentUserData && window.currentUserData.isAnonymousSession) {
-        const profileTab = document.getElementById('profile');
-        
-        // Year badge logic for Anon
-        const yearHtml = (typeof getYearBadgeHtml === 'function') 
-            ? getYearBadgeHtml(window.currentUserData.realYear) 
-            : ""; 
+            // 1. SAFETY CHECK
+            if (!currentUser) return;
 
-        profileTab.innerHTML = `
-            <div style="max-width: 500px; margin: 60px auto; text-align: center; padding: 40px; background: var(--bg-card); border-radius: 24px; border: 1px dashed var(--border-color);">
+            // 2. ANONYMOUS CHECK
+            if (window.currentUserData && window.currentUserData.isAnonymousSession) {
+                const profileTab = document.getElementById('profile');
+                const yearHtml = (typeof getYearBadgeHtml === 'function') ? getYearBadgeHtml(window.currentUserData.realYear) : "";
                 
-                <div style="width: 120px; height: 120px; border-radius: 50%; background: #333; color: #666; display: flex; align-items: center; justify-content: center; font-size: 60px; font-weight: bold; border: 4px dashed #555; margin: 0 auto 25px;">?</div>
-                
-                <h1 style="color: var(--text-main); margin-bottom: 10px;">Anonymous</h1>
-                <div style="margin-bottom: 20px;">${yearHtml}</div>
-                
-                <p style="color: var(--text-secondary); margin-bottom: 30px; font-size: 14px; line-height: 1.6;">
-                    You are in Anonymous mode.<br>
-                    Social features and profile editing are disabled.
-                </p>
-                
-                <div style="display: flex; flex-direction: column; gap: 15px; align-items: center;">
+                profileTab.innerHTML = `
+                    <div style="max-width: 500px; margin: 60px auto; text-align: center; padding: 40px; background: var(--bg-card); border-radius: 24px; border: 1px dashed var(--border-color);">
+                        <div style="width: 120px; height: 120px; border-radius: 50%; background: #333; color: #666; display: flex; align-items: center; justify-content: center; font-size: 60px; font-weight: bold; border: 4px dashed #555; margin: 0 auto 25px;">?</div>
+                        <h1 style="color: var(--text-main); margin-bottom: 10px;">Anonymous</h1>
+                        <div style="margin-bottom: 20px;">${yearHtml}</div>
+                        <p style="color: var(--text-secondary); margin-bottom: 30px; font-size: 14px; line-height: 1.6;">
+                            You are in Anonymous mode.<br>Social features and profile editing are disabled.
+                        </p>
+                        <div style="display: flex; flex-direction: column; gap: 15px; align-items: center;">
+                            <div class="sort-btn-style anon-exit-override" onclick="document.getElementById('exitAnonModal').classList.add('active')" style="background-color: var(--primary-color); box-shadow: 0 8px 50px rgba(10, 132, 255, 0.4);"> 
+                                <span class="sort-btn-text" style="margin:0; padding:0 20px;">Exit Anonymous mode</span>
+                            </div>
+                            <div style="display:flex; gap:10px; margin-top:20px;">
+                                <button class="btn btn-secondary" onclick="window.performLogout()">Logout</button>
+                                <button class="btn btn-danger" onclick="deleteAccount()">Delete Account</button>
+                            </div>
+                        </div>
+                    </div>`;
+                return;
+            }
+
+            // 3. STANDARD USER LOGIC
+            db.collection('users').doc(currentUser.uid).get().then(doc => {
+                const dbData = doc.exists ? doc.data() : {};
+                const data = { ...currentUserData, ...dbData };
+
+                const rawName = data.name || "User";
+                const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+
+                // Update Name
+                const nameEl = document.getElementById('profileName');
+                if (data.role === 'mentor' && data.isVerified) {
+                    nameEl.innerHTML = `${displayName} <span style="color:#30D158; font-size:0.8em; vertical-align: middle;">✔</span>`;
+                } else {
+                    nameEl.textContent = displayName;
+                }
+
+                // Update Badge
+                const badgeEl = document.getElementById('profileBadge');
+                let badgeText = (data.role || 'student').toUpperCase();
+                let badgeColor = 'var(--primary-color)';
+                if (data.role === 'mentor') {
+                    if (data.isVerified) { badgeText = "VERIFIED MENTOR"; badgeColor = "#30D158"; }
+                    else { badgeText = "MENTOR"; badgeColor = "#636366"; }
+                }
+                badgeEl.textContent = badgeText;
+                badgeEl.style.background = badgeColor;
+
+                // --- FIXED: SIMPLE PROFILE PICTURE ---
+                const wrapper = document.querySelector('.profile-pic-wrapper-new');
+                if (wrapper) {
+                    // Remove click events, make it static
+                    wrapper.onclick = null; 
                     
-                    <div class="sort-btn-style anon-exit-override" 
-                         onclick="document.getElementById('exitAnonModal').classList.add('active')" 
-                         style="background-color: var(--primary-color); box-shadow: 0 8px 50px rgba(10, 132, 255, 0.4);"> 
-                        
-                        <div class="sort-btn-icon">🔓</div>
-                        <span class="sort-btn-text">Exit Anonymous mode</span>
-                    </div>
+                    const picUrl = data.profilePic;
+                    if (picUrl) {
+                        wrapper.innerHTML = `<img src="${picUrl}" class="profile-pic-large-new">`;
+                    } else {
+                        const initial = displayName.charAt(0).toUpperCase();
+                        wrapper.innerHTML = `<div class="profile-initial-large-new">${initial}</div>`;
+                    }
+                }
+                // -------------------------------------
 
-                    <div style="display:flex; gap:10px; margin-top:20px;">
-                        <button class="btn btn-secondary" onclick="window.location.reload()">Logout</button>
-                        <button class="btn btn-danger" onclick="deleteAccount()">Delete Account</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        return;
-    }
+                // Skills
+                const skillsContainer = document.getElementById('skillsContainer');
+                if (data.skills && data.skills.length > 0) {
+                    skillsContainer.innerHTML = data.skills.map(skill => `<div class="skill-tag-new">${skill}</div>`).join('');
+                } else {
+                    skillsContainer.innerHTML = '<div class="empty-state-new">No skills added yet. Click Edit Profile to add your expertise.</div>';
+                }
 
-    // 2. STANDARD USER LOGIC
-    db.collection('users').doc(currentUser.uid).get().then(doc => {
-        const dbData = doc.exists ? doc.data() : {};
-        const data = { ...currentUserData, ...dbData };
+                // Info Section
+                document.getElementById('profileEmail').textContent = data.email || 'email@example.com';
+                document.getElementById('infoCollege').textContent = data.college || 'Not specified';
+                
+                const yearContainer = document.getElementById('infoYear');
+                yearContainer.innerHTML = '';
+                if (data.year && ['FE','SE','TE','BE'].includes(data.year)) {
+                    if(typeof getYearBadgeHtml === 'function') yearContainer.innerHTML = getYearBadgeHtml(data.year);
+                    else yearContainer.textContent = data.year;
+                } else {
+                    yearContainer.textContent = data.year || 'Not specified';
+                }
+                
+                document.getElementById('infoRole').textContent = data.role ? data.role.charAt(0).toUpperCase() + data.role.slice(1) : 'Not specified';
+                
+                if (data.joinedDate) {
+                    const dateObj = data.joinedDate.toDate ? data.joinedDate.toDate() : new Date(data.joinedDate);
+                    document.getElementById('infoJoined').textContent = dateObj.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                }
 
-        const rawName = data.name || "User";
-        const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+                // Populate Edit Form
+                document.getElementById('editName').value = data.name || '';
+                document.getElementById('editCollege').value = data.college || '';
+                document.getElementById('editYear').value = data.year || 'FE'; 
+                document.getElementById('editSkills').value = (data.skills || []).join(', ');
 
-        // --- Update Name & Verification Tick ---
-        const nameEl = document.getElementById('profileName');
-        if (data.role === 'mentor' && data.isVerified) {
-            nameEl.innerHTML = `${displayName} <span style="color:#30D158; font-size:0.8em; vertical-align: middle;">✔</span>`;
-        } else {
-            nameEl.textContent = displayName;
+            }).catch(e => {
+                console.error("Profile load error:", e);
+                document.getElementById('profileName').textContent = 'Error loading profile';
+            });
+
+            // Refresh Stats
+            if(typeof updateProfileStats === 'function') updateProfileStats(); 
         }
-
-        // --- Update Badge ---
-        const badgeEl = document.getElementById('profileBadge');
-        let badgeText = (data.role || 'student').toUpperCase();
-        let badgeColor = 'var(--primary-color)'; 
-
-        if (data.role === 'mentor') {
-            if (data.isVerified) {
-                badgeText = "VERIFIED MENTOR";
-                badgeColor = "#30D158"; 
-            } else {
-                badgeText = "MENTOR";
-                badgeColor = "#636366"; 
-            }
-        }
-        badgeEl.textContent = badgeText;
-        badgeEl.style.background = badgeColor;
-
-        // --- Profile Picture Logic ---
-        const picContainer = document.getElementById('profilePicContainer');
-        const picUrl = data.profilePic;
-        
-        if (picUrl) {
-            picContainer.innerHTML = `<img src="${picUrl}" class="profile-pic-large-new">`;
-        } else {
-            const initial = displayName.charAt(0).toUpperCase();
-            picContainer.innerHTML = `<div class="profile-initial-large-new">${initial}</div>`;
-        }
-
-        // --- Skills ---
-        const skillsContainer = document.getElementById('skillsContainer');
-        if (data.skills && data.skills.length > 0) {
-            skillsContainer.innerHTML = data.skills.map(skill =>
-                `<div class="skill-tag-new">${skill}</div>`
-            ).join('');
-        } else {
-            skillsContainer.innerHTML = '<div class="empty-state-new">No skills added yet. Click Edit Profile to add your expertise.</div>';
-        }
-
-        // --- Info Section ---
-        document.getElementById('profileEmail').textContent = data.email || 'email@example.com';
-        document.getElementById('infoCollege').textContent = data.college || 'Not specified';
-        
-        // Year Badge Logic
-        const yearContainer = document.getElementById('infoYear');
-        yearContainer.innerHTML = ''; 
-        if (data.year && ['FE','SE','TE','BE'].includes(data.year)) {
-            if(typeof getYearBadgeHtml === 'function') {
-                yearContainer.innerHTML = getYearBadgeHtml(data.year);
-            } else {
-                yearContainer.textContent = data.year;
-            }
-        } else {
-            yearContainer.textContent = data.year || 'Not specified';
-        }
-
-        document.getElementById('infoRole').textContent = data.role ? data.role.charAt(0).toUpperCase() + data.role.slice(1) : 'Not specified';
-
-        if (data.joinedDate) {
-            const dateObj = data.joinedDate.toDate ? data.joinedDate.toDate() : new Date(data.joinedDate);
-            const joinedMonth = dateObj.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-            document.getElementById('infoJoined').textContent = joinedMonth;
-        }
-
-        // --- Populate Edit Form ---
-        document.getElementById('editName').value = data.name || '';
-        document.getElementById('editCollege').value = data.college || '';
-        document.getElementById('editYear').value = data.year || 'FE'; 
-        document.getElementById('editSkills').value = (data.skills || []).join(', ');
-
-    }).catch(e => {
-        console.error("Profile load error:", e);
-        document.getElementById('profileName').textContent = 'Error loading profile';
-    });
-
-    // 3. Refresh Stats
-    updateProfileStats(); 
-}
 // --- MISSING FUNCTION FIX ---
         function updateProfileStats() {
             if (!currentUser) return;
@@ -4951,76 +5425,55 @@
             if (diffHours < 24) return `Active ${diffHours}h ago`;
             return `Last seen ${date.toLocaleDateString()}`;
         }
-        /* ==========================================================================
-   FIX FOR: 
-   1. openCreatePostModal (Null Error)
-   2. handleNewComment (Reference Error)
-   3. openTagMenu (Reference Error)
-   ========================================================================== */
 
-        // --- 1. DEFINE MISSING COMMENT HANDLER ---
-        /* =========================================
-   FIXED COMMENT HANDLER (Prevents Logout)
-   ========================================= */
+
 /* =========================================
-   FIXED COMMENT HANDLER (Enter Key Compatible)
-   ========================================= */
-window.handleNewComment = function(e) {
-    // 1. Prevent default behavior (Form submit OR Textarea newline)
-    e.preventDefault(); 
+           FIXED COMMENT HANDLER (Saves Profile Data)
+           ========================================= */
+        window.handleNewComment = function(e, parentId = null) {
+            e.preventDefault(); 
+            
+            // Determine logic based on if it's a Reply or a Root comment
+            let text, inputId;
+            if (parentId) {
+                // It's a reply
+                inputId = `reply-input-${parentId}`;
+                text = document.getElementById(inputId).value.trim();
+            } else {
+                // It's a main comment
+                inputId = 'commentText';
+                text = document.getElementById(inputId).value.trim();
+            }
 
-    // 2. Check for Anonymous Mode
-    if (window.currentUserData && window.currentUserData.isAnonymousSession) {
-        if (typeof showToast === "function") {
-            showToast("Restricted: Cannot comment as Anonymous.");
-        } else {
-            alert("Restricted: Cannot comment as Anonymous.");
-        }
-        return;
-    }
+            if (!text) return;
+            
+            // Anon Check
+            if (window.currentUserData && window.currentUserData.isAnonymousSession) {
+                if (typeof showToast === "function") showToast("Restricted: Cannot comment as Anonymous.");
+                else alert("Restricted: Cannot comment as Anonymous.");
+                return;
+            }
 
-    // 3. Regular Logic
-    const postId = document.getElementById('currentPostId').value;
-    const textInput = document.getElementById('commentText');
-    const text = textInput.value.trim();
+            const postId = document.getElementById('currentPostId').value;
+            const uData = window.currentUserData;
 
-    if (!text) return;
-    if (!window.currentUser) return alert("Please login to comment.");
-
-    // --- FIX: Find button robustly (Independent of e.target) ---
-    // We select the submit button specifically inside the postDetailModal
-    const submitBtn = document.querySelector('#postDetailModal button[type="submit"]');
-    
-    // Safety check just in case
-    if (submitBtn) {
-        var originalText = submitBtn.innerText;
-        submitBtn.disabled = true;
-        submitBtn.innerText = "...";
-    }
-
-    db.collection('posts').doc(postId).collection('comments').add({
-        text: text,
-        authorId: window.currentUser.uid,
-        authorName: window.currentUserData.name,
-        timestamp: new Date(),
-        upvotes: 0,
-        upvoters: []
-    }).then(() => {
-        textInput.value = "";
-        if(window.loadComments) window.loadComments(postId); 
-        
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerText = originalText;
-        }
-    }).catch(err => {
-        console.error(err);
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerText = originalText;
-        }
-    });
-};
+            // Save to Firestore with parentId field
+            db.collection('posts').doc(postId).collection('comments').add({
+                text: text,
+                authorId: window.currentUser.uid,
+                authorName: uData.name,
+                authorPic: uData.profilePic || "",
+                authorRole: uData.role || "Student",
+                authorYear: uData.year || "",
+                timestamp: new Date(),
+                upvotes: 0,
+                upvoters: [],
+                parentId: parentId // Null for root, ID for child
+            }).then(() => {
+                document.getElementById(inputId).value = "";
+                if(window.loadComments) window.loadComments(postId); 
+            }).catch(err => console.error(err));
+        };
 
         // --- 2. FIX CRASH IN POST MODAL (Safety Checks) ---
         // --- 2. FIX CRASH IN POST MODAL (Safety Checks) ---
