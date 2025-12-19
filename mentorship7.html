@@ -3008,7 +3008,6 @@
 
             const email = document.getElementById('loginEmail').value.trim().toLowerCase();
             const password = document.getElementById('loginPassword').value.trim();
-            // CAPTURE CHECKBOX STATE
             const isAnon = document.getElementById('loginAnon').checked;
 
             if (!email || !password) return showToast("Please enter credentials.");
@@ -3021,16 +3020,27 @@
                 .then(snap => {
                     if (!snap.empty) {
                         const userDoc = snap.docs[0];
-                        // In a real app, verify password here. For demo, we trust it.
-                        simulateLogin(userDoc.id, isAnon);
+                        const userData = userDoc.data();
+
+                        // --- PASSWORD CHECK ---
+                        if (userData.password === password) {
+                            // Success!
+                            simulateLogin(userDoc.id, isAnon);
+                        } else {
+                            // Fail!
+                            showToast("❌ Incorrect Password");
+                            btn.innerText = originalText;
+                            btn.disabled = false;
+                        }
                     } else {
-                        showToast("Account not found.");
+                        showToast("❌ Account not found.");
                         btn.innerText = originalText;
                         btn.disabled = false;
                     }
                 })
                 .catch(err => {
                     console.error(err);
+                    showToast("Login Error.");
                     btn.innerText = originalText;
                     btn.disabled = false;
                 });
@@ -3250,38 +3260,46 @@
             e.preventDefault();
             const submitBtn = e.target.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerText;
+            
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Creating Account...";
 
             // 1. Get Values
             const isAnon = document.getElementById('regAnon').checked;
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim().toLowerCase();
-            const password = document.getElementById('regPass').value;
+            const password = document.getElementById('regPass').value; // Store raw password
             const year = document.getElementById('regYear').value;
             const college = document.getElementById('regCollege').value;
+            const role = "student"; 
 
-            // FIX: 'regRole' didn't exist in HTML, so we default to 'student'
-            const role = "student";
+            if(!password || password.length < 6) {
+                alert("Password must be at least 6 characters.");
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalText;
+                return;
+            }
 
             const performRegistration = (base64Pic) => {
                 const newUserId = "user_" + Date.now();
-
+                
                 const newUser = {
                     userId: newUserId,
                     name: name,
                     email: email,
                     year: year,
                     role: role,
-                    college: college, // Added college to DB object
+                    college: college, 
                     profilePic: base64Pic || "",
                     isVerified: false,
                     createdAt: new Date(),
-                    password: password // Saving plainly as requested for demo
+                    password: password // CRITICAL: Saving password to DB for verification
                 };
 
                 // 2. Save to Firestore
                 db.collection('users').doc(newUserId).set(newUser)
                     .then(() => {
-                        if (typeof showToast === 'function') showToast("Account created!");
+                        if(typeof showToast === 'function') showToast("Account created!");
                         // 3. Log them in immediately
                         simulateLogin(newUserId, isAnon);
                     })
@@ -3293,7 +3311,7 @@
                     });
             };
 
-            // 4. Handle File Upload (if any)
+            // 4. Handle File Upload
             const fileInput = document.getElementById('regFile');
             if (fileInput.files.length > 0) {
                 const reader = new FileReader();
@@ -5229,15 +5247,18 @@
         // Function to handle the Exit password check
         function confirmExitAnon() {
             const inputPass = document.getElementById('exitAnonPassword').value;
-            const realPass = window.currentUserData.password; // In a real app, verify against backend
+            
+            // We retrieve the real password stored in memory during login
+            const realPass = window.currentUserData ? window.currentUserData.password : null;
 
             if (inputPass === realPass) {
                 document.getElementById('exitAnonModal').classList.remove('active');
-                showToast("Terminated anonymous session");
-                // Reload session as normal user
+                showToast("🔓 Exiting Anonymous Mode");
+                
+                // Reload session as normal user (Pass 'false' for isAnon)
                 simulateLogin(window.currentUser.uid, false);
             } else {
-                alert("Incorrect Password");
+                alert("Incorrect Password. Cannot exit Anonymous mode.");
             }
         }
 
