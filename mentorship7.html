@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VidyaGenie</title>
     <style>
+        /* --- OTP INPUT STYLE --- */
+        #fpOtpInput {
+            font-family: monospace;
+            font-size: 24px !important;
+            letter-spacing: 8px;
+            color: var(--primary-color);
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--primary-color);
+        }
+
         .profile-pic-wrapper-new {
             width: 150px;
             height: 150px;
@@ -2195,6 +2205,13 @@
             }
         }
     </style>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function () {
+            // REPLACE 'YOUR_PUBLIC_KEY' WITH THE KEY FROM STEP 1
+            emailjs.init("1RBlJ5dSeKAbJAqed");
+        })();
+    </script>
 </head>
 
 <body>
@@ -2232,7 +2249,10 @@
                                     only.</div>
                             </div>
                         </div>
-
+                        <div style="text-align: right; margin-bottom: 15px;">
+                            <span style="color: var(--primary-color); font-size: 15px; cursor: pointer;"
+                                onclick="openForgotModal()">Forgot Password?</span>
+                        </div>
                         <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">Login</button>
                     </form>
                     <p class="auth-toggle-text">
@@ -2774,6 +2794,41 @@
             </div>
         </div>
     </div>
+    <div id="forgotPasswordModal" class="modal" style="z-index: 12000;">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h3 style="margin-bottom: 10px;">Account Recovery</h3>
+
+            <div id="fpStep1">
+                <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 20px;">Enter your college email
+                    to receive a verification code.</p>
+                <input type="email" id="fpEmail" placeholder="Enter email..." style="margin-bottom: 15px;">
+                <button class="btn btn-primary" style="width: 100%;" onclick="handleFpsSendOTP()">Send OTP</button>
+            </div>
+
+            <div id="fpStep2" class="hidden">
+                <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 20px;">Enter the 6-digit code
+                    sent to your email.</p>
+                <input type="number" id="fpOtpInput" placeholder="123456"
+                    style="margin-bottom: 15px; letter-spacing: 5px; text-align: center; font-weight: bold;">
+                <button class="btn btn-primary" style="width: 100%;" onclick="handleFpsVerifyOTP()">Verify Code</button>
+                <div style="margin-top: 10px; font-size: 12px; color: var(--text-secondary); cursor: pointer;"
+                    onclick="resetFpsUI()">Wrong email?</div>
+            </div>
+
+            <div id="fpStep3" class="hidden">
+                <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 20px;">Create a new password.
+                </p>
+                <input type="password" id="fpNewPass" placeholder="New Password" style="margin-bottom: 10px;">
+                <input type="password" id="fpConfirmPass" placeholder="Confirm Password" style="margin-bottom: 15px;">
+                <button class="btn btn-primary" style="width: 100%;" onclick="handleFpsSavePassword()">Reset
+                    Password</button>
+            </div>
+
+            <div style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+                <button class="btn btn-secondary" onclick="closeForgotModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
     <div id="adminPanelModal" class="modal" style="z-index: 12000;">
         <div class="modal-content" style="max-width: 700px; max-height: 90vh; display: flex; flex-direction: column;">
             <div class="modal-header"
@@ -3260,7 +3315,7 @@
             e.preventDefault();
             const submitBtn = e.target.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerText;
-            
+
             submitBtn.disabled = true;
             submitBtn.innerText = "Creating Account...";
 
@@ -3271,9 +3326,9 @@
             const password = document.getElementById('regPass').value; // Store raw password
             const year = document.getElementById('regYear').value;
             const college = document.getElementById('regCollege').value;
-            const role = "student"; 
+            const role = "student";
 
-            if(!password || password.length < 6) {
+            if (!password || password.length < 6) {
                 alert("Password must be at least 6 characters.");
                 submitBtn.disabled = false;
                 submitBtn.innerText = originalText;
@@ -3282,14 +3337,14 @@
 
             const performRegistration = (base64Pic) => {
                 const newUserId = "user_" + Date.now();
-                
+
                 const newUser = {
                     userId: newUserId,
                     name: name,
                     email: email,
                     year: year,
                     role: role,
-                    college: college, 
+                    college: college,
                     profilePic: base64Pic || "",
                     isVerified: false,
                     createdAt: new Date(),
@@ -3299,7 +3354,7 @@
                 // 2. Save to Firestore
                 db.collection('users').doc(newUserId).set(newUser)
                     .then(() => {
-                        if(typeof showToast === 'function') showToast("Account created!");
+                        if (typeof showToast === 'function') showToast("Account created!");
                         // 3. Log them in immediately
                         simulateLogin(newUserId, isAnon);
                     })
@@ -3785,6 +3840,130 @@
                 console.error(e);
                 listEl.innerHTML = `<p style="color:red; text-align:center;">Error: ${e.message}<br><small>Make sure to create an Index in Firebase Console if asked.</small></p>`;
             }
+        }
+        // --- FORGOT PASSWORD LOGIC ---
+        let recoveryState = {
+            email: "",
+            otp: null,
+            userId: null
+        };
+
+        function openForgotModal() {
+            resetFpsUI();
+            document.getElementById('forgotPasswordModal').classList.add('active');
+        }
+
+        function closeForgotModal() {
+            document.getElementById('forgotPasswordModal').classList.remove('active');
+        }
+
+        function resetFpsUI() {
+            document.getElementById('fpStep1').classList.remove('hidden');
+            document.getElementById('fpStep2').classList.add('hidden');
+            document.getElementById('fpStep3').classList.add('hidden');
+            document.getElementById('fpEmail').value = "";
+            document.getElementById('fpOtpInput').value = "";
+            document.getElementById('fpNewPass').value = "";
+            document.getElementById('fpConfirmPass').value = "";
+            recoveryState = { email: "", otp: null, userId: null };
+        }
+
+        function handleFpsSendOTP() {
+            const email = document.getElementById('fpEmail').value.trim().toLowerCase();
+            if (!email) return alert("Please enter email.");
+
+            const btn = document.querySelector('#fpStep1 button');
+            const originalText = btn.innerText;
+            btn.innerText = "Sending...";
+            btn.disabled = true;
+
+            // 1. Check if user exists in Firestore
+            db.collection('users').where('email', '==', email).get()
+                .then(snap => {
+                    if (snap.empty) {
+                        alert("No account found with this email.");
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                        return;
+                    }
+
+                    const doc = snap.docs[0];
+                    const userData = doc.data();
+
+                    // Save state for later steps
+                    recoveryState.email = email;
+                    recoveryState.userId = doc.id;
+
+                    // 2. Generate Real OTP
+                    recoveryState.otp = Math.floor(100000 + Math.random() * 900000);
+
+                    // 3. SEND REAL EMAIL VIA EMAILJS
+                    const templateParams = {
+                        name: userData.name || "Student",
+                        email_to: email,      // The user's email
+                        otp: recoveryState.otp // The variable {{otp}} in your template
+                    };
+
+                    // REPLACE THESE WITH YOUR IDs
+                    const SERVICE_ID = "Sidd@1604";
+                    const TEMPLATE_ID = "template_f0etwxd"; // e.g., template_9z....
+
+                    return emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams);
+                })
+                .then((response) => {
+                    if (!response) return; // Handle case where user wasn't found above
+
+                    console.log('SUCCESS!', response.status, response.text);
+                    showToast("OTP sent to your email!");
+
+                    // Switch UI to Step 2
+                    document.getElementById('fpStep1').classList.add('hidden');
+                    document.getElementById('fpStep2').classList.remove('hidden');
+
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                })
+                .catch((error) => {
+                    console.error('FAILED...', error);
+                    alert("Failed to send email. Check console for details.");
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                });
+        }
+
+        function handleFpsVerifyOTP() {
+            
+            const inputOtp = document.getElementById('fpOtpInput').value;
+            if (parseInt(inputOtp) === recoveryState.otp) {
+                // Success
+                document.getElementById('fpStep2').classList.add('hidden');
+                document.getElementById('fpStep3').classList.remove('hidden');
+            } else {
+                alert("Incorrect OTP. Please try again.");
+            }
+        }
+
+        function handleFpsSavePassword() {
+            const pass1 = document.getElementById('fpNewPass').value;
+            const pass2 = document.getElementById('fpConfirmPass').value;
+
+            if (pass1.length < 6) return alert("Password must be at least 6 characters.");
+            if (pass1 !== pass2) return alert("Passwords do not match.");
+
+            // Update Database
+            db.collection('users').doc(recoveryState.userId).update({
+                password: pass1, // Saving directly as per your demo requirement
+                updatedAt: new Date()
+            }).then(() => {
+                showToast("✅ Password Reset Successfully!");
+                closeForgotModal();
+                // Optionally autofill the login box
+                document.getElementById('loginEmail').value = recoveryState.email;
+                document.getElementById('loginPassword').value = "";
+            }).catch(e => {
+                console.error(e);
+                alert("Failed to update password.");
+            });
         }
 
         // Action: Delete the post permanently
@@ -5247,14 +5426,14 @@
         // Function to handle the Exit password check
         function confirmExitAnon() {
             const inputPass = document.getElementById('exitAnonPassword').value;
-            
+
             // We retrieve the real password stored in memory during login
             const realPass = window.currentUserData ? window.currentUserData.password : null;
 
             if (inputPass === realPass) {
                 document.getElementById('exitAnonModal').classList.remove('active');
                 showToast("🔓 Exiting Anonymous Mode");
-                
+
                 // Reload session as normal user (Pass 'false' for isAnon)
                 simulateLogin(window.currentUser.uid, false);
             } else {
