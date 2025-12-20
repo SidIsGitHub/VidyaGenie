@@ -11,29 +11,75 @@
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>VidyaGenie</title>
     <style>
+        /* --- FIXED OVERLAY TAB --- */
+        .overlay-tab {
+            display: none; 
+            position: absolute;
+            top: 0;           /* Pins it to the top */
+            left: 0;
+            width: 100%;
+            height: 100%;     /* Fills the container */
+            background: var(--bg-body); /* Solid color to hide background */
+            z-index: 1000;
+            overflow-y: auto; /* Independent scrolling */
+        }
+        /* --- FLUID SWIPE SYSTEM --- */
+        #appScreen {
+            overflow-x: hidden;
+            /* Hide the tabs that are off-screen */
+            width: 100vw;
+        }
+
+        .tab-wrapper {
+            display: flex;
+            width: 300%;
+            /* Adjust based on your number of tabs (currently 3) */
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            /* Apple-style ease-out */
+            will-change: transform;
+        }
+
+        .tab-content {
+            width: 100vw;
+            /* Each tab takes exactly one screen width */
+            flex-shrink: 0;
+            display: block !important;
+            /* Always "on" but hidden by container clip */
+            opacity: 0.5;
+            transition: opacity 0.3s ease;
+        }
+
+        .tab-content.active {
+            opacity: 1;
+        }
+
         /* Ensure SVGs inside circles/buttons are centered and match theme */
-.requests-icon-style svg, 
-.sort-btn-style svg {
-    display: block;
-    transition: transform 0.3s ease;
-}
+        .requests-icon-style svg,
+        .sort-btn-style svg {
+            display: block;
+            transition: transform 0.3s ease;
+        }
 
-.sort-btn-style:hover svg {
-    transform: rotate(90deg) scale(1.1); /* Subtle professional interaction */
-}
+        .sort-btn-style:hover svg {
+            transform: rotate(90deg) scale(1.1);
+            /* Subtle professional interaction */
+        }
 
-.requests-icon-style:hover svg {
-    stroke: var(--text-main);
-}
+        .requests-icon-style:hover svg {
+            stroke: var(--text-main);
+        }
+
         /* --- CHAT LAYOUT SYSTEM --- */
         #chatMainWrapper {
             display: flex;
             gap: 20px;
-            height: 75vh; /* Desktop Height */
+            height: 75vh;
+            /* Desktop Height */
         }
 
         #activeChatsList {
-            flex: 0 0 300px; /* Fixed width on desktop */
+            flex: 0 0 300px;
+            /* Fixed width on desktop */
             overflow-y: auto;
             border-right: 1px solid var(--border-color);
         }
@@ -49,7 +95,8 @@
         }
 
         .chat-back-btn {
-            display: none; /* Hidden on Desktop */
+            display: none;
+            /* Hidden on Desktop */
             margin-right: 15px;
             font-size: 24px;
             cursor: pointer;
@@ -58,10 +105,12 @@
 
         /* --- MOBILE CHAT (Immersive Full Screen) --- */
         @media (max-width: 600px) {
+
             /* 1. Master List (Active Conversations) */
             #chatMainWrapper {
                 display: block !important;
-                height: calc(100vh - 140px); /* Normal height for the list */
+                height: calc(100vh - 140px);
+                /* Normal height for the list */
             }
 
             #activeChatsList {
@@ -78,9 +127,12 @@
                 top: 0;
                 left: 0;
                 width: 100%;
-                height: 100dvh; /* Dynamic Height for mobile browsers */
-                background: #000; /* Pure black background like IG */
-                z-index: 2000; /* Sit ON TOP of bottom tabs */
+                height: 100dvh;
+                /* Dynamic Height for mobile browsers */
+                background: #000;
+                /* Pure black background like IG */
+                z-index: 2000;
+                /* Sit ON TOP of bottom tabs */
                 border: none;
                 border-radius: 0;
                 flex-direction: column;
@@ -93,19 +145,23 @@
 
             /* Fix Header for Full Screen */
             #chats.mobile-chat-open #chatHeader {
-                padding-top: 45px; /* Space for Status Bar/Notch */
-                background: rgba(20, 20, 20, 0.98); /* Slightly darker header */
+                padding-top: 45px;
+                /* Space for Status Bar/Notch */
+                background: rgba(20, 20, 20, 0.98);
+                /* Slightly darker header */
             }
 
             /* Fix Message Container Size */
             #chats.mobile-chat-open #messagesContainer {
-                flex: 1; /* Grow to fill space */
+                flex: 1;
+                /* Grow to fill space */
                 background: #000;
             }
 
             /* Fix Input Area at Bottom */
             #chats.mobile-chat-open #sendMessageForm {
-                padding-bottom: 20px; /* Space for Home Indicator */
+                padding-bottom: 20px;
+                /* Space for Home Indicator */
                 background: #111;
             }
 
@@ -113,9 +169,11 @@
             .chat-back-btn {
                 display: block !important;
                 padding: 10px;
-                margin-left: -10px; /* Align to edge */
+                margin-left: -10px;
+                /* Align to edge */
             }
         }
+
         /* --- OTP INPUT STYLE --- */
         #fpOtpInput {
             font-family: monospace;
@@ -675,9 +733,11 @@
 
         /* Purple */
         .requests-icon-style:hover svg {
-            stroke: #ff3b30; /* Systems red color on hover */
+            stroke: #ff3b30;
+            /* Systems red color on hover */
             transform: scale(1.1);
-            fill: rgba(255, 59, 48, 0.1); /* Subtle light red fill */
+            fill: rgba(255, 59, 48, 0.1);
+            /* Subtle light red fill */
         }
 
         /* Sub-Tag Colors (Specific to Councils) */
@@ -1375,14 +1435,15 @@
             border-color: var(--text-secondary);
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
         }
+
         /* --- SCROLLBAR STRATEGY --- */
 
         /* 1. MOBILE (Default to Native "Invisible" Scrollbar) */
         /* We don't write any rules here. The browser defaults are best for touch. */
-        
+
         /* 2. DESKTOP ONLY (> 600px) - The Cool Blue Look */
         @media (min-width: 601px) {
-            
+
             ::-webkit-scrollbar {
                 width: 10px;
                 height: 10px;
@@ -1403,7 +1464,7 @@
             ::-webkit-scrollbar-thumb:hover {
                 background-color: #4da6ff;
             }
-            
+
             /* Firefox Desktop */
             html {
                 scrollbar-width: thin;
@@ -1452,22 +1513,27 @@
         }
 
         /* --- MOBILE TAB ACTIVE STATE (CLEAN) --- */
-            .tab-button.active {
-                color: var(--primary-color) !important; /* Only change the color */
-                background: transparent !important;    /* Remove the box */
-                box-shadow: none !important;           /* Remove the shadow */
-            }
+        .tab-button.active {
+            color: var(--primary-color) !important;
+            /* Only change the color */
+            background: transparent !important;
+            /* Remove the box */
+            box-shadow: none !important;
+            /* Remove the shadow */
+        }
 
-            /* Ensure the icon specifically stays primary color */
-            .tab-button.active svg {
-                stroke: var(--primary-color) !important;
-                transform: scale(1.1); /* Keep the subtle grow effect */
-            }
+        /* Ensure the icon specifically stays primary color */
+        .tab-button.active svg {
+            stroke: var(--primary-color) !important;
+            transform: scale(1.1);
+            /* Keep the subtle grow effect */
+        }
 
         /* Active Icon Animation */
         .tab-button.active svg {
             transform: scale(1.1);
-            stroke-width: 2.5px; /* Make it bolder when active */
+            stroke-width: 2.5px;
+            /* Make it bolder when active */
             stroke: var(--primary-color);
         }
 
@@ -1485,25 +1551,29 @@
                 right: 0;
                 width: 100%;
                 max-width: 100%;
-                
+
                 margin: 0;
                 border-radius: 0;
                 border: none;
                 border-top: 1px solid var(--border-color);
-                
-                background: rgba(28, 28, 30, 0.95); /* Glassy dark background */
+
+                background: rgba(28, 28, 30, 0.95);
+                /* Glassy dark background */
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
-                
-                padding: 10px 0 25px 0; /* Extra padding for iPhone Home Indicator */
-                z-index: 1000; /* Sit above everything */
+
+                padding: 10px 0 25px 0;
+                /* Extra padding for iPhone Home Indicator */
+                z-index: 1000;
+                /* Sit above everything */
                 gap: 0;
                 justify-content: space-around;
             }
 
             .tab-button {
                 flex-direction: column;
-                gap: 0; /* Reset gap */
+                gap: 0;
+                /* Reset gap */
                 padding: 10px 0;
                 background: transparent !important;
                 transition: all 0.3s var(--transition-bounce);
@@ -1518,13 +1588,15 @@
                 transition: all 0.3s var(--transition-bounce);
                 transform: translateY(10px);
             }
+
             .tab-button.active .tab-label {
                 max-height: 20px;
                 opacity: 1;
-                transform: translateY(4px); /* Moves text slightly below icon */
+                transform: translateY(4px);
+                /* Moves text slightly below icon */
                 margin-top: 2px;
             }
-            
+
             /* Icon size adjustment for mobile */
             .tab-button svg {
                 width: 24px;
@@ -1532,16 +1604,18 @@
                 stroke: var(--text-secondary);
                 transition: all 0.3s var(--transition-bounce);
             }
+
             .tab-button.active svg {
                 stroke: var(--primary-color) !important;
-                transform: translateY(-2px); /* Slight lift effect */
+                transform: translateY(-2px);
+                /* Slight lift effect */
             }
 
             /* Make sure content doesn't get hidden behind the bar */
             .container {
                 padding-bottom: 90px;
             }
-            
+
             /* Hide the navbar on scroll (Optional: makes it feel cleaner) */
             /* .navbar { position: static; } */
         }
@@ -1566,18 +1640,23 @@
         .tab-content.active {
             display: block;
         }
+
         /* --- MOBILE TOUCH FIXES --- */
         * {
-            -webkit-tap-highlight-color: transparent; /* Removes blue box on touch */
+            -webkit-tap-highlight-color: transparent;
+            /* Removes blue box on touch */
         }
 
         /* Optional: Improve scroll smoothness on iOS */
         body {
-            -webkit-overflow-scrolling: touch; 
+            -webkit-overflow-scrolling: touch;
         }
-        
+
         /* Ensure buttons don't select text on double tap */
-        .btn, .tab-button, .card, .profile-pic-wrapper-new {
+        .btn,
+        .tab-button,
+        .card,
+        .profile-pic-wrapper-new {
             user-select: none;
             -webkit-user-select: none;
         }
@@ -1894,11 +1973,14 @@
             max-height: 90vh;
             overflow-y: auto;
         }
+
         /* --- SCROLL LOCK (Prevents background scrolling) --- */
         body.no-scroll {
             overflow: hidden !important;
-            height: 100vh; /* Locks the height to screen size */
-            touch-action: none; /* Disables touch scrolling on body */
+            height: 100vh;
+            /* Locks the height to screen size */
+            touch-action: none;
+            /* Disables touch scrolling on body */
         }
 
         @keyframes modalPop {
@@ -2467,10 +2549,12 @@
 
         /* --- MOBILE OPTIMIZATIONS (Bottom Sheet Style) --- */
         @media (max-width: 600px) {
+
             /* 1. Full Width Containers */
             .container {
                 padding: 10px;
-                padding-bottom: 90px; /* Space for bottom nav */
+                padding-bottom: 90px;
+                /* Space for bottom nav */
                 max-width: 100%;
             }
 
@@ -2506,7 +2590,7 @@
                 font-size: 10px;
                 font-weight: 500;
             }
-            
+
             .tab-button svg {
                 width: 26px;
                 height: 26px;
@@ -2521,33 +2605,42 @@
                 border-radius: 0 0 16px 16px;
                 z-index: 100;
             }
-            
-            .navbar-brand h1 { font-size: 24px; }
+
+            .navbar-brand h1 {
+                font-size: 24px;
+            }
 
             /* 4. MODALS -> BOTTOM SHEET (The Fix) */
             .modal {
-                align-items: flex-end; /* Align to bottom */
+                align-items: flex-end;
+                /* Align to bottom */
             }
 
             .modal-content {
                 width: 100% !important;
                 max-width: 100% !important;
-                border-radius: 24px 24px 0 0 !important; /* Round top corners */
+                border-radius: 24px 24px 0 0 !important;
+                /* Round top corners */
                 border: none;
                 border-top: 1px solid var(--border-color);
                 margin: 0 !important;
-                
+
                 /* Limit height so you can click the top backdrop to close */
-                max-height: 85vh !important; 
+                max-height: 85vh !important;
                 height: auto !important;
-                
+
                 /* Slide Up Animation */
                 animation: slideUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             }
-            
+
             @keyframes slideUpModal {
-                from { transform: translateY(100%); }
-                to { transform: translateY(0); }
+                from {
+                    transform: translateY(100%);
+                }
+
+                to {
+                    transform: translateY(0);
+                }
             }
 
             /* Add a visual "Handle" to indicate it's a sheet */
@@ -2558,18 +2651,31 @@
                 height: 4px;
                 background: #444;
                 border-radius: 2px;
-                margin: 0 auto 15px auto; /* Center top */
+                margin: 0 auto 15px auto;
+                /* Center top */
             }
-            
+
             .modal-footer {
-                padding-bottom: 30px; /* Extra padding for iPhone home bar */
+                padding-bottom: 30px;
+                /* Extra padding for iPhone home bar */
             }
-            
+
             /* Profile adjustments */
-            .profile-header-new { padding: 30px 20px; }
-            .profile-info-new h1 { font-size: 24px; }
-            .stats-grid-new { grid-template-columns: repeat(3, 1fr); }
-            .action-buttons-new { grid-template-columns: 1fr 1fr; }
+            .profile-header-new {
+                padding: 30px 20px;
+            }
+
+            .profile-info-new h1 {
+                font-size: 24px;
+            }
+
+            .stats-grid-new {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .action-buttons-new {
+                grid-template-columns: 1fr 1fr;
+            }
         }
     </style>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -2730,36 +2836,46 @@
                     <p id="userInfo"></p>
                 </div>
                 <div class="navbar-right">
-    <div style="display: flex; gap: 15px; align-items: center;">
-        <div class="requests-icon-style" onclick="openConnectionsModal()" title="My Connections">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
-        </div>
-        <div class="requests-icon-style" onclick="switchTab('requests')" title="Pending Requests" style="position: relative;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-            </svg>
-            <span id="requestBadge" class="notification-badge hidden">0</span>
-        </div>
-        <div id="navProfileContainer" class="profile-circle" onclick="switchTab('profile')" title="My Profile"></div>
-    </div>
-</div>
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <div class="requests-icon-style" onclick="openConnectionsModal()" title="My Connections">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <div class="requests-icon-style" onclick="switchTab('requests')" title="Pending Requests"
+                            style="position: relative;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                                </path>
+                            </svg>
+                            <span id="requestBadge" class="notification-badge hidden">0</span>
+                        </div>
+                        <div id="navProfileContainer" class="profile-circle" onclick="switchTab('profile')"
+                            title="My Profile"></div>
+                    </div>
+                </div>
             </div>
 
             <div class="tabs">
                 <button class="tab-button" onclick="switchTab(event, 'chats')">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
+                        </path>
                     </svg>
                     <span class="tab-label">Messages</span>
                 </button>
 
                 <button class="tab-button" onclick="switchTab(event, 'community')">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                         <circle cx="9" cy="7" r="4"></circle>
                         <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -2769,276 +2885,291 @@
                 </button>
 
                 <button class="tab-button" onclick="switchTab(event, 'mentors')">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
                     <span class="tab-label">Explore</span>
                 </button>
             </div>
+            <div class="tab-wrapper" id="tabWrapper">
+                <div id="chats" class="tab-content">
+                    <div id="chatMainWrapper">
 
-            <div id="mentors" class="tab-content">
-                <div class="card" style="margin-bottom: 30px; border: 1px solid var(--border-color);">
-                    <div class="card-header" style="color: var(--text-main);">Search Users</div>
-                    <div class="card-body">
-                        <form id="userSearchForm" onsubmit="handleUserSearch(event)">
-                            <div class="form-group" style="display: flex; gap: 10px; margin-bottom: 0;">
-                                <input type="text" id="searchInput" placeholder="Search by Name (e.g., Andy)"
-                                    style="flex-grow: 1;">
-                                <button type="submit" class="btn btn-primary">Search</button>
+                        <div id="activeChatsList">
+                            <h4 style="padding: 20px 20px 10px 20px; border-bottom: 1px solid var(--border-color);">
+                                Active Conversations
+                            </h4>
+                            <div style="padding: 10px 15px 15px 15px;">
+                                <div style="padding: 10px 15px 10px 15px; position: relative;">
+                                    <span
+                                        style="position: absolute; left: 25px; top: 50%; transform: translateY(-55%); color: var(--text-secondary); font-size: 14px;">🔍</span>
+                                    <input type="text" id="chatSearchInput" placeholder="Search connections..."
+                                        onkeyup="loadChats()"
+                                        style="width: 100%; padding: 10px 15px 10px 35px; border-radius: var(--radius-md); background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-main); font-size: 14px;">
+                                </div>
                             </div>
-                        </form>
+                            <div id="chatsListContent"></div>
+                        </div>
+
+                        <div id="messageView">
+                            <input type="file" id="chatFileInput" accept="image/*,video/*" style="display: none;"
+                                onchange="handleChatFileSelect(this)">
+
+                            <div id="chatHeader"
+                                style="padding: 15px 20px; font-weight: 800; font-size: 18px; border-bottom: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); display: flex; align-items: center;">
+                                <span class="chat-back-btn" onclick="closeChatView()">←</span>
+
+                                <div id="chatHeaderInfo">Select a conversation</div>
+                            </div>
+
+                            <div id="messagesContainer"></div>
+
+                            <form id="sendMessageForm" onsubmit="handleSendMessage(event)" class="hidden"
+                                style="position: relative; padding: 15px; border-top: 1px solid var(--glass-border); display: flex; gap: 10px; background: rgba(0,0,0,0.2); align-items: center;">
+
+                                <input type="hidden" id="selectedChatId">
+                                <div id="emojiPicker" class="emoji-picker hidden"></div>
+
+                                <button type="button" class="chat-upload-btn btn-circle"
+                                    onclick="document.getElementById('chatFileInput').click()"
+                                    title="Send Media">📷</button>
+                                <button type="button" class="chat-upload-btn btn-circle" onclick="toggleEmojiPicker()"
+                                    title="Emoji">😀</button>
+
+                                <textarea id="messageText" placeholder="Type a message..." required
+                                    style="flex-grow: 1; height: 45px; border-radius: 22px; padding: 12px 20px; resize: none; background: rgba(255,255,255,0.05); border:none; color: white; font-family: inherit; overflow: hidden;"></textarea>
+
+                                <button type="submit" class="btn btn-primary btn-circle"
+                                    style="font-size: 18px;">➤</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-                <div id="searchResultsList" class="grid"></div>
-            </div>
+                <div id="community" class="tab-content">
 
-            <div id="requests" class="tab-content">
-                <div id="requestsList"></div>
-            </div>
+                    <div class="center-icon-wrapper" style="gap: 15px; align-items: center;">
 
-            <div id="chats" class="tab-content">
-                <div id="chatMainWrapper">
-                    
-                    <div id="activeChatsList">
-                        <h4 style="padding: 20px 20px 10px 20px; border-bottom: 1px solid var(--border-color);">
-                            Active Conversations
-                        </h4>
-                        <div style="padding: 10px 15px 15px 15px;">
-                            <div style="padding: 10px 15px 10px 15px; position: relative;">
-                                <span style="position: absolute; left: 25px; top: 50%; transform: translateY(-55%); color: var(--text-secondary); font-size: 14px;">🔍</span>
-                                <input type="text" id="chatSearchInput" placeholder="Search connections..."
-                                    onkeyup="loadChats()"
-                                    style="width: 100%; padding: 10px 15px 10px 35px; border-radius: var(--radius-md); background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-main); font-size: 14px;">
-                            </div>
-                        </div>
-                        <div id="chatsListContent"></div>
-                    </div>
-
-                    <div id="messageView">
-                        <input type="file" id="chatFileInput" accept="image/*,video/*" style="display: none;" onchange="handleChatFileSelect(this)">
-                        
-                        <div id="chatHeader" style="padding: 15px 20px; font-weight: 800; font-size: 18px; border-bottom: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); display: flex; align-items: center;">
-                            <span class="chat-back-btn" onclick="closeChatView()">←</span>
-                            
-                            <div id="chatHeaderInfo">Select a conversation</div>
+                        <div class="sort-btn-style" onclick="openSortModal()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="4" y1="21" x2="4" y2="14"></line>
+                                <line x1="4" y1="10" x2="4" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12" y2="3"></line>
+                                <line x1="20" y1="21" x2="20" y2="16"></line>
+                                <line x1="20" y1="12" x2="20" y2="3"></line>
+                                <line x1="2" y1="14" x2="6" y2="14"></line>
+                                <line x1="10" y1="8" x2="14" y2="8"></line>
+                                <line x1="18" y1="16" x2="22" y2="16"></line>
+                            </svg>
+                            <span class="sort-btn-text">Sort / Filter</span>
                         </div>
 
-                        <div id="messagesContainer"></div>
+                        <div id="createPostIcon" class="create-icon-style" onclick="openCreatePostModal()">
+                            <span style="font-size: 32px; line-height: 1; margin-bottom: 4px;">+</span>
+                            <span class="create-icon-text">Create New Post</span>
+                        </div>
 
-                        <form id="sendMessageForm" onsubmit="handleSendMessage(event)" class="hidden"
-                            style="position: relative; padding: 15px; border-top: 1px solid var(--glass-border); display: flex; gap: 10px; background: rgba(0,0,0,0.2); align-items: center;">
-
-                            <input type="hidden" id="selectedChatId">
-                            <div id="emojiPicker" class="emoji-picker hidden"></div>
-                            
-                            <button type="button" class="chat-upload-btn btn-circle" onclick="document.getElementById('chatFileInput').click()" title="Send Media">📷</button>
-                            <button type="button" class="chat-upload-btn btn-circle" onclick="toggleEmojiPicker()" title="Emoji">😀</button>
-
-                            <textarea id="messageText" placeholder="Type a message..." required
-                                style="flex-grow: 1; height: 45px; border-radius: 22px; padding: 12px 20px; resize: none; background: rgba(255,255,255,0.05); border:none; color: white; font-family: inherit; overflow: hidden;"></textarea>
-
-                            <button type="submit" class="btn btn-primary btn-circle" style="font-size: 18px;">➤</button>
-                        </form>
                     </div>
+
+                    <div id="communityPostsList" style="margin-top: 20px; padding: 0 5px;"></div>
+                </div>
+                <div id="mentors" class="tab-content">
+                    <div class="card" style="margin-bottom: 30px; border: 1px solid var(--border-color);">
+                        <div class="card-header" style="color: var(--text-main);">Search Users</div>
+                        <div class="card-body">
+                            <form id="userSearchForm" onsubmit="handleUserSearch(event)">
+                                <div class="form-group" style="display: flex; gap: 10px; margin-bottom: 0;">
+                                    <input type="text" id="searchInput" placeholder="Search by Name (e.g., Andy)"
+                                        style="flex-grow: 1;">
+                                    <button type="submit" class="btn btn-primary">Search</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div id="searchResultsList" class="grid"></div>
                 </div>
             </div>
-
-            <div id="community" class="tab-content">
-
-                <div class="center-icon-wrapper" style="gap: 15px; align-items: center;">
-
-                    <div class="sort-btn-style" onclick="openSortModal()">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="4" y1="21" x2="4" y2="14"></line>
-        <line x1="4" y1="10" x2="4" y2="3"></line>
-        <line x1="12" y1="21" x2="12" y2="12"></line>
-        <line x1="12" y1="8" x2="12" y2="3"></line>
-        <line x1="20" y1="21" x2="20" y2="16"></line>
-        <line x1="20" y1="12" x2="20" y2="3"></line>
-        <line x1="2" y1="14" x2="6" y2="14"></line>
-        <line x1="10" y1="8" x2="14" y2="8"></line>
-        <line x1="18" y1="16" x2="22" y2="16"></line>
-    </svg>
-    <span class="sort-btn-text">Sort / Filter</span>
-</div>
-
-                    <div id="createPostIcon" class="create-icon-style" onclick="openCreatePostModal()">
-                        <span style="font-size: 32px; line-height: 1; margin-bottom: 4px;">+</span>
-                        <span class="create-icon-text">Create New Post</span>
-                    </div>
-
+                <div id="requests" class="tab-content">
+                    <div id="requestsList"></div>
                 </div>
 
-                <div id="communityPostsList" style="margin-top: 20px; padding: 0 5px;"></div>
-            </div>
 
-            <div id="sortFilterModal" class="modal" style="z-index: 10002;">
-                <div class="modal-content"
-                    style="max-width: 400px; max-height: 85vh; display: flex; flex-direction: column;">
-                    <div class="modal-header">Sort & Filter Community</div>
 
-                    <div style="flex: 1; overflow-y: auto; padding-right: 5px;">
 
-                        <div class="filter-section-title">Sort By</div>
-                        <div style="display: flex; gap: 10px;">
-                            <div class="filter-pill active" id="sortBtn_latest" onclick="toggleSort('latest')">🕒 Latest
-                            </div>
-                            <div class="filter-pill" id="sortBtn_upvotes" onclick="toggleSort('upvotes')">🔥 Top Voted
-                            </div>
-                        </div>
 
-                        <div class="filter-section-title">Filter by Year</div>
-                        <div style="display: flex; flex-wrap: wrap;">
-                            <div class="filter-pill" id="yearBtn_FE" onclick="toggleFilter('year', 'FE')">FE</div>
-                            <div class="filter-pill" id="yearBtn_SE" onclick="toggleFilter('year', 'SE')">SE</div>
-                            <div class="filter-pill" id="yearBtn_TE" onclick="toggleFilter('year', 'TE')">TE</div>
-                            <div class="filter-pill" id="yearBtn_BE" onclick="toggleFilter('year', 'BE')">BE</div>
-                        </div>
+                <div id="sortFilterModal" class="modal" style="z-index: 10002;">
+                    <div class="modal-content"
+                        style="max-width: 400px; max-height: 85vh; display: flex; flex-direction: column;">
+                        <div class="modal-header">Sort & Filter Community</div>
 
-                        <div class="filter-section-title">Filter by Tags</div>
-                        <div id="filterTagsContainer" style="display: flex; flex-wrap: wrap;">
-                        </div>
-                    </div>
+                        <div style="flex: 1; overflow-y: auto; padding-right: 5px;">
 
-                    <div class="modal-footer" style="margin-top:15px; border-top:1px solid #333; padding-top:15px;">
-                        <button class="btn btn-secondary" onclick="clearAllFilters()">Clear All</button>
-                        <button class="btn btn-primary" onclick="applyFilters()">Apply Results</button>
-                    </div>
-                </div>
-            </div>
-            <div id="profile" class="tab-content">
-                <div style="max-width: 1000px; margin: 0 auto; padding: 20px;">
-
-                    <!-- PROFILE HEADER -->
-                    <div class="profile-header-new">
-                        <div class="profile-pic-wrapper-new">
-                            <div id="profilePicContainer"></div>
-                        </div>
-                        <div class="profile-info-new">
-                            <h1 id="profileName">Loading...</h1>
-                            <span id="profileBadge" class="profile-badge-new">Student</span>
-                            <p class="profile-email-new" id="profileEmail">email@example.com</p>
-                        </div>
-                    </div>
-
-                    <!-- STATS SECTION -->
-                    <div class="stats-grid-new">
-                        <div class="stat-card-new">
-                            <div class="stat-number-new" id="statConnections">0</div>
-                            <div class="stat-label-new">Connections</div>
-                        </div>
-                        <div class="stat-card-new">
-                            <div class="stat-number-new" id="statPosts">0</div>
-                            <div class="stat-label-new">Posts</div>
-                        </div>
-                        <div class="stat-card-new">
-                            <div class="stat-number-new" id="statMentors">0</div>
-                            <div class="stat-label-new">Mentors</div>
-                        </div>
-                    </div>
-
-                    <!-- SKILLS SECTION -->
-                    <div>
-                        <h2 class="section-title-new">💡 Skills & Expertise</h2>
-                        <div id="skillsContainer" class="skills-container-new">
-                            <div class="empty-state-new">No skills added yet. Click Edit Profile to add your expertise.
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ABOUT SECTION -->
-                    <div class="about-section-new">
-                        <h2 class="section-title-new">📋 Profile Information</h2>
-                        <div class="info-row-new">
-                            <span class="info-label-new">College</span>
-                            <span class="info-value-new" id="infoCollege">Not specified</span>
-                        </div>
-                        <div class="info-row-new">
-                            <span class="info-label-new">Current Year</span>
-                            <span class="info-value-new" id="infoYear">Not specified</span>
-                        </div>
-                        <div class="info-row-new">
-                            <span class="info-label-new">Role</span>
-                            <span class="info-value-new" id="infoRole">Not specified</span>
-                        </div>
-                        <div class="info-row-new">
-                            <span class="info-label-new">Member Since</span>
-                            <span class="info-value-new" id="infoJoined">Recently</span>
-                        </div>
-                    </div>
-
-                    <!-- ACTION BUTTONS -->
-                    <div class="action-buttons-new">
-                        <button class="btn-new btn-primary-new" onclick="toggleEditMode()">Edit Profile</button>
-                        <button class="btn-new btn-secondary-new" onclick="shareProfile()">Share Profile</button>
-                        <button class="btn-new btn-danger-new" onclick="deleteAccount()">Delete Account</button>
-                    </div>
-
-                    <!-- EDIT MODE FORM (Hidden by default) -->
-                    <div id="editForm" class="edit-form-new" style="display: none;">
-
-                        <h2 style="margin-bottom: 25px; font-size: 20px;">Edit Your Profile</h2>
-
-                        <div
-                            style="margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
-                            <label style="margin-bottom: 10px;">Profile Picture</label>
+                            <div class="filter-section-title">Sort By</div>
                             <div style="display: flex; gap: 10px;">
-                                <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()"
-                                    style="font-size: 13px;">
-                                    Change Photo
-                                </button>
-                                <button class="btn btn-danger" onclick="removeProfilePic()"
-                                    style="font-size: 13px; background: rgba(255,69,58,0.1); border: 1px solid #ff453a;">
-                                    Remove
-                                </button>
+                                <div class="filter-pill active" id="sortBtn_latest" onclick="toggleSort('latest')">🕒
+                                    Latest
+                                </div>
+                                <div class="filter-pill" id="sortBtn_upvotes" onclick="toggleSort('upvotes')">🔥 Top
+                                    Voted
+                                </div>
                             </div>
-                            <input type="file" id="fileInput" accept="image/*" style="display: none;"
-                                onchange="uploadProfilePic()">
-                        </div>
-                        <div class="form-group-new">
-                            <label>Full Name</label>
-                            <input type="text" id="editName" placeholder="Your name...">
+
+                            <div class="filter-section-title">Filter by Year</div>
+                            <div style="display: flex; flex-wrap: wrap;">
+                                <div class="filter-pill" id="yearBtn_FE" onclick="toggleFilter('year', 'FE')">FE</div>
+                                <div class="filter-pill" id="yearBtn_SE" onclick="toggleFilter('year', 'SE')">SE</div>
+                                <div class="filter-pill" id="yearBtn_TE" onclick="toggleFilter('year', 'TE')">TE</div>
+                                <div class="filter-pill" id="yearBtn_BE" onclick="toggleFilter('year', 'BE')">BE</div>
+                            </div>
+
+                            <div class="filter-section-title">Filter by Tags</div>
+                            <div id="filterTagsContainer" style="display: flex; flex-wrap: wrap;">
+                            </div>
                         </div>
 
-                        <div class="form-group-new">
-                            <label>College / University</label>
-                            <input type="text" id="editCollege" placeholder="Your college...">
+                        <div class="modal-footer" style="margin-top:15px; border-top:1px solid #333; padding-top:15px;">
+                            <button class="btn btn-secondary" onclick="clearAllFilters()">Clear All</button>
+                            <button class="btn btn-primary" onclick="applyFilters()">Apply Results</button>
                         </div>
-
-                        <div class="form-group-new">
-                            <label>Current Year</label>
-                            <select id="editYear"
-                                style="width: 100%; padding: 12px; background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px;">
-                                <option value="FE">First Year (FE)</option>
-                                <option value="SE">Second Year (SE)</option>
-                                <option value="TE">Third Year (TE)</option>
-                                <option value="BE">Fourth Year (BE)</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group-new">
-                            <label>Skills & Expertise (comma-separated)</label>
-                            <textarea id="editSkills"
-                                placeholder="e.g., Python, React, UI Design, Data Science"></textarea>
-                        </div>
-
-                        <div style="display: flex; gap: 12px; margin-top: 30px;">
-                            <button class="btn-new btn-primary-new" onclick="saveProfile()">Save Changes</button>
-                            <button class="btn-new btn-secondary-new" onclick="toggleEditMode()">Cancel</button>
-                        </div>
-                    </div>
-
-                    <!-- LOGOUT SECTION -->
-                    <div
-                        style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; justify-content: center;">
-                        <button class="btn-new btn-secondary-new" onclick="window.location.reload()">Log Out</button>
                     </div>
                 </div>
-            </div>
+                <div id="profile" class="tab-content">
+                    <div style="max-width: 1000px; margin: 0 auto; padding: 20px;">
 
+                        <!-- PROFILE HEADER -->
+                        <div class="profile-header-new">
+                            <div class="profile-pic-wrapper-new">
+                                <div id="profilePicContainer"></div>
+                            </div>
+                            <div class="profile-info-new">
+                                <h1 id="profileName">Loading...</h1>
+                                <span id="profileBadge" class="profile-badge-new">Student</span>
+                                <p class="profile-email-new" id="profileEmail">email@example.com</p>
+                            </div>
+                        </div>
+
+                        <!-- STATS SECTION -->
+                        <div class="stats-grid-new">
+                            <div class="stat-card-new">
+                                <div class="stat-number-new" id="statConnections">0</div>
+                                <div class="stat-label-new">Connections</div>
+                            </div>
+                            <div class="stat-card-new">
+                                <div class="stat-number-new" id="statPosts">0</div>
+                                <div class="stat-label-new">Posts</div>
+                            </div>
+                            <div class="stat-card-new">
+                                <div class="stat-number-new" id="statMentors">0</div>
+                                <div class="stat-label-new">Mentors</div>
+                            </div>
+                        </div>
+
+                        <!-- SKILLS SECTION -->
+                        <div>
+                            <h2 class="section-title-new">💡 Skills & Expertise</h2>
+                            <div id="skillsContainer" class="skills-container-new">
+                                <div class="empty-state-new">No skills added yet. Click Edit Profile to add your
+                                    expertise.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ABOUT SECTION -->
+                        <div class="about-section-new">
+                            <h2 class="section-title-new">📋 Profile Information</h2>
+                            <div class="info-row-new">
+                                <span class="info-label-new">College</span>
+                                <span class="info-value-new" id="infoCollege">Not specified</span>
+                            </div>
+                            <div class="info-row-new">
+                                <span class="info-label-new">Current Year</span>
+                                <span class="info-value-new" id="infoYear">Not specified</span>
+                            </div>
+                            <div class="info-row-new">
+                                <span class="info-label-new">Role</span>
+                                <span class="info-value-new" id="infoRole">Not specified</span>
+                            </div>
+                            <div class="info-row-new">
+                                <span class="info-label-new">Member Since</span>
+                                <span class="info-value-new" id="infoJoined">Recently</span>
+                            </div>
+                        </div>
+
+                        <!-- ACTION BUTTONS -->
+                        <div class="action-buttons-new">
+                            <button class="btn-new btn-primary-new" onclick="toggleEditMode()">Edit Profile</button>
+                            <button class="btn-new btn-secondary-new" onclick="shareProfile()">Share Profile</button>
+                            <button class="btn-new btn-danger-new" onclick="deleteAccount()">Delete Account</button>
+                        </div>
+
+                        <!-- EDIT MODE FORM (Hidden by default) -->
+                        <div id="editForm" class="edit-form-new" style="display: none;">
+
+                            <h2 style="margin-bottom: 25px; font-size: 20px;">Edit Your Profile</h2>
+
+                            <div
+                                style="margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                                <label style="margin-bottom: 10px;">Profile Picture</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <button class="btn btn-secondary"
+                                        onclick="document.getElementById('fileInput').click()" style="font-size: 13px;">
+                                        Change Photo
+                                    </button>
+                                    <button class="btn btn-danger" onclick="removeProfilePic()"
+                                        style="font-size: 13px; background: rgba(255,69,58,0.1); border: 1px solid #ff453a;">
+                                        Remove
+                                    </button>
+                                </div>
+                                <input type="file" id="fileInput" accept="image/*" style="display: none;"
+                                    onchange="uploadProfilePic()">
+                            </div>
+                            <div class="form-group-new">
+                                <label>Full Name</label>
+                                <input type="text" id="editName" placeholder="Your name...">
+                            </div>
+
+                            <div class="form-group-new">
+                                <label>College / University</label>
+                                <input type="text" id="editCollege" placeholder="Your college...">
+                            </div>
+
+                            <div class="form-group-new">
+                                <label>Current Year</label>
+                                <select id="editYear"
+                                    style="width: 100%; padding: 12px; background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px;">
+                                    <option value="FE">First Year (FE)</option>
+                                    <option value="SE">Second Year (SE)</option>
+                                    <option value="TE">Third Year (TE)</option>
+                                    <option value="BE">Fourth Year (BE)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group-new">
+                                <label>Skills & Expertise (comma-separated)</label>
+                                <textarea id="editSkills"
+                                    placeholder="e.g., Python, React, UI Design, Data Science"></textarea>
+                            </div>
+
+                            <div style="display: flex; gap: 12px; margin-top: 30px;">
+                                <button class="btn-new btn-primary-new" onclick="saveProfile()">Save Changes</button>
+                                <button class="btn-new btn-secondary-new" onclick="toggleEditMode()">Cancel</button>
+                            </div>
+                        </div>
+
+                        <!-- LOGOUT SECTION -->
+                        <div
+                            style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; justify-content: center;">
+                            <button class="btn-new btn-secondary-new" onclick="window.location.reload()">Log
+                                Out</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
-    </div>
     </div>
 
     <div id="connectionsModal" class="modal">
@@ -4561,28 +4692,60 @@
             goToChat(userId, userName);
         }
 
-        function goToChat(userId, userName) {
-            switchTab('chats');
-            const chatId = [currentUser.uid, userId].sort().join('_');
-            const chatRef = db.collection('chats').doc(chatId);
+        function switchTab(arg1, arg2) {
+            let tabName = typeof arg1 === 'string' ? arg1 : arg2;
+            
+            // 1. Force Scroll to Top
+            window.scrollTo(0, 0);
+            unlockScroll();
 
-            chatRef.get().then(doc => {
-                if (!doc.exists) {
-                    console.log("Creating new blank chat...");
-                    // Create blank document without system message
-                    return chatRef.set({
-                        participants: [currentUser.uid, userId],
-                        updatedAt: new Date(),
-                        lastMessage: ""
-                    }, { merge: true });
+            const slidingTabs = ['chats', 'community', 'mentors'];
+            const tabWrapper = document.getElementById('tabWrapper');
+            const requestsOverlay = document.getElementById('requests');
+            const profileOverlay = document.getElementById('profile');
+
+            // 2. Handle Sliding vs Overlays
+            if (slidingTabs.includes(tabName)) {
+                // Show sliding strip, hide overlays
+                tabWrapper.style.display = 'flex';
+                requestsOverlay.style.display = 'none';
+                profileOverlay.style.display = 'none';
+
+                currentTabIndex = slidingTabs.indexOf(tabName);
+                tabWrapper.style.transform = `translateX(${currentTabIndex * -100}vw)`;
+            } else {
+                // Hide sliding strip, show target overlay
+                tabWrapper.style.display = 'none';
+                requestsOverlay.style.display = tabName === 'requests' ? 'block' : 'none';
+                profileOverlay.style.display = tabName === 'profile' ? 'block' : 'none';
+                
+                const targetEl = document.getElementById(tabName);
+                if (targetEl) targetEl.scrollTop = 0;
+            }
+
+            // 3. Update Bottom Nav UI
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('onclick')?.includes(`'${tabName}'`)) {
+                    btn.classList.add('active');
                 }
-            }).then(() => {
-                loadChats();
-                openInlineChat(chatId, userName);
-            }).catch(e => {
-                console.error("Error entering chat:", e);
-                alert("Could not open chat.");
             });
+
+            // 4. Badge & Chat Cleanup
+            if (tabName === 'requests') {
+                localStorage.setItem('viewedRequests', JSON.stringify(currentPendingRequestIds));
+                document.getElementById('requestBadge').classList.add('hidden');
+            }
+            if (document.getElementById('chats')) {
+                document.getElementById('chats').classList.remove('mobile-chat-open');
+            }
+
+            // 5. DATA LOADING (Ensuring these fire)
+            if (tabName === 'mentors') loadMentors();
+            if (tabName === 'chats') loadChats();
+            if (tabName === 'community') loadPosts();
+            if (tabName === 'requests') loadRequests();
+            if (tabName === 'profile') loadProfile();
         }
 
         // --- EXPLORE & SEARCH ---
@@ -4653,7 +4816,7 @@
         }
 
         function renderUserResults(snapshot, allRequests = []) {
-            
+
             const listEl = document.getElementById('searchResultsList');
             const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
             let html = '';
@@ -5018,6 +5181,59 @@
                 listEl.innerHTML = '<p style="color:var(--danger-color)">Error loading chats.</p>';
             });
         }
+        // --- SWIPE LOGIC CONFIG ---
+        let touchStartX = 0;
+        let touchEndX = 0;
+        const tabOrder = ['chats', 'community', 'mentors']; // Must match HTML order above
+        let currentTabIndex = 1; // Start at Community
+
+        const tabWrapper = document.getElementById('tabWrapper');
+
+        document.addEventListener('touchstart', e => {
+            // Ignore swipes if user is inside a scrollable card or chat
+            if (e.target.closest('#messagesContainer') || e.target.closest('.modal')) return;
+            touchStartX = e.changedTouches[0].screenX;
+        }, {passive: true});
+
+        document.addEventListener('touchend', e => {
+            if (e.target.closest('#messagesContainer') || e.target.closest('.modal')) return;
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, {passive: true});
+
+        function handleSwipe() {
+            const swipeDistance = touchStartX - touchEndX;
+            const threshold = 70; // Minimum pixels to trigger swipe
+
+            if (swipeDistance > threshold && currentTabIndex < tabOrder.length - 1) {
+                // Swiped Left -> Move to Right Tab
+                switchTab(tabOrder[currentTabIndex + 1]);
+            } else if (swipeDistance < -threshold && currentTabIndex > 0) {
+                // Swiped Right -> Move to Left Tab
+                switchTab(tabOrder[currentTabIndex - 1]);
+            }
+        }
+
+        // --- UPDATED switchTab to handle Animation ---
+        const originalSwitchTab = window.switchTab;
+        window.switchTab = function(arg1, arg2) {
+            let tabName = typeof arg1 === 'string' ? arg1 : arg2;
+            
+            // 1. Update Index
+            currentTabIndex = tabOrder.indexOf(tabName);
+
+            // 2. Slide the Wrapper
+            const offset = currentTabIndex * -100;
+            tabWrapper.style.transform = `translateX(${offset}vw)`;
+
+            // 3. Call original logic for badges/loading
+            originalSwitchTab(arg1, arg2);
+            
+            // 4. Update Active Opacity
+            document.querySelectorAll('.tab-content').forEach((el, idx) => {
+                el.classList.toggle('active', idx === currentTabIndex);
+            });
+        };
         // --- ADMIN: WIPE EVERYTHING ---
         async function adminWipeDB() {
             const code = prompt("Type 'CONFIRM' to delete ALL posts, chats, and users from the database.");
@@ -5282,10 +5498,10 @@
         function openSortModal() {
             lockScroll();
             const modal = document.getElementById('sortFilterModal');
-            
+
             // --- ADD CLOSE BUTTON ---
             const header = modal.querySelector('.modal-header');
-            if(header && !header.querySelector('.close-modal-btn')) {
+            if (header && !header.querySelector('.close-modal-btn')) {
                 header.style.display = "flex";
                 header.style.justifyContent = "space-between";
                 header.style.alignItems = "center";
@@ -5300,7 +5516,7 @@
             renderFilterTags();
             updateFilterUI();
         }
-        window.closeModal = function(modalId) {
+        window.closeModal = function (modalId) {
             document.getElementById(modalId).classList.remove('active');
             unlockScroll(); // <--- RESTORES SCROLLING
         };
@@ -6075,13 +6291,13 @@
             if (msgUnsub) msgUnsub();
 
             document.getElementById('selectedChatId').value = chatId;
-            
+
             // --- NEW: Trigger Mobile View ---
             document.getElementById('chats').classList.add('mobile-chat-open');
-            if(window.innerWidth <= 600) {
+            if (window.innerWidth <= 600) {
                 document.querySelector('.tabs').style.display = 'none';
             }
-            
+
 
             // Update Header
             const headerInfo = document.getElementById('chatHeaderInfo') || document.getElementById('chatHeader');
@@ -6090,7 +6306,7 @@
                     <div style="font-size:16px;">${name}</div>
                     <div id="headerStatus" style="font-size:12px; color:var(--text-secondary); font-weight:normal;">Connecting...</div>
                 </div>`;
-            
+
             // Keep the back button visible (it's separate from headerInfo now)
             // No changes needed to back button HTML logic here as it is separate in HTML now
 
@@ -6127,7 +6343,7 @@
                         const m = doc.data();
                         if (!currentUser) return;
                         const me = m.senderId === currentUser.uid;
-                        
+
                         // Context Menu Events
                         let events = '';
                         if (me) {
@@ -6161,9 +6377,9 @@
         function closeChatView() {
             unlockScroll();
             document.getElementById('chats').classList.remove('mobile-chat-open');
-            
+
             // SHOW BOTTOM TABS AGAIN
-            if(window.innerWidth <= 600) {
+            if (window.innerWidth <= 600) {
                 document.querySelector('.tabs').style.display = 'flex';
             }
         }
@@ -6283,10 +6499,10 @@
             lockScroll();
             const modal = document.getElementById('createPostModal');
             if (!modal) return;
-            
+
             // --- ADD CLOSE BUTTON TO HEADER ---
             const header = modal.querySelector('.modal-header');
-            if(header && !header.querySelector('.close-modal-btn')) {
+            if (header && !header.querySelector('.close-modal-btn')) {
                 header.style.display = "flex";
                 header.style.justifyContent = "space-between";
                 header.style.alignItems = "center";
@@ -6298,7 +6514,7 @@
             // ----------------------------------
 
             modal.classList.add('active');
-            
+
             // ... (Rest of your existing reset logic: clearing title, body, file, etc.) ...
             const titleEl = document.getElementById('communityPostTitle');
             if (titleEl) titleEl.value = "";
