@@ -19,10 +19,12 @@
             align-items: center;
             margin-bottom: 8px;
         }
-        
+
         .poll-input-row input {
-            flex: 1; /* Input takes available space */
-            margin-bottom: 0 !important; /* Reset default margin */
+            flex: 1;
+            /* Input takes available space */
+            margin-bottom: 0 !important;
+            /* Reset default margin */
         }
 
         .btn-remove-opt {
@@ -44,6 +46,7 @@
             background: #ff453a;
             color: white;
         }
+
         /* Ensure SVGs inside circles/buttons are centered and match theme */
         .requests-icon-style svg,
         .sort-btn-style svg {
@@ -555,19 +558,23 @@
             border: 1px solid transparent;
             transition: all 0.2s;
         }
+
         /* Fix alignment for icons inside existing pills */
         .filter-pill {
-            display: inline-flex !important; /* Force flex to align icon+text */
+            display: inline-flex !important;
+            /* Force flex to align icon+text */
             align-items: center;
             justify-content: center;
-            gap: 8px; /* Space between icon and text */
+            gap: 8px;
+            /* Space between icon and text */
         }
 
         /* Standardize icon size */
         .filter-pill svg {
             width: 16px;
             height: 16px;
-            fill: currentColor; /* Matches text color (white or grey) */
+            fill: currentColor;
+            /* Matches text color (white or grey) */
             transition: transform 0.2s;
         }
 
@@ -991,6 +998,7 @@
                 transform: scale(1);
             }
         }
+
         /* --- POLL OPTION STYLES --- */
         .poll-option-btn {
             position: relative;
@@ -1016,7 +1024,8 @@
             top: 0;
             left: 0;
             height: 100%;
-            background: rgba(255, 87, 34, 0.15); /* Light orange tint */
+            background: rgba(255, 87, 34, 0.15);
+            /* Light orange tint */
             z-index: 0;
             width: 0%;
             transition: width 0.5s ease-out;
@@ -1036,7 +1045,7 @@
             border-color: #FF5722;
             background: rgba(255, 87, 34, 0.05);
         }
-        
+
         .poll-option-btn.voted .poll-fill-bar {
             background: linear-gradient(90deg, rgba(255, 87, 34, 0.3), rgba(255, 55, 95, 0.3));
         }
@@ -1170,6 +1179,8 @@
             height: 100%;
             /* Ensure it respects parent height */
         }
+        
+        
 
         /* --- CHAT SCROLL & BUBBLE FIX --- */
         /* --- CHAT SCROLL FIX --- */
@@ -1582,28 +1593,33 @@
             padding: 0 5px;
             /* Tiny padding from screen edges */
         }
+
         /* --- SEARCH ICON SIZING FIX --- */
-.input-with-icon {
-    position: relative;
-    width: 100%;
-}
+        .input-with-icon {
+            position: relative;
+            width: 100%;
+        }
 
-.input-icon {
-    position: absolute;
-    left: 15px; /* Distance from left edge */
-    top: 50%;
-    transform: translateY(-50%); /* Centers it vertically */
-    width: 18px !important; /* Forces small size */
-    height: 18px !important;
-    color: var(--text-secondary);
-    pointer-events: none; /* Clicks go through to the input */
-    z-index: 5;
-}
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            /* Distance from left edge */
+            top: 50%;
+            transform: translateY(-50%);
+            /* Centers it vertically */
+            width: 18px !important;
+            /* Forces small size */
+            height: 18px !important;
+            color: var(--text-secondary);
+            pointer-events: none;
+            /* Clicks go through to the input */
+            z-index: 5;
+        }
 
-/* Ensure the input has room for the icon */
-#chatSearchInput {
-    padding-left: 45px !important; 
-}
+        /* Ensure the input has room for the icon */
+        #chatSearchInput {
+            padding-left: 45px !important;
+        }
 
         /* --- GLOBAL RESET & TYPOGRAPHY --- */
         :root {
@@ -1682,26 +1698,33 @@
         .navbar {
             /* Positioning */
             position: sticky;
-            top: 15px; /* Slight float */
+            top: 15px;
+            /* Slight float */
             z-index: 1000;
-            
+
             /* Sizing & Layout */
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 24px; /* Tighter padding */
+            padding: 12px 24px;
+            /* Tighter padding */
             margin-bottom: 30px;
-            
+
             /* The "Apple Glass" Effect */
-            background: rgba(28, 28, 30, 0.65); /* More transparent */
-            backdrop-filter: saturate(180%) blur(25px); /* The "Vibrancy" Trick */
+            background: rgba(28, 28, 30, 0.65);
+            /* More transparent */
+            backdrop-filter: saturate(180%) blur(25px);
+            /* The "Vibrancy" Trick */
             -webkit-backdrop-filter: saturate(180%) blur(25px);
-            
+
             /* Borders & Shadows */
-            border-radius: 20px; /* Smooth curve */
-            border: 1px solid rgba(255, 255, 255, 0.08); /* Very subtle border */
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3); /* Soft deep shadow */
-            
+            border-radius: 20px;
+            /* Smooth curve */
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            /* Very subtle border */
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            /* Soft deep shadow */
+
             /* Animation */
             transition: all 0.3s ease;
         }
@@ -1715,7 +1738,8 @@
                 border-top: none;
                 border-left: none;
                 border-right: none;
-                background: rgba(20, 20, 20, 0.85); /* Darker on mobile */
+                background: rgba(20, 20, 20, 0.85);
+                /* Darker on mobile */
             }
         }
 
@@ -1728,23 +1752,25 @@
 
         .navbar-brand h1 {
             font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
-            font-size: 25px; /* Much smaller, cleaner */
+            font-size: 25px;
+            /* Much smaller, cleaner */
             font-weight: 700;
             letter-spacing: -0.01em;
             margin: 0;
             line-height: 1;
-            
+
             /* Premium Silver Gradient */
             background: linear-gradient(180deg, #FFFFFF 0%, #B0B0B0 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 10px rgba(255,255,255,0.1);
+            text-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
         }
 
         /* The user greeting text */
         .navbar-brand p {
             font-size: 15px;
-            color: rgba(235, 235, 245, 0.5); /* Apple Label Color */
+            color: rgba(235, 235, 245, 0.5);
+            /* Apple Label Color */
             font-weight: 500;
             margin-top: 4px;
             letter-spacing: 0.02em;
@@ -1755,15 +1781,18 @@
         .navbar-right {
             display: flex;
             align-items: center;
-            gap: 12px; /* Consistent gap */
+            gap: 12px;
+            /* Consistent gap */
         }
 
         /* Clean up the circle buttons in nav */
         .navbar-right .profile-circle,
         .navbar-right .requests-icon-style {
-            width: 38px; /* Slightly smaller */
+            width: 38px;
+            /* Slightly smaller */
             height: 38px;
-            background: rgba(255, 255, 255, 0.05); /* Subtle fill */
+            background: rgba(255, 255, 255, 0.05);
+            /* Subtle fill */
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.2s;
         }
@@ -2551,21 +2580,26 @@
 
         /* 2. Big Centered Profile Picture */
         /* 3. Resize Avatar (Fix Squishing) */
-            #searchResultsList .card-avatar {
-                width: 70px !important;
-                height: 70px !important;
-                
-                /* CRITICAL FIXES: */
-                min-width: 70px !important; /* Stop width shrinking */
-                min-height: 70px !important; /* Stop height shrinking */
-                object-fit: cover !important; /* Crop image, don't stretch */
-                aspect-ratio: 1 / 1 !important; /* Force perfect square */
-                
-                border-width: 2px !important;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.2) !important;
-                border-radius: 50% !important;
-                margin: 0 auto !important; /* Ensure centering */
-            }
+        #searchResultsList .card-avatar {
+            width: 70px !important;
+            height: 70px !important;
+
+            /* CRITICAL FIXES: */
+            min-width: 70px !important;
+            /* Stop width shrinking */
+            min-height: 70px !important;
+            /* Stop height shrinking */
+            object-fit: cover !important;
+            /* Crop image, don't stretch */
+            aspect-ratio: 1 / 1 !important;
+            /* Force perfect square */
+
+            border-width: 2px !important;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
+            border-radius: 50% !important;
+            margin: 0 auto !important;
+            /* Ensure centering */
+        }
 
         /* 3. Text Container: Force Left Alignment */
         #searchResultsList .card-content-wrapper>div {
@@ -2923,6 +2957,21 @@
             box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.1);
         }
 
+        /* --- DISABLE COMMENT HOVER ANIMATION --- */
+        .comment-card {
+            transition: none !important;
+            /* Stop smooth transition */
+        }
+
+        .comment-card:hover {
+            transform: none !important;
+            /* Stop moving up */
+            box-shadow: none !important;
+            /* Optional: Stop shadow change */
+            /* If you want to keep a static border/shadow, set it here, e.g.: */
+            /* border: 1px solid var(--border-color) !important; */
+        }
+
         /* --- MOBILE OPTIMIZATIONS (Bottom Sheet Style) --- */
         @media (max-width: 600px) {
 
@@ -3053,19 +3102,24 @@
                 grid-template-columns: 1fr 1fr;
             }
         }
+
         /* --- MOBILE EXPLORE TAB (2 Columns) --- */
         @media (max-width: 600px) {
+
             /* 1. Force 2-Column Grid */
             #searchResultsList.grid {
                 display: grid;
-                grid-template-columns: repeat(2, 1fr) !important; /* Equal split */
-                gap: 10px !important; /* Tighter gap */
+                grid-template-columns: repeat(2, 1fr) !important;
+                /* Equal split */
+                gap: 10px !important;
+                /* Tighter gap */
             }
 
             /* 2. Shrink Card Padding */
             #searchResultsList .card {
                 padding: 12px !important;
-                margin-bottom: 0 !important; /* Let grid gap handle vertical spacing */
+                margin-bottom: 0 !important;
+                /* Let grid gap handle vertical spacing */
             }
 
             /* 3. Resize Avatar */
@@ -3074,7 +3128,7 @@
                 height: 70px !important;
                 min-width: 70px !important;
                 border-width: 2px !important;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.2) !important;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
             }
 
             /* 4. Tighter Layout & Center Text */
@@ -3084,7 +3138,7 @@
             }
 
             /* Reset text alignment to center for narrow cards */
-            #searchResultsList .card-content-wrapper > div {
+            #searchResultsList .card-content-wrapper>div {
                 padding-left: 0 !important;
                 text-align: center !important;
                 width: 100%;
@@ -3092,9 +3146,12 @@
 
             /* 5. Font Adjustments */
             #searchResultsList .card-header {
-                font-size: 14px !important; /* Smaller Name */
-                justify-content: center !important; /* Center align */
-                flex-direction: column; /* Stack Name and Badge */
+                font-size: 14px !important;
+                /* Smaller Name */
+                justify-content: center !important;
+                /* Center align */
+                flex-direction: column;
+                /* Stack Name and Badge */
                 gap: 4px;
                 line-height: 1.2;
             }
@@ -3104,7 +3161,8 @@
                 margin-left: 0 !important;
                 font-size: 9px !important;
                 padding: 2px 6px;
-                align-self: center; /* Ensure badge stays centered */
+                align-self: center;
+                /* Ensure badge stays centered */
             }
 
             /* Subtext (College/Role) */
@@ -3114,7 +3172,8 @@
                 margin-bottom: 2px !important;
                 white-space: nowrap;
                 overflow: hidden;
-                text-overflow: ellipsis; /* Prevent long college names from breaking layout */
+                text-overflow: ellipsis;
+                /* Prevent long college names from breaking layout */
             }
 
             /* 6. Compact Buttons */
@@ -3125,61 +3184,70 @@
 
             #searchResultsList .btn {
                 font-size: 12px !important;
-                padding: 8px 0 !important; /* Taller touch target */
+                padding: 8px 0 !important;
+                /* Taller touch target */
                 width: 100%;
             }
         }
+
         /* --- GLOBAL FORM FIXES --- */
-        
+
         /* 1. Disable the resize handle on all textareas */
         textarea {
-            resize: none !important; 
+            resize: none !important;
         }
 
         /* 2. Optional: Ensure inputs don't zoom on iPhone */
-        input, textarea {
-            font-size: 16px !important; /* Prevents auto-zoom on focus */
+        input,
+        textarea {
+            font-size: 16px !important;
+            /* Prevents auto-zoom on focus */
         }
+
         /* --- FIX MOBILE AVATAR (CORRECTED) --- */
-@media (max-width: 600px) {
-    #searchResultsList .card-avatar {
-        /* 1. Force Exact Size (Prevents Squishing) */
-        width: 70px !important;
-        height: 70px !important;
-        min-width: 70px !important; 
-        min-height: 70px !important;
-        
-        /* 2. Force Circle Shape */
-        border-radius: 50% !important; 
-        
-        /* 3. Crop Image (Prevents Distortion) */
-        object-fit: cover !important; 
-        aspect-ratio: 1 / 1 !important; 
-        
-        /* 4. Alignment & Border */
-        margin: 0 auto 10px auto !important;
-        border: 2px solid rgba(255, 255, 255, 0.1) !important;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2) !important;
-        display: block !important;
-        background-color: var(--bg-input); /* Fallback background */
-    }
-}
-/* --- VOTED STATE (DULL / COOLED DOWN) --- */
+        @media (max-width: 600px) {
+            #searchResultsList .card-avatar {
+                /* 1. Force Exact Size (Prevents Squishing) */
+                width: 70px !important;
+                height: 70px !important;
+                min-width: 70px !important;
+                min-height: 70px !important;
+
+                /* 2. Force Circle Shape */
+                border-radius: 50% !important;
+
+                /* 3. Crop Image (Prevents Distortion) */
+                object-fit: cover !important;
+                aspect-ratio: 1 / 1 !important;
+
+                /* 4. Alignment & Border */
+                margin: 0 auto 10px auto !important;
+                border: 2px solid rgba(255, 255, 255, 0.1) !important;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
+                display: block !important;
+                background-color: var(--bg-input);
+                /* Fallback background */
+            }
+        }
+
+        /* --- VOTED STATE (DULL / COOLED DOWN) --- */
         .daily-poll-style.voted {
             /* Override the fire gradient with dark ash grey */
-            background: #2C2C2E !important; 
-            
+            background: #2C2C2E !important;
+
             /* Kill all animations */
             animation: none !important;
-            
+
             /* Remove the glow and shine */
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5) !important;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5) !important;
             border-color: rgba(255, 255, 255, 0.1) !important;
-            color: #888 !important; /* Dim the text */
-            
+            color: #888 !important;
+            /* Dim the text */
+
             /* Reset cursor interaction */
             transform: none !important;
-            cursor: pointer; /* Still clickable to view results */
+            cursor: pointer;
+            /* Still clickable to view results */
         }
 
         /* Remove the shine sweep effect */
@@ -3190,13 +3258,69 @@
         /* Prevent hover effects on voted button */
         .daily-poll-style.voted:hover {
             transform: none !important;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5) !important;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5) !important;
         }
-        
+
         /* Dim the icon too */
         .daily-poll-style.voted svg {
             stroke: #666 !important;
             filter: none !important;
+        }
+
+        /* --- GOAT BADGE (PREMIUM REWARD) --- */
+        .goat-badge-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #FFD700, #FDB931, #ffd700);
+            /* Gold Gradient */
+            background-size: 200% auto;
+            color: #000;
+            font-weight: 800;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+            animation: goldShine 3s linear infinite;
+            margin-bottom: 8px;
+            border: 1px solid #fff;
+        }
+
+        /* The Shining Animation */
+        @keyframes goldShine {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        /* Sparkle/Pulse Effect on the Icon */
+        .goat-icon-svg {
+            width: 14px;
+            height: 14px;
+            animation: goatPulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes goatPulse {
+            0% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+            }
+
+            100% {
+                transform: scale(1.15);
+                filter: drop-shadow(0 0 2px white);
+            }
+        }
+
+        /* Highlight the whole comment card */
+        .comment-card.is-goated {
+            border: 1px solid #FFD700 !important;
+            background: linear-gradient(to bottom, rgba(255, 215, 0, 0.05), transparent) !important;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.15) !important;
+            order: -1;
+            /* FLEX TRICK: Forces it to the top automatically */
         }
     </style>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -3421,7 +3545,8 @@
                     <div class="card-body">
                         <form id="userSearchForm" onsubmit="handleUserSearch(event)">
                             <div class="form-group" style="display: flex; gap: 10px; margin-bottom: 0;">
-                                <input type="text" id="searchInput" placeholder="Search by Name" style="flex-grow: 1;" oninput="handleUserSearch(event)">
+                                <input type="text" id="searchInput" placeholder="Search by Name" style="flex-grow: 1;"
+                                    oninput="handleUserSearch(event)">
                                 <button type="submit" class="btn btn-primary">Search</button>
                             </div>
                         </form>
@@ -3441,21 +3566,17 @@
                         <h4 style="padding: 20px 20px 10px 20px; border-bottom: 1px solid var(--border-color);">
                             Active Conversations
                         </h4>
-                        
+
                         <div class="search-bar-container" style="padding: 10px 15px 15px 15px;">
                             <div class="input-with-icon">
                                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                     <circle cx="11" cy="11" r="8"></circle>
                                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                                 </svg>
-                                
-                                <input type="text" 
-                                       id="chatSearchInput" 
-                                       class="form-control" 
-                                       placeholder="Start a chat with..." 
-                                       oninput="filterChatConnections(event)" 
-                                       autocomplete="off"
-                                       style="padding-left: 45px;">
+
+                                <input type="text" id="chatSearchInput" class="form-control"
+                                    placeholder="Start a chat with..." oninput="filterChatConnections(event)"
+                                    autocomplete="off" style="padding-left: 45px;">
                             </div>
                         </div>
 
@@ -3488,7 +3609,8 @@
                                 title="Emoji">😀</button>
 
                             <textarea id="messageText" placeholder="Type a message..." required
-                                style="flex-grow: 1; height: 45px; border-radius: 22px; padding: 12px 20px; resize: none; background: rgba(255,255,255,0.05); border:none; color: white; font-family: inherit; overflow: hidden; resize: none !important;" autocomplete="off"></textarea>
+                                style="flex-grow: 1; height: 45px; border-radius: 22px; padding: 12px 20px; resize: none; background: rgba(255,255,255,0.05); border:none; color: white; font-family: inherit; overflow: hidden; resize: none !important;"
+                                autocomplete="off"></textarea>
 
                             <button type="submit" class="btn btn-primary btn-circle" style="font-size: 18px;">➤</button>
                         </form>
@@ -3548,21 +3670,23 @@
 
                         <div class="filter-section-title">Sort By</div>
                         <div style="display: flex; gap: 10px;">
-                            
+
                             <div class="filter-pill active" id="sortBtn_latest" onclick="toggleSort('latest')">
                                 <svg viewBox="0 0 24 24">
-                                    <path d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8,8,0,0,1,12,20ZM12.5,7V12.25L17,14.92l-.75,1.23-5-3V7Z"/>
+                                    <path
+                                        d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8,8,0,0,1,12,20ZM12.5,7V12.25L17,14.92l-.75,1.23-5-3V7Z" />
                                 </svg>
                                 <span>Latest</span>
                             </div>
 
                             <div class="filter-pill" id="sortBtn_upvotes" onclick="toggleSort('upvotes')">
                                 <svg viewBox="0 0 24 24">
-                                    <path d="M19.48,13A7.65,7.65,0,0,0,18.9,9.39c-1.39-3-4.22-4.57-4.22-4.57s.3,2.78-1.42,4.5a3.63,3.63,0,0,1-2.61,1.11c-2.66,0-3.37-3.88-3.37-3.88S4.57,8.81,4.57,12.7a7.43,7.43,0,0,0,14.91.3ZM12,22a9.7,9.7,0,0,1-8.32-5.32A9.63,9.63,0,0,1,2.23,12C2.23,6.33,7.31,2,7.31,2S7.23,4.42,9.33,6.53a5.53,5.53,0,0,0,4,1.7,3.12,3.12,0,0,0,.78-.1,12.72,12.72,0,0,0,3.3-2.52s4.42,3.31,4.42,7.55A8.77,8.77,0,0,1,12,22Z"/>
+                                    <path
+                                        d="M19.48,13A7.65,7.65,0,0,0,18.9,9.39c-1.39-3-4.22-4.57-4.22-4.57s.3,2.78-1.42,4.5a3.63,3.63,0,0,1-2.61,1.11c-2.66,0-3.37-3.88-3.37-3.88S4.57,8.81,4.57,12.7a7.43,7.43,0,0,0,14.91.3ZM12,22a9.7,9.7,0,0,1-8.32-5.32A9.63,9.63,0,0,1,2.23,12C2.23,6.33,7.31,2,7.31,2S7.23,4.42,9.33,6.53a5.53,5.53,0,0,0,4,1.7,3.12,3.12,0,0,0,.78-.1,12.72,12.72,0,0,0,3.3-2.52s4.42,3.31,4.42,7.55A8.77,8.77,0,0,1,12,22Z" />
                                 </svg>
                                 <span>Top Voted</span>
                             </div>
-                            
+
                         </div>
 
                         <div class="filter-section-title">Filter by Year</div>
@@ -3729,26 +3853,29 @@
         </div>
     </div>
     <div id="dailyPollModal" class="modal" style="z-index: 10050;">
-        <div class="modal-content" style="max-width: 400px; text-align: center; border: 2px solid #FF5722; box-shadow: 0 0 50px rgba(255, 87, 34, 0.2);">
-            
+        <div class="modal-content"
+            style="max-width: 400px; text-align: center; border: 2px solid #FF5722; box-shadow: 0 0 50px rgba(255, 87, 34, 0.2);">
+
             <div style="margin-bottom: 20px;">
                 <span style="font-size: 40px; display: block; animation: flameFlicker 1s infinite alternate;">🔥</span>
-                <h2 style="font-size: 24px; font-weight: 800; background: linear-gradient(to right, #FF9F0A, #FF375F); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-top: 10px;">
+                <h2
+                    style="font-size: 24px; font-weight: 800; background: linear-gradient(to right, #FF9F0A, #FF375F); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-top: 10px;">
                     DAILY POLL
                 </h2>
             </div>
 
             <div id="pollViewMode">
-                <h3 id="pollQuestionDisplay" style="font-size: 20px; font-weight: 700; color: white; margin-bottom: 25px; line-height: 1.4;">
+                <h3 id="pollQuestionDisplay"
+                    style="font-size: 20px; font-weight: 700; color: white; margin-bottom: 25px; line-height: 1.4;">
                     Loading today's question...
                 </h3>
 
                 <div id="pollOptionsContainer" style="display: flex; flex-direction: column; gap: 12px;">
-                    </div>
-                
+                </div>
+
                 <p id="pollTotalVotes" style="margin-top: 20px; font-size: 12px; color: #666;">0 Votes</p>
-                
-                <button id="btnEditPoll" class="btn" onclick="togglePollEditMode()" 
+
+                <button id="btnEditPoll" class="btn" onclick="togglePollEditMode()"
                     style="display: none; margin: 20px auto 0; background: #333; font-size: 12px; padding: 5px 15px;">
                     ✏️ Edit Poll (Admin)
                 </button>
@@ -3756,26 +3883,30 @@
 
             <div id="pollEditMode" class="hidden">
                 <h4 style="color: #FF5722; margin-bottom: 15px;">Create New Poll</h4>
-                
+
                 <div class="form-group">
-                    <input type="text" id="newPollQuestion" placeholder="Enter Question..." style="text-align: center; font-weight: bold; font-size: 16px;">
+                    <input type="text" id="newPollQuestion" placeholder="Enter Question..."
+                        style="text-align: center; font-weight: bold; font-size: 16px;">
                 </div>
 
                 <div id="pollOptionsList" class="form-group">
-                    </div>
+                </div>
 
-                <button class="btn btn-secondary" onclick="addPollOptionField()" style="width: 100%; margin-bottom: 15px; border: 1px dashed #555;">
+                <button class="btn btn-secondary" onclick="addPollOptionField()"
+                    style="width: 100%; margin-bottom: 15px; border: 1px dashed #555;">
                     + Add Another Option
                 </button>
 
-                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px; border-top: 1px solid #333; padding-top: 15px;">
+                <div
+                    style="display: flex; gap: 10px; justify-content: center; margin-top: 15px; border-top: 1px solid #333; padding-top: 15px;">
                     <button class="btn btn-secondary" onclick="togglePollEditMode()">Cancel</button>
                     <button class="btn btn-primary" onclick="saveNewPoll()">Publish Poll</button>
                 </div>
             </div>
 
             <div style="margin-top: 25px;">
-                <button class="btn btn-secondary" style="border: none; background: transparent; color: #888;" onclick="closeModal('dailyPollModal')">Close</button>
+                <button class="btn btn-secondary" style="border: none; background: transparent; color: #888;"
+                    onclick="closeModal('dailyPollModal')">Close</button>
             </div>
         </div>
     </div>
@@ -3790,7 +3921,8 @@
             <form onsubmit="handleCreatePostSubmit(event)">
                 <div class="form-group">
                     <label>Title</label>
-                    <input type="text" id="communityPostTitle" required placeholder="What's on your mind?" autocomplete="off">
+                    <input type="text" id="communityPostTitle" required placeholder="What's on your mind?"
+                        autocomplete="off">
                 </div>
 
                 <div class="form-group" style="margin-bottom: 15px;">
@@ -3825,7 +3957,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('createPostModal')">Cancel</button>
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('createPostModal')">Cancel</button>
                     <button type="submit" class="btn btn-primary" id="submitPostBtn">Post</button>
                 </div>
             </form>
@@ -4004,12 +4137,12 @@
         const storage = firebase.storage(); // <--- ADD THIS
         console.log("Firebase initialized");
         // --- DAILY POLL LOGIC ---
-        
+
         // REPLACE THESE WITH REAL UIDs
         const ADMIN_UIDS = [
             'user_1766072628767',  //Sid
             'user_1766080376453' //Selva
-        ]; 
+        ];
 
         let currentPollData = null;
 
@@ -4017,7 +4150,7 @@
             lockScroll();
             const modal = document.getElementById('dailyPollModal');
             modal.classList.add('active');
-            
+
             // Check Admin Status
             if (currentUser && ADMIN_UIDS.includes(currentUser.uid)) {
                 document.getElementById('btnEditPoll').style.display = 'block';
@@ -4046,13 +4179,13 @@
 
                 currentPollData = doc.data();
                 questionEl.innerText = currentPollData.question;
-                
+
                 const totalVotes = currentPollData.totalVotes || 0;
                 votesEl.innerText = `${totalVotes} Votes`;
 
                 // Render Options
                 let html = '';
-                const myVote = currentPollData.votes ? currentPollData.votes[currentUser.uid] : undefined; 
+                const myVote = currentPollData.votes ? currentPollData.votes[currentUser.uid] : undefined;
 
                 // --- NEW: TOGGLE DULL STATE ---
                 if (myVote !== undefined) {
@@ -4067,7 +4200,7 @@
                 currentPollData.options.forEach((opt, index) => {
                     const voteCount = currentPollData.counts ? (currentPollData.counts[index] || 0) : 0;
                     const percent = totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0;
-                    
+
                     const isVotedClass = myVote === index ? 'voted' : '';
                     const showResults = myVote !== undefined || (currentUser && ADMIN_UIDS.includes(currentUser.uid));
 
@@ -4080,14 +4213,14 @@
                         </div>
                     </div>`;
                 });
-                
+
                 container.innerHTML = html;
             });
         }
 
         function submitVote(optionIndex) {
             if (!currentUser) return showToast("Please login to vote.");
-            
+
             // Optimistic check: prevent double clicks visually, DB rules handles logic
             if (currentPollData.votes && currentPollData.votes[currentUser.uid] !== undefined) {
                 return showToast("You already voted today!");
@@ -4097,11 +4230,11 @@
 
             // 1. Register who voted for what
             const voteKey = `votes.${currentUser.uid}`;
-            
+
             db.runTransaction(async (t) => {
                 const doc = await t.get(pollRef);
                 const data = doc.data();
-                
+
                 if (data.votes && data.votes[currentUser.uid] !== undefined) {
                     throw "Already voted";
                 }
@@ -4130,7 +4263,7 @@
             const view = document.getElementById('pollViewMode');
             const edit = document.getElementById('pollEditMode');
             const optionsList = document.getElementById('pollOptionsList');
-            
+
             if (view.classList.contains('hidden')) {
                 // Switching BACK to View Mode
                 view.classList.remove('hidden');
@@ -4139,7 +4272,7 @@
                 // Switching TO Edit Mode
                 view.classList.add('hidden');
                 edit.classList.remove('hidden');
-                
+
                 // Clear and Initialize with 2 empty options if empty
                 if (optionsList.innerHTML.trim() === '') {
                     addPollOptionField('', false); // Option 1 (No remove button)
@@ -4152,7 +4285,7 @@
             const container = document.getElementById('pollOptionsList');
             const div = document.createElement('div');
             div.className = 'poll-input-row';
-            
+
             // Generate unique ID for input
             const id = 'pollOpt_' + Date.now() + Math.random().toString(36).substr(2, 5);
 
@@ -4160,13 +4293,13 @@
                 <input type="text" id="${id}" value="${value}" placeholder="Enter option..." class="poll-option-input">
                 ${allowRemove ? `<div class="btn-remove-opt" onclick="this.parentElement.remove()">✕</div>` : ''}
             `;
-            
+
             container.appendChild(div);
         }
 
         function saveNewPoll() {
             const q = document.getElementById('newPollQuestion').value.trim();
-            
+
             // Collect all inputs from the dynamic list
             const inputs = document.querySelectorAll('.poll-option-input');
             const options = [];
@@ -4193,11 +4326,11 @@
                 createdAt: new Date()
             }).then(() => {
                 showToast("New Daily Poll Published!");
-                
+
                 // Reset UI
                 document.getElementById('newPollQuestion').value = "";
                 document.getElementById('pollOptionsList').innerHTML = ""; // Clear options
-                
+
                 togglePollEditMode(); // Go back to view mode
             }).catch(e => {
                 console.error(e);
@@ -4870,6 +5003,38 @@
             if (tabName === 'requests') loadRequests();
             if (tabName === 'profile') loadProfile();
         }
+        // --- MARK ANSWER AS GOATED ---
+        function toggleGoatStatus(postId, commentId, commentAuthorRole) {
+            // 1. Security Check: Only Mentors can receive this
+            if (commentAuthorRole === 'Student') {
+                showToast("Only Mentors can be GOATed! 🐐");
+                return;
+            }
+
+            const postRef = db.collection('posts').doc(postId);
+
+            // 2. Transaction to ensure only 1 exists
+            db.runTransaction(async (transaction) => {
+                const postDoc = await transaction.get(postRef);
+                if (!postDoc.exists) return;
+
+                const currentGoat = postDoc.data().goatedCommentId;
+
+                // If clicking the same one, remove it (toggle off)
+                if (currentGoat === commentId) {
+                    transaction.update(postRef, { goatedCommentId: firebase.firestore.FieldValue.delete() });
+                } else {
+                    // Otherwise, set this new one as THE goat (overwrites previous)
+                    transaction.update(postRef, { goatedCommentId: commentId });
+                }
+            }).then(() => {
+                showToast("GOAT Status Updated! 🐐");
+                // Reload comments to see the change
+                loadComments(postId);
+            }).catch(error => {
+                console.error("Goat error:", error);
+            });
+        }
         // --- CONTEXT MENU LOGIC (Right Click / Long Press) ---
         // --- CONTEXT MENU LOGIC (Dynamic) ---
         let contextMenuTarget = { type: null, id1: null, id2: null };
@@ -5530,32 +5695,32 @@
         }
 
         function handleUserSearch(event) {
-    // 1. Prevent page refresh if "Enter" is pressed
-    if (event) event.preventDefault();
+            // 1. Prevent page refresh if "Enter" is pressed
+            if (event) event.preventDefault();
 
-    // 2. Get the search term and make it lowercase (Case Insensitive)
-    const searchInput = document.getElementById('searchInput');
-    const term = searchInput.value.toLowerCase().trim();
-    
-    // 3. Get the list of cards currently on screen
-    const listEl = document.getElementById('searchResultsList');
-    const cards = listEl.getElementsByClassName('card');
+            // 2. Get the search term and make it lowercase (Case Insensitive)
+            const searchInput = document.getElementById('searchInput');
+            const term = searchInput.value.toLowerCase().trim();
 
-    // 4. Loop through every card and toggle visibility (Real-Time)
-    for (let i = 0; i < cards.length; i++) {
-        const card = cards[i];
-        
-        // Get all text inside the card (Name, College, Role)
-        const text = card.textContent || card.innerText;
+            // 3. Get the list of cards currently on screen
+            const listEl = document.getElementById('searchResultsList');
+            const cards = listEl.getElementsByClassName('card');
 
-        // Check if the text matches the search term
-        if (text.toLowerCase().indexOf(term) > -1) {
-            card.style.display = ""; // Show
-        } else {
-            card.style.display = "none"; // Hide
+            // 4. Loop through every card and toggle visibility (Real-Time)
+            for (let i = 0; i < cards.length; i++) {
+                const card = cards[i];
+
+                // Get all text inside the card (Name, College, Role)
+                const text = card.textContent || card.innerText;
+
+                // Check if the text matches the search term
+                if (text.toLowerCase().indexOf(term) > -1) {
+                    card.style.display = ""; // Show
+                } else {
+                    card.style.display = "none"; // Hide
+                }
+            }
         }
-    }
-}
 
         function unfriend(otherId, reqId) {
             showConfirm(
@@ -5957,29 +6122,29 @@
             });
         }
         // Helper: Extract dominant color from an image file object
-function getDominantColor(file) {
-    return new Promise((resolve) => {
-        const img = new Image();
-        img.src = URL.createObjectURL(file);
-        
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = 1;
-            canvas.height = 1;
-            
-            // Draw image resized to 1x1 pixel to get average color
-            ctx.drawImage(img, 0, 0, 1, 1);
-            const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-            
-            // Convert to Hex
-            const hex = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-            resolve(hex);
-        };
-        
-        img.onerror = () => resolve("#FF5722"); // Fallback color
-    });
-}
+        function getDominantColor(file) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.src = URL.createObjectURL(file);
+
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = 1;
+                    canvas.height = 1;
+
+                    // Draw image resized to 1x1 pixel to get average color
+                    ctx.drawImage(img, 0, 0, 1, 1);
+                    const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+
+                    // Convert to Hex
+                    const hex = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+                    resolve(hex);
+                };
+
+                img.onerror = () => resolve("#FF5722"); // Fallback color
+            });
+        }
         // --- ADMIN: WIPE EVERYTHING ---
         async function adminWipeDB() {
             const code = prompt("Type 'CONFIRM' to delete ALL posts, chats, and users from the database.");
@@ -6284,7 +6449,7 @@ function getDominantColor(file) {
                 authorRole: uData.role || "Student",
                 authorYear: uData.year || "",
                 // NEW: Sync the theme color too
-                authorColor: uData.themeColor || "#FF5722" 
+                authorColor: uData.themeColor || "#FF5722"
             };
 
             console.log("Syncing profile to old posts...");
@@ -6361,9 +6526,9 @@ function getDominantColor(file) {
             loadCommunity(); // Reloads posts with new filters applied
         }
         function applyTheme(color) {
-    document.documentElement.style.setProperty('--primary-color', color);
-    // Add other variables if needed
-}
+            document.documentElement.style.setProperty('--primary-color', color);
+            // Add other variables if needed
+        }
 
         function clearAllFilters() {
             // 1. Reset the global filter state
@@ -6570,45 +6735,196 @@ function getDominantColor(file) {
             const list = document.getElementById('commentsList');
             list.innerHTML = '<p style="color:var(--text-secondary);">Loading...</p>';
 
-            // Fetch ALL comments, we sort them in JS to handle nesting
-            db.collection('posts').doc(postId).collection('comments')
-                .orderBy('timestamp', 'asc') // Chronological ensures parents exist before children usually
-                .get().then(snap => {
-                    const comments = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-                    renderThreadedComments(comments, list, postId);
-                })
-                .catch(err => console.error(err));
+            // 1. Fetch Post (to get goatedCommentId + authorId) AND Comments
+            const postPromise = db.collection('posts').doc(postId).get();
+            const commentsPromise = db.collection('posts').doc(postId).collection('comments')
+                .orderBy('timestamp', 'asc')
+                .get();
+
+            Promise.all([postPromise, commentsPromise]).then(([postSnap, commentsSnap]) => {
+                if (!postSnap.exists) {
+                    list.innerHTML = "<p>Post not found.</p>";
+                    return;
+                }
+
+                const postData = postSnap.data();
+                postData.id = postSnap.id; // Ensure ID is attached
+
+                // Map comments
+                let comments = commentsSnap.docs.map(d => ({ ...d.data(), id: d.id }));
+
+                // 2. Render with knowledge of the Post (for permissions & pinning)
+                renderThreadedComments(comments, list, postData);
+
+            }).catch(err => console.error("Error loading comments:", err));
         }
 
         // --- RECURSIVE THREAD RENDERER ---
-        function renderThreadedComments(allComments, container, postId) {
-            // 1. Build the Tree
-            const commentMap = {};
-            const rootComments = [];
+        function renderThreadedComments(comments, container, postData) {
+            container.innerHTML = '';
 
-            allComments.forEach(c => {
-                c.children = [];
+            // 1. Organize into Parent/Child Map
+            const commentMap = {};
+            const roots = [];
+
+            comments.forEach(c => {
                 commentMap[c.id] = c;
+                c.children = []; // Init children array
             });
 
-            allComments.forEach(c => {
+            comments.forEach(c => {
                 if (c.parentId && commentMap[c.parentId]) {
                     commentMap[c.parentId].children.push(c);
                 } else {
-                    rootComments.push(c);
+                    roots.push(c);
                 }
             });
 
-            // Sort Roots by Upvotes
-            rootComments.sort((a, b) => (b.upvotes || 0) - (a.upvotes || 0));
+            // 2. SORT: Move GOATed comment to the very top (Pinning)
+            roots.sort((a, b) => {
+                if (a.id === postData.goatedCommentId) return -1; // Move GOAT up
+                if (b.id === postData.goatedCommentId) return 1;
+                return 0; // Keep timestamp order for others
+            });
 
-            // 2. Generate HTML
-            if (rootComments.length === 0) {
-                container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary);">No comments yet.</div>';
+            // 3. Recursive Render Function
+            function createCommentNode(comment, level = 0) {
+                const isGoated = (comment.id === postData.goatedCommentId);
+                const isPostAuthor = (currentUser && currentUser.uid === postData.authorId);
+                const isMentor = (comment.authorRole && comment.authorRole !== 'Student');
+
+                const wrapper = document.createElement('div');
+                // Add left margin for nesting
+                wrapper.style.marginLeft = level > 0 ? (level * 20) + 'px' : '0';
+                if (level > 0) wrapper.style.borderLeft = "2px solid var(--border-color)";
+
+                // --- BADGE HTML ---
+                let badgeHTML = '';
+                if (isGoated) {
+                    badgeHTML = `
+            <div class="goat-badge-container">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="goat-icon-svg">
+                    <path d="M12,2L14.5,8H19.5L15.5,11L17,16.5L12,13.5L7,16.5L8.5,11L4.5,8H9.5L12,2Z"/> 
+                </svg>
+                <span>GOATed Answer</span>
+            </div>`;
+                }
+
+                // --- GOAT BUTTON (Only for Post Author on Mentor comments) ---
+                let goatBtn = '';
+                if (isPostAuthor && isMentor && level === 0) { // Usually only top-level answers get GOATed
+                    goatBtn = `
+            <button onclick="toggleGoatStatus('${postData.id}', '${comment.id}')" 
+                class="btn btn-sm" 
+                style="margin-left:auto; font-size:10px; border:1px solid #FFD700; color:#FFD700; background:transparent;">
+                ${isGoated ? 'Remove GOAT' : '🏆 Mark GOAT'}
+            </button>`;
+                }
+
+                wrapper.innerHTML = `
+            <div class="card comment-card ${isGoated ? 'is-goated' : ''}" style="margin-bottom:10px; padding:12px; position:relative;">
+                ${badgeHTML}
+                <div style="display:flex; gap:10px; align-items:start;">
+                    <img src="${comment.authorPic || 'default_avatar.png'}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
+                    <div style="width:100%;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <strong style="font-size:13px;">${comment.authorName}</strong>
+                                <span style="font-size:11px; opacity:0.7;">• ${comment.authorRole || 'Student'}</span>
+                            </div>
+                            ${goatBtn}
+                        </div>
+                        <p style="margin:4px 0; font-size:14px; line-height:1.4;">${comment.text}</p>
+                        
+                        <div style="display:flex; gap:10px; margin-top:5px;">
+                            <button onclick="openReplyBox('${postData.id}', '${comment.id}')" style="background:none; border:none; color:var(--text-secondary); font-size:11px; cursor:pointer;">Reply</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="reply-box-${comment.id}"></div>
+        `;
+
+                container.appendChild(wrapper);
+
+                // Render Children recursively
+                if (comment.children.length > 0) {
+                    comment.children.forEach(child => createCommentNode(child, level + 1));
+                }
+            }
+
+            // Run the renderer
+            roots.forEach(root => createCommentNode(root));
+        }
+        /* --- REPLY LOGIC --- */
+
+        // 1. Open/Close the Reply Input Box
+        function openReplyBox(postId, commentId) {
+            const container = document.getElementById(`reply-box-${commentId}`);
+            if (!container) return;
+
+            // Toggle: If open, close it
+            if (container.innerHTML !== '') {
+                container.innerHTML = '';
                 return;
             }
 
-            container.innerHTML = rootComments.map(c => buildCommentNode(c, postId)).join('');
+            // Render the Input Field
+            container.innerHTML = `
+        <div style="margin-top: 10px; margin-left: 20px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border-color);">
+            <textarea id="reply-input-${commentId}" 
+                      placeholder="Write a reply..." 
+                      rows="2" 
+                      class="form-control" 
+                      style="width:100%; resize:none; margin-bottom:10px; font-size:14px; background: transparent; color: var(--text-main); border: none; outline: none;"></textarea>
+            
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button onclick="document.getElementById('reply-box-${commentId}').innerHTML=''" 
+                        class="btn btn-secondary btn-sm" 
+                        style="font-size: 11px; padding: 4px 10px;">Cancel</button>
+                <button onclick="submitReply('${postId}', '${commentId}')" 
+                        class="btn btn-primary btn-sm"
+                        style="font-size: 11px; padding: 4px 10px;">Reply</button>
+            </div>
+        </div>
+    `;
+
+            // Auto-focus the input
+            setTimeout(() => document.getElementById(`reply-input-${commentId}`).focus(), 100);
+        }
+
+        // 2. Submit the Reply to Firestore
+        function submitReply(postId, parentId) {
+            const input = document.getElementById(`reply-input-${parentId}`);
+            const text = input.value.trim();
+
+            if (!text) return;
+            if (!currentUser) {
+                showToast("Please log in to reply.");
+                return;
+            }
+
+            const replyData = {
+                text: text,
+                authorId: currentUser.uid,
+                authorName: window.currentUserData.name || "User",
+                authorRole: window.currentUserData.role || "Student",
+                authorPic: window.currentUserData.profilePic || "",
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                parentId: parentId // <--- CRITICAL: Links this comment to its parent
+            };
+
+            // Save to Firestore
+            db.collection('posts').doc(postId).collection('comments').add(replyData)
+                .then(() => {
+                    showToast("Reply sent!");
+                    // Refresh comments to show the new reply
+                    loadComments(postId);
+                })
+                .catch(err => {
+                    console.error("Reply error:", err);
+                    showToast("Failed to send reply.");
+                });
         }
 
         function buildCommentNode(c, postId) {
