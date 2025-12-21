@@ -11,15 +11,33 @@
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>VidyaGenie</title>
     <style>
+        /* Ensure SVGs inside circles/buttons are centered and match theme */
+        .requests-icon-style svg,
+        .sort-btn-style svg {
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .sort-btn-style:hover svg {
+            transform: rotate(90deg) scale(1.1);
+            /* Subtle professional interaction */
+        }
+
+        .requests-icon-style:hover svg {
+            stroke: var(--text-main);
+        }
+
         /* --- CHAT LAYOUT SYSTEM --- */
         #chatMainWrapper {
             display: flex;
             gap: 20px;
-            height: 75vh; /* Desktop Height */
+            height: 75vh;
+            /* Desktop Height */
         }
 
         #activeChatsList {
-            flex: 0 0 300px; /* Fixed width on desktop */
+            flex: 0 0 300px;
+            /* Fixed width on desktop */
             overflow-y: auto;
             border-right: 1px solid var(--border-color);
         }
@@ -35,7 +53,8 @@
         }
 
         .chat-back-btn {
-            display: none; /* Hidden on Desktop */
+            display: none;
+            /* Hidden on Desktop */
             margin-right: 15px;
             font-size: 24px;
             cursor: pointer;
@@ -44,10 +63,12 @@
 
         /* --- MOBILE CHAT (Immersive Full Screen) --- */
         @media (max-width: 600px) {
+
             /* 1. Master List (Active Conversations) */
             #chatMainWrapper {
                 display: block !important;
-                height: calc(100vh - 140px); /* Normal height for the list */
+                height: calc(100vh - 140px);
+                /* Normal height for the list */
             }
 
             #activeChatsList {
@@ -64,9 +85,12 @@
                 top: 0;
                 left: 0;
                 width: 100%;
-                height: 100dvh; /* Dynamic Height for mobile browsers */
-                background: #000; /* Pure black background like IG */
-                z-index: 2000; /* Sit ON TOP of bottom tabs */
+                height: 100dvh;
+                /* Dynamic Height for mobile browsers */
+                background: #000;
+                /* Pure black background like IG */
+                z-index: 2000;
+                /* Sit ON TOP of bottom tabs */
                 border: none;
                 border-radius: 0;
                 flex-direction: column;
@@ -79,19 +103,23 @@
 
             /* Fix Header for Full Screen */
             #chats.mobile-chat-open #chatHeader {
-                padding-top: 45px; /* Space for Status Bar/Notch */
-                background: rgba(20, 20, 20, 0.98); /* Slightly darker header */
+                padding-top: 45px;
+                /* Space for Status Bar/Notch */
+                background: rgba(20, 20, 20, 0.98);
+                /* Slightly darker header */
             }
 
             /* Fix Message Container Size */
             #chats.mobile-chat-open #messagesContainer {
-                flex: 1; /* Grow to fill space */
+                flex: 1;
+                /* Grow to fill space */
                 background: #000;
             }
 
             /* Fix Input Area at Bottom */
             #chats.mobile-chat-open #sendMessageForm {
-                padding-bottom: 20px; /* Space for Home Indicator */
+                padding-bottom: 20px;
+                /* Space for Home Indicator */
                 background: #111;
             }
 
@@ -99,9 +127,11 @@
             .chat-back-btn {
                 display: block !important;
                 padding: 10px;
-                margin-left: -10px; /* Align to edge */
+                margin-left: -10px;
+                /* Align to edge */
             }
         }
+
         /* --- OTP INPUT STYLE --- */
         #fpOtpInput {
             font-family: monospace;
@@ -660,6 +690,13 @@
         }
 
         /* Purple */
+        .requests-icon-style:hover svg {
+            stroke: #ff3b30;
+            /* Systems red color on hover */
+            transform: scale(1.1);
+            fill: rgba(255, 59, 48, 0.1);
+            /* Subtle light red fill */
+        }
 
         /* Sub-Tag Colors (Specific to Councils) */
         .tag-sub-council {
@@ -1107,17 +1144,62 @@
         .chat-message-row {
             display: flex;
             width: 100%;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
+            /* Slightly tighter spacing */
+            align-items: flex-end;
+            /* Aligns avatar to bottom of message */
         }
 
-        /* Align Right if 'me' */
         .chat-message-row.me {
             justify-content: flex-end;
         }
 
-        /* Align Left if 'them' */
         .chat-message-row.them {
             justify-content: flex-start;
+        }
+
+        /* The Avatar Circle */
+        .chat-msg-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 8px;
+            flex-shrink: 0;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2px;
+            /* Align with bottom of bubble text */
+        }
+
+        /* The Placeholder (Initials) if no image */
+        .chat-msg-placeholder {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #333;
+            color: #ccc;
+            font-size: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            flex-shrink: 0;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2px;
+        }
+
+        /* Bubbles adjustments */
+        .msg-them {
+            border-bottom-left-radius: 4px;
+            /* Sharp corner near avatar */
+        }
+
+        .msg-me {
+            border-bottom-right-radius: 4px;
+            /* Sharp corner on right */
+            max-width: 78% !important;
+            /* Slightly wider for me */
         }
 
         /* --- RESTORED CAMERA & BUTTON STYLES --- */
@@ -1356,36 +1438,41 @@
             border-color: var(--text-secondary);
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
         }
-        /* --- CUSTOM SCROLLBAR (Modern & Minimal) --- */
-        
-        /* The Scrollbar Track (Background) */
-        ::-webkit-scrollbar {
-            width: 8px; /* Slimmer width */
-            height: 8px; /* Slimmer height for horizontal scroll */
-            background-color: var(--bg-main); /* Blends with background */
-        }
 
-        /* The Scrollbar Handle (The moving part) */
-        ::-webkit-scrollbar-thumb {
-            background-color: #444; /* Subtle dark grey */
-            border-radius: 10px; /* Rounded pill shape */
-            border: 2px solid var(--bg-main); /* Creates a "floating" effect */
-        }
+        /* --- SCROLLBAR STRATEGY --- */
 
-        /* Handle on Hover */
-        ::-webkit-scrollbar-thumb:hover {
-            background-color: #666; /* Slightly lighter when interacting */
-        }
+        /* 1. MOBILE (Default to Native "Invisible" Scrollbar) */
+        /* We don't write any rules here. The browser defaults are best for touch. */
 
-        /* Corner (where horizontal & vertical meet) */
-        ::-webkit-scrollbar-corner {
-            background-color: var(--bg-main);
-        }
+        /* 2. DESKTOP ONLY (> 600px) - The Cool Blue Look */
+        @media (min-width: 601px) {
 
-        /* --- FIREFOX SUPPORT (Optional) --- */
-        * {
-            scrollbar-width: thin; /* Makes it slim */
-            scrollbar-color: #444 var(--bg-main); /* Handle + Track */
+            ::-webkit-scrollbar {
+                width: 10px;
+                height: 10px;
+                background-color: #121212;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: #1c1c1e;
+                border-left: 1px solid #333;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background-color: var(--primary-color);
+                border-radius: 6px;
+                border: 2px solid #1c1c1e;
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background-color: #4da6ff;
+            }
+
+            /* Firefox Desktop */
+            html {
+                scrollbar-width: thin;
+                scrollbar-color: var(--primary-color) #1c1c1e;
+            }
         }
 
         /* --- TABS --- */
@@ -1428,15 +1515,28 @@
             background: rgba(255, 255, 255, 0.05);
         }
 
+        /* --- MOBILE TAB ACTIVE STATE (CLEAN) --- */
         .tab-button.active {
-            color: var(--primary-color);
-            background: var(--bg-input);
+            color: var(--primary-color) !important;
+            /* Only change the color */
+            background: transparent !important;
+            /* Remove the box */
+            box-shadow: none !important;
+            /* Remove the shadow */
+        }
+
+        /* Ensure the icon specifically stays primary color */
+        .tab-button.active svg {
+            stroke: var(--primary-color) !important;
+            transform: scale(1.1);
+            /* Keep the subtle grow effect */
         }
 
         /* Active Icon Animation */
         .tab-button.active svg {
             transform: scale(1.1);
-            stroke-width: 2.5px; /* Make it bolder when active */
+            stroke-width: 2.5px;
+            /* Make it bolder when active */
             stroke: var(--primary-color);
         }
 
@@ -1454,46 +1554,71 @@
                 right: 0;
                 width: 100%;
                 max-width: 100%;
-                
+
                 margin: 0;
                 border-radius: 0;
                 border: none;
                 border-top: 1px solid var(--border-color);
-                
-                background: rgba(28, 28, 30, 0.95); /* Glassy dark background */
+
+                background: rgba(28, 28, 30, 0.95);
+                /* Glassy dark background */
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
-                
-                padding: 10px 0 25px 0; /* Extra padding for iPhone Home Indicator */
-                z-index: 1000; /* Sit above everything */
+
+                padding: 10px 0 25px 0;
+                /* Extra padding for iPhone Home Indicator */
+                z-index: 1000;
+                /* Sit above everything */
                 gap: 0;
                 justify-content: space-around;
             }
 
             .tab-button {
-                flex-direction: column; /* Stack Icon & Text vertically */
-                gap: 4px;
-                padding: 5px;
-                border-radius: 0;
-                background: transparent !important; /* Remove active bg on mobile */
+                flex-direction: column;
+                gap: 0;
+                /* Reset gap */
+                padding: 10px 0;
+                background: transparent !important;
+                transition: all 0.3s var(--transition-bounce);
             }
 
             .tab-label {
                 font-size: 10px;
-                font-weight: 500;
+                font-weight: 700;
+                max-height: 0;
+                opacity: 0;
+                overflow: hidden;
+                transition: all 0.3s var(--transition-bounce);
+                transform: translateY(10px);
             }
-            
+
+            .tab-button.active .tab-label {
+                max-height: 20px;
+                opacity: 1;
+                transform: translateY(4px);
+                /* Moves text slightly below icon */
+                margin-top: 2px;
+            }
+
             /* Icon size adjustment for mobile */
             .tab-button svg {
-                width: 26px;
-                height: 26px;
+                width: 24px;
+                height: 24px;
+                stroke: var(--text-secondary);
+                transition: all 0.3s var(--transition-bounce);
+            }
+
+            .tab-button.active svg {
+                stroke: var(--primary-color) !important;
+                transform: translateY(-2px);
+                /* Slight lift effect */
             }
 
             /* Make sure content doesn't get hidden behind the bar */
             .container {
                 padding-bottom: 90px;
             }
-            
+
             /* Hide the navbar on scroll (Optional: makes it feel cleaner) */
             /* .navbar { position: static; } */
         }
@@ -1518,18 +1643,23 @@
         .tab-content.active {
             display: block;
         }
+
         /* --- MOBILE TOUCH FIXES --- */
         * {
-            -webkit-tap-highlight-color: transparent; /* Removes blue box on touch */
+            -webkit-tap-highlight-color: transparent;
+            /* Removes blue box on touch */
         }
 
         /* Optional: Improve scroll smoothness on iOS */
         body {
-            -webkit-overflow-scrolling: touch; 
+            -webkit-overflow-scrolling: touch;
         }
-        
+
         /* Ensure buttons don't select text on double tap */
-        .btn, .tab-button, .card, .profile-pic-wrapper-new {
+        .btn,
+        .tab-button,
+        .card,
+        .profile-pic-wrapper-new {
             user-select: none;
             -webkit-user-select: none;
         }
@@ -1846,11 +1976,14 @@
             max-height: 90vh;
             overflow-y: auto;
         }
+
         /* --- SCROLL LOCK (Prevents background scrolling) --- */
         body.no-scroll {
             overflow: hidden !important;
-            height: 100vh; /* Locks the height to screen size */
-            touch-action: none; /* Disables touch scrolling on body */
+            height: 100vh;
+            /* Locks the height to screen size */
+            touch-action: none;
+            /* Disables touch scrolling on body */
         }
 
         @keyframes modalPop {
@@ -2419,10 +2552,12 @@
 
         /* --- MOBILE OPTIMIZATIONS (Bottom Sheet Style) --- */
         @media (max-width: 600px) {
+
             /* 1. Full Width Containers */
             .container {
                 padding: 10px;
-                padding-bottom: 90px; /* Space for bottom nav */
+                padding-bottom: 90px;
+                /* Space for bottom nav */
                 max-width: 100%;
             }
 
@@ -2458,7 +2593,7 @@
                 font-size: 10px;
                 font-weight: 500;
             }
-            
+
             .tab-button svg {
                 width: 26px;
                 height: 26px;
@@ -2473,33 +2608,42 @@
                 border-radius: 0 0 16px 16px;
                 z-index: 100;
             }
-            
-            .navbar-brand h1 { font-size: 24px; }
+
+            .navbar-brand h1 {
+                font-size: 24px;
+            }
 
             /* 4. MODALS -> BOTTOM SHEET (The Fix) */
             .modal {
-                align-items: flex-end; /* Align to bottom */
+                align-items: flex-end;
+                /* Align to bottom */
             }
 
             .modal-content {
                 width: 100% !important;
                 max-width: 100% !important;
-                border-radius: 24px 24px 0 0 !important; /* Round top corners */
+                border-radius: 24px 24px 0 0 !important;
+                /* Round top corners */
                 border: none;
                 border-top: 1px solid var(--border-color);
                 margin: 0 !important;
-                
+
                 /* Limit height so you can click the top backdrop to close */
-                max-height: 85vh !important; 
+                max-height: 85vh !important;
                 height: auto !important;
-                
+
                 /* Slide Up Animation */
                 animation: slideUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             }
-            
+
             @keyframes slideUpModal {
-                from { transform: translateY(100%); }
-                to { transform: translateY(0); }
+                from {
+                    transform: translateY(100%);
+                }
+
+                to {
+                    transform: translateY(0);
+                }
             }
 
             /* Add a visual "Handle" to indicate it's a sheet */
@@ -2510,18 +2654,31 @@
                 height: 4px;
                 background: #444;
                 border-radius: 2px;
-                margin: 0 auto 15px auto; /* Center top */
+                margin: 0 auto 15px auto;
+                /* Center top */
             }
-            
+
             .modal-footer {
-                padding-bottom: 30px; /* Extra padding for iPhone home bar */
+                padding-bottom: 30px;
+                /* Extra padding for iPhone home bar */
             }
-            
+
             /* Profile adjustments */
-            .profile-header-new { padding: 30px 20px; }
-            .profile-info-new h1 { font-size: 24px; }
-            .stats-grid-new { grid-template-columns: repeat(3, 1fr); }
-            .action-buttons-new { grid-template-columns: 1fr 1fr; }
+            .profile-header-new {
+                padding: 30px 20px;
+            }
+
+            .profile-info-new h1 {
+                font-size: 24px;
+            }
+
+            .stats-grid-new {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .action-buttons-new {
+                grid-template-columns: 1fr 1fr;
+            }
         }
     </style>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -2683,31 +2840,45 @@
                 </div>
                 <div class="navbar-right">
                     <div style="display: flex; gap: 15px; align-items: center;">
-                        <div class="requests-icon-style" onclick="openConnectionsModal()" title="My Connections"
-                            style="cursor: pointer;">
-                            <span>🤝</span>
+                        <div class="requests-icon-style" onclick="openConnectionsModal()" title="My Connections">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
                         </div>
                         <div class="requests-icon-style" onclick="switchTab('requests')" title="Pending Requests"
-                            style="cursor: pointer; position: relative;">
-                            <span>👥</span>
+                            style="position: relative;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                                </path>
+                            </svg>
                             <span id="requestBadge" class="notification-badge hidden">0</span>
                         </div>
                         <div id="navProfileContainer" class="profile-circle" onclick="switchTab('profile')"
-                            title="My Profile" style="cursor: pointer;"></div>
+                            title="My Profile"></div>
                     </div>
                 </div>
             </div>
 
             <div class="tabs">
                 <button class="tab-button" onclick="switchTab(event, 'chats')">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
+                        </path>
                     </svg>
                     <span class="tab-label">Messages</span>
                 </button>
 
                 <button class="tab-button" onclick="switchTab(event, 'community')">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                         <circle cx="9" cy="7" r="4"></circle>
                         <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -2717,7 +2888,8 @@
                 </button>
 
                 <button class="tab-button" onclick="switchTab(event, 'mentors')">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
@@ -2747,14 +2919,15 @@
 
             <div id="chats" class="tab-content">
                 <div id="chatMainWrapper">
-                    
+
                     <div id="activeChatsList">
                         <h4 style="padding: 20px 20px 10px 20px; border-bottom: 1px solid var(--border-color);">
                             Active Conversations
                         </h4>
                         <div style="padding: 10px 15px 15px 15px;">
                             <div style="padding: 10px 15px 10px 15px; position: relative;">
-                                <span style="position: absolute; left: 25px; top: 50%; transform: translateY(-55%); color: var(--text-secondary); font-size: 14px;">🔍</span>
+                                <span
+                                    style="position: absolute; left: 25px; top: 50%; transform: translateY(-55%); color: var(--text-secondary); font-size: 14px;">🔍</span>
                                 <input type="text" id="chatSearchInput" placeholder="Search connections..."
                                     onkeyup="loadChats()"
                                     style="width: 100%; padding: 10px 15px 10px 35px; border-radius: var(--radius-md); background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-main); font-size: 14px;">
@@ -2764,11 +2937,13 @@
                     </div>
 
                     <div id="messageView">
-                        <input type="file" id="chatFileInput" accept="image/*,video/*" style="display: none;" onchange="handleChatFileSelect(this)">
-                        
-                        <div id="chatHeader" style="padding: 15px 20px; font-weight: 800; font-size: 18px; border-bottom: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); display: flex; align-items: center;">
+                        <input type="file" id="chatFileInput" accept="image/*,video/*" style="display: none;"
+                            onchange="handleChatFileSelect(this)">
+
+                        <div id="chatHeader"
+                            style="padding: 15px 20px; font-weight: 800; font-size: 18px; border-bottom: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); display: flex; align-items: center;">
                             <span class="chat-back-btn" onclick="closeChatView()">←</span>
-                            
+
                             <div id="chatHeaderInfo">Select a conversation</div>
                         </div>
 
@@ -2779,9 +2954,12 @@
 
                             <input type="hidden" id="selectedChatId">
                             <div id="emojiPicker" class="emoji-picker hidden"></div>
-                            
-                            <button type="button" class="chat-upload-btn btn-circle" onclick="document.getElementById('chatFileInput').click()" title="Send Media">📷</button>
-                            <button type="button" class="chat-upload-btn btn-circle" onclick="toggleEmojiPicker()" title="Emoji">😀</button>
+
+                            <button type="button" class="chat-upload-btn btn-circle"
+                                onclick="document.getElementById('chatFileInput').click()"
+                                title="Send Media">📷</button>
+                            <button type="button" class="chat-upload-btn btn-circle" onclick="toggleEmojiPicker()"
+                                title="Emoji">😀</button>
 
                             <textarea id="messageText" placeholder="Type a message..." required
                                 style="flex-grow: 1; height: 45px; border-radius: 22px; padding: 12px 20px; resize: none; background: rgba(255,255,255,0.05); border:none; color: white; font-family: inherit; overflow: hidden;"></textarea>
@@ -2797,7 +2975,18 @@
                 <div class="center-icon-wrapper" style="gap: 15px; align-items: center;">
 
                     <div class="sort-btn-style" onclick="openSortModal()">
-                        <span style="font-size: 24px;">⇅</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="4" y1="21" x2="4" y2="14"></line>
+                            <line x1="4" y1="10" x2="4" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12" y2="3"></line>
+                            <line x1="20" y1="21" x2="20" y2="16"></line>
+                            <line x1="20" y1="12" x2="20" y2="3"></line>
+                            <line x1="2" y1="14" x2="6" y2="14"></line>
+                            <line x1="10" y1="8" x2="14" y2="8"></line>
+                            <line x1="18" y1="16" x2="22" y2="16"></line>
+                        </svg>
                         <span class="sort-btn-text">Sort / Filter</span>
                     </div>
 
@@ -4591,7 +4780,7 @@
         }
 
         function renderUserResults(snapshot, allRequests = []) {
-            
+
             const listEl = document.getElementById('searchResultsList');
             const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
             let html = '';
@@ -4674,11 +4863,12 @@
                 html += `
                 <div class="card">
                     <div class="card-content-wrapper">
-                        <img src="${profileSrc} loading="lazy"" 
-     class="card-avatar" 
-     alt="Profile" 
-     crossorigin="anonymous" 
-     onload="applyCardTheme(this)">
+                        <img src="${profileSrc}" 
+                             loading="lazy" 
+                             class="card-avatar" 
+                             alt="Profile" 
+                             crossorigin="anonymous" 
+                             onload="applyCardTheme(this)">
                         <div style="width:100%; text-align:left; padding-left:10px;">
                             
                             <div class="card-header" style="font-size:18px; margin-bottom:4px; justify-content:flex-start; gap:8px; align-items:center;">
@@ -4789,7 +4979,8 @@
                         // Avatar
                         let avatarHtml;
                         if (senderUser.profilePic) {
-                            avatarHtml = `<img src="${senderUser.profilePic}";loading="lazy"; style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:1px solid var(--border-color);">`;
+                            // FIXED: Removed extra semicolons and fixed quote placement
+                            avatarHtml = `<img src="${senderUser.profilePic}" loading="lazy" style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:1px solid var(--border-color);">`;
                         } else {
                             const initial = senderName.charAt(0);
                             avatarHtml = `<div style="width:100px; height:100px; border-radius:50%; background:#333; display:flex; align-items:center; justify-content:center; color:#ccc; font-weight:bold; font-size:18px; border:1px solid var(--border-color);">${initial}</div>`;
@@ -4914,8 +5105,10 @@
                         if (diffMins < 5) statusColor = '#30D158';
                     }
 
+                    // Inside loadChats function...
                     let avatarContent = otherUser.profilePic
-                        ? `<img src="${otherUser.profilePic}"; loading="lazy"; style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:1px solid var(--border-color);">`
+                        // FIXED: Removed extra semicolons and fixed quote placement
+                        ? `<img src="${otherUser.profilePic}" loading="lazy" style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:1px solid var(--border-color);">`
                         : `<div style="width:45px; height:45px; border-radius:50%; background:black; color:white; display:flex; align-items:center; justify-content:center; border:1px solid var(--border-color); font-weight:bold; font-size:18px;">${displayName.charAt(0)}</div>`;
 
                     const avatarHtml = `
@@ -5220,10 +5413,10 @@
         function openSortModal() {
             lockScroll();
             const modal = document.getElementById('sortFilterModal');
-            
+
             // --- ADD CLOSE BUTTON ---
             const header = modal.querySelector('.modal-header');
-            if(header && !header.querySelector('.close-modal-btn')) {
+            if (header && !header.querySelector('.close-modal-btn')) {
                 header.style.display = "flex";
                 header.style.justifyContent = "space-between";
                 header.style.alignItems = "center";
@@ -5238,7 +5431,7 @@
             renderFilterTags();
             updateFilterUI();
         }
-        window.closeModal = function(modalId) {
+        window.closeModal = function (modalId) {
             document.getElementById(modalId).classList.remove('active');
             unlockScroll(); // <--- RESTORES SCROLLING
         };
@@ -6013,95 +6206,123 @@
             if (msgUnsub) msgUnsub();
 
             document.getElementById('selectedChatId').value = chatId;
-            
-            // --- NEW: Trigger Mobile View ---
+
+            // Trigger Mobile View
             document.getElementById('chats').classList.add('mobile-chat-open');
-            if(window.innerWidth <= 600) {
+            if (window.innerWidth <= 600) {
                 document.querySelector('.tabs').style.display = 'none';
             }
-            
 
-            // Update Header
-            const headerInfo = document.getElementById('chatHeaderInfo') || document.getElementById('chatHeader');
+            // --- HEADER UPDATE START ---
+            const headerInfo = document.getElementById('chatHeaderInfo');
+
+            // 1. Set Initial Header with Placeholder (Initials)
+            // This ensures something shows up immediately while the real image loads
             headerInfo.innerHTML = `
-                <div style="line-height:1.2;">
-                    <div style="font-size:16px;">${name}</div>
-                    <div id="headerStatus" style="font-size:12px; color:var(--text-secondary); font-weight:normal;">Connecting...</div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div id="headerAvatarStub" style="width: 38px; height: 38px; min-width: 38px; border-radius: 50%; background: #333; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; border: 1px solid var(--glass-border);">
+                        ${name.charAt(0).toUpperCase()}
+                    </div>
+                    <div style="line-height: 1.3;">
+                        <div style="font-size: 16px; font-weight: 700; color: var(--text-main);">${name}</div>
+                        <div id="headerStatus" style="font-size: 12px; color: var(--text-secondary);">Connecting...</div>
+                    </div>
                 </div>`;
-            
-            // Keep the back button visible (it's separate from headerInfo now)
-            // No changes needed to back button HTML logic here as it is separate in HTML now
+            // --- HEADER UPDATE END ---
 
             document.getElementById('sendMessageForm').classList.remove('hidden');
             const cont = document.getElementById('messagesContainer');
             cont.innerHTML = '<p style="text-align:center; color:var(--text-secondary); margin-top:20px;">Loading...</p>';
 
-            // 1. Fetch User Status
-            if (otherUserId) {
-                db.collection('users').doc(otherUserId).get().then(doc => {
-                    if (doc.exists) {
-                        const u = doc.data();
-                        const statusText = formatLastActive(u.lastSeen);
-                        const statusColor = statusText === 'Active now' ? '#30D158' : 'var(--text-secondary)';
-                        const statusEl = document.getElementById('headerStatus');
-                        if (statusEl) {
-                            statusEl.innerText = statusText;
-                            statusEl.style.color = statusColor;
+            // 1. Fetch User Data (Pic & Status)
+            let otherUserPic = "";
+            let otherUserInitial = name.charAt(0).toUpperCase();
+
+            db.collection('users').doc(otherUserId).get().then(doc => {
+                if (doc.exists) {
+                    const u = doc.data();
+                    otherUserPic = u.profilePic || "";
+
+                    // --- NEW: Update Header Avatar if image exists ---
+                    if (otherUserPic) {
+                        const stub = document.getElementById('headerAvatarStub');
+                        if (stub) {
+                            // Replace the placeholder div with an IMG tag
+                            stub.outerHTML = `<img src="${otherUserPic}" style="width: 38px; height: 38px; min-width: 38px; border-radius: 50%; object-fit: cover; border: 1px solid var(--glass-border);" loading="lazy">`;
                         }
                     }
-                });
-            }
 
-            // 2. Load Messages
-            msgUnsub = db.collection('chats').doc(chatId).collection('messages')
-                .orderBy('timestamp', 'asc')
-                .onSnapshot(snap => {
-                    if (snap.empty) {
-                        cont.innerHTML = '<p style="text-align:center; color:var(--text-secondary); margin-top:20px;">Say hello! 👋</p>';
-                        return;
+                    // Update Status Text
+                    const statusText = formatLastActive(u.lastSeen);
+                    const statusColor = statusText === 'Active now' ? '#30D158' : 'var(--text-secondary)';
+                    const statusEl = document.getElementById('headerStatus');
+                    if (statusEl) {
+                        statusEl.innerText = statusText;
+                        statusEl.style.color = statusColor;
                     }
-                    let html = '';
-                    snap.forEach(doc => {
-                        const m = doc.data();
-                        if (!currentUser) return;
-                        const me = m.senderId === currentUser.uid;
-                        
-                        // Context Menu Events
-                        let events = '';
-                        if (me) {
-                            events = `
-                            oncontextmenu="showContextMenu(event, 'message', '${chatId}', '${doc.id}')"
-                            ontouchstart="startLongPress(event, 'message', '${chatId}', '${doc.id}')"
-                            ontouchend="cancelLongPress()"
-                            ontouchmove="cancelLongPress()"
-                            `;
+                }
+
+                // 2. Start Message Listener
+                msgUnsub = db.collection('chats').doc(chatId).collection('messages')
+                    .orderBy('timestamp', 'asc')
+                    .onSnapshot(snap => {
+                        if (snap.empty) {
+                            cont.innerHTML = '<p style="text-align:center; color:var(--text-secondary); margin-top:20px;">Say hello! 👋</p>';
+                            return;
                         }
 
-                        let content = '';
-                        if (m.imageUrl) {
-                            if (m.mediaType === 'video') content = `<video src="${m.imageUrl}" controls class="chat-image" onclick="event.stopPropagation()"></video>`;
-                            else content = `<img src="${m.imageUrl}" class="chat-image" onclick="event.stopPropagation(); openLightbox(this.src)">`;
-                        } else {
-                            content = `<span>${m.text}</span>`;
-                        }
+                        let html = '';
+                        snap.forEach(doc => {
+                            const m = doc.data();
+                            if (!currentUser) return;
+                            const me = m.senderId === currentUser.uid;
 
-                        html += `
-                        <div class="chat-message-row ${me ? 'me' : 'them'}">
-                            <div class="msg-bubble ${me ? 'msg-me' : 'msg-them'}" ${events} style="user-select: none;">
-                                ${content}
-                            </div>
-                        </div>`;
+                            // Content Logic
+                            let content = '';
+                            if (m.imageUrl) {
+                                if (m.mediaType === 'video') content = `<video src="${m.imageUrl}" controls class="chat-image" onclick="event.stopPropagation()"></video>`;
+                                else content = `<img src="${m.imageUrl}" class="chat-image" onclick="event.stopPropagation(); openLightbox(this.src)">`;
+                            } else {
+                                content = `<span>${m.text}</span>`;
+                            }
+
+                            // Avatar Logic (For Bubble Rows)
+                            let avatarHtml = '';
+                            if (!me) {
+                                if (otherUserPic) {
+                                    avatarHtml = `<img src="${otherUserPic}" class="chat-msg-avatar" loading="lazy">`;
+                                } else {
+                                    avatarHtml = `<div class="chat-msg-placeholder">${otherUserInitial}</div>`;
+                                }
+                            }
+
+                            let events = me ? `
+                                oncontextmenu="showContextMenu(event, 'message', '${chatId}', '${doc.id}')"
+                                ontouchstart="startLongPress(event, 'message', '${chatId}', '${doc.id}')"
+                                ontouchend="cancelLongPress()"
+                                ontouchmove="cancelLongPress()"
+                            ` : '';
+
+                            html += `
+                            <div class="chat-message-row ${me ? 'me' : 'them'}">
+                                ${avatarHtml}
+                                <div class="msg-bubble ${me ? 'msg-me' : 'msg-them'}" ${events} style="user-select: none;">
+                                    ${content}
+                                </div>
+                            </div>`;
+                        });
+
+                        cont.innerHTML = html;
+                        cont.scrollTop = cont.scrollHeight;
                     });
-                    cont.innerHTML = html;
-                    cont.scrollTop = cont.scrollHeight;
-                });
+            });
         }
         function closeChatView() {
             unlockScroll();
             document.getElementById('chats').classList.remove('mobile-chat-open');
-            
+
             // SHOW BOTTOM TABS AGAIN
-            if(window.innerWidth <= 600) {
+            if (window.innerWidth <= 600) {
                 document.querySelector('.tabs').style.display = 'flex';
             }
         }
@@ -6221,10 +6442,10 @@
             lockScroll();
             const modal = document.getElementById('createPostModal');
             if (!modal) return;
-            
+
             // --- ADD CLOSE BUTTON TO HEADER ---
             const header = modal.querySelector('.modal-header');
-            if(header && !header.querySelector('.close-modal-btn')) {
+            if (header && !header.querySelector('.close-modal-btn')) {
                 header.style.display = "flex";
                 header.style.justifyContent = "space-between";
                 header.style.alignItems = "center";
@@ -6236,7 +6457,7 @@
             // ----------------------------------
 
             modal.classList.add('active');
-            
+
             // ... (Rest of your existing reset logic: clearing title, body, file, etc.) ...
             const titleEl = document.getElementById('communityPostTitle');
             if (titleEl) titleEl.value = "";
