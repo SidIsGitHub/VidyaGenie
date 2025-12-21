@@ -1582,6 +1582,28 @@
             padding: 0 5px;
             /* Tiny padding from screen edges */
         }
+        /* --- SEARCH ICON SIZING FIX --- */
+.input-with-icon {
+    position: relative;
+    width: 100%;
+}
+
+.input-icon {
+    position: absolute;
+    left: 15px; /* Distance from left edge */
+    top: 50%;
+    transform: translateY(-50%); /* Centers it vertically */
+    width: 18px !important; /* Forces small size */
+    height: 18px !important;
+    color: var(--text-secondary);
+    pointer-events: none; /* Clicks go through to the input */
+    z-index: 5;
+}
+
+/* Ensure the input has room for the icon */
+#chatSearchInput {
+    padding-left: 45px !important; 
+}
 
         /* --- GLOBAL RESET & TYPOGRAPHY --- */
         :root {
@@ -1706,7 +1728,7 @@
 
         .navbar-brand h1 {
             font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
-            font-size: 22px; /* Much smaller, cleaner */
+            font-size: 25px; /* Much smaller, cleaner */
             font-weight: 700;
             letter-spacing: -0.01em;
             margin: 0;
@@ -1721,7 +1743,7 @@
 
         /* The user greeting text */
         .navbar-brand p {
-            font-size: 11px;
+            font-size: 15px;
             color: rgba(235, 235, 245, 0.5); /* Apple Label Color */
             font-weight: 500;
             margin-top: 4px;
@@ -2528,16 +2550,22 @@
         }
 
         /* 2. Big Centered Profile Picture */
-        #searchResultsList .card-avatar {
-            width: 130px !important;
-            /* Much Bigger */
-            height: 130px !important;
-            min-width: 130px !important;
-            border-width: 4px;
-            margin: 0 auto;
-            /* Force Center */
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-        }
+        /* 3. Resize Avatar (Fix Squishing) */
+            #searchResultsList .card-avatar {
+                width: 70px !important;
+                height: 70px !important;
+                
+                /* CRITICAL FIXES: */
+                min-width: 70px !important; /* Stop width shrinking */
+                min-height: 70px !important; /* Stop height shrinking */
+                object-fit: cover !important; /* Crop image, don't stretch */
+                aspect-ratio: 1 / 1 !important; /* Force perfect square */
+                
+                border-width: 2px !important;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2) !important;
+                border-radius: 50% !important;
+                margin: 0 auto !important; /* Ensure centering */
+            }
 
         /* 3. Text Container: Force Left Alignment */
         #searchResultsList .card-content-wrapper>div {
@@ -3025,6 +3053,151 @@
                 grid-template-columns: 1fr 1fr;
             }
         }
+        /* --- MOBILE EXPLORE TAB (2 Columns) --- */
+        @media (max-width: 600px) {
+            /* 1. Force 2-Column Grid */
+            #searchResultsList.grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr) !important; /* Equal split */
+                gap: 10px !important; /* Tighter gap */
+            }
+
+            /* 2. Shrink Card Padding */
+            #searchResultsList .card {
+                padding: 12px !important;
+                margin-bottom: 0 !important; /* Let grid gap handle vertical spacing */
+            }
+
+            /* 3. Resize Avatar */
+            #searchResultsList .card-avatar {
+                width: 70px !important;
+                height: 70px !important;
+                min-width: 70px !important;
+                border-width: 2px !important;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2) !important;
+            }
+
+            /* 4. Tighter Layout & Center Text */
+            #searchResultsList .card-content-wrapper {
+                gap: 8px !important;
+                margin-bottom: 10px !important;
+            }
+
+            /* Reset text alignment to center for narrow cards */
+            #searchResultsList .card-content-wrapper > div {
+                padding-left: 0 !important;
+                text-align: center !important;
+                width: 100%;
+            }
+
+            /* 5. Font Adjustments */
+            #searchResultsList .card-header {
+                font-size: 14px !important; /* Smaller Name */
+                justify-content: center !important; /* Center align */
+                flex-direction: column; /* Stack Name and Badge */
+                gap: 4px;
+                line-height: 1.2;
+            }
+
+            /* Badge Styling */
+            #searchResultsList .badge {
+                margin-left: 0 !important;
+                font-size: 9px !important;
+                padding: 2px 6px;
+                align-self: center; /* Ensure badge stays centered */
+            }
+
+            /* Subtext (College/Role) */
+            #searchResultsList .card-body p {
+                font-size: 11px !important;
+                line-height: 1.3;
+                margin-bottom: 2px !important;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis; /* Prevent long college names from breaking layout */
+            }
+
+            /* 6. Compact Buttons */
+            #searchResultsList .card-footer {
+                margin-top: 5px !important;
+                padding-top: 10px !important;
+            }
+
+            #searchResultsList .btn {
+                font-size: 12px !important;
+                padding: 8px 0 !important; /* Taller touch target */
+                width: 100%;
+            }
+        }
+        /* --- GLOBAL FORM FIXES --- */
+        
+        /* 1. Disable the resize handle on all textareas */
+        textarea {
+            resize: none !important; 
+        }
+
+        /* 2. Optional: Ensure inputs don't zoom on iPhone */
+        input, textarea {
+            font-size: 16px !important; /* Prevents auto-zoom on focus */
+        }
+        /* --- FIX MOBILE AVATAR (CORRECTED) --- */
+@media (max-width: 600px) {
+    #searchResultsList .card-avatar {
+        /* 1. Force Exact Size (Prevents Squishing) */
+        width: 70px !important;
+        height: 70px !important;
+        min-width: 70px !important; 
+        min-height: 70px !important;
+        
+        /* 2. Force Circle Shape */
+        border-radius: 50% !important; 
+        
+        /* 3. Crop Image (Prevents Distortion) */
+        object-fit: cover !important; 
+        aspect-ratio: 1 / 1 !important; 
+        
+        /* 4. Alignment & Border */
+        margin: 0 auto 10px auto !important;
+        border: 2px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2) !important;
+        display: block !important;
+        background-color: var(--bg-input); /* Fallback background */
+    }
+}
+/* --- VOTED STATE (DULL / COOLED DOWN) --- */
+        .daily-poll-style.voted {
+            /* Override the fire gradient with dark ash grey */
+            background: #2C2C2E !important; 
+            
+            /* Kill all animations */
+            animation: none !important;
+            
+            /* Remove the glow and shine */
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            color: #888 !important; /* Dim the text */
+            
+            /* Reset cursor interaction */
+            transform: none !important;
+            cursor: pointer; /* Still clickable to view results */
+        }
+
+        /* Remove the shine sweep effect */
+        .daily-poll-style.voted::after {
+            display: none !important;
+        }
+
+        /* Prevent hover effects on voted button */
+        .daily-poll-style.voted:hover {
+            transform: none !important;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5) !important;
+        }
+        
+        /* Dim the icon too */
+        .daily-poll-style.voted svg {
+            stroke: #666 !important;
+            filter: none !important;
+        }
     </style>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
@@ -3248,8 +3421,7 @@
                     <div class="card-body">
                         <form id="userSearchForm" onsubmit="handleUserSearch(event)">
                             <div class="form-group" style="display: flex; gap: 10px; margin-bottom: 0;">
-                                <input type="text" id="searchInput" placeholder="Search by Name"
-                                    style="flex-grow: 1;">
+                                <input type="text" id="searchInput" placeholder="Search by Name" style="flex-grow: 1;" oninput="handleUserSearch(event)">
                                 <button type="submit" class="btn btn-primary">Search</button>
                             </div>
                         </form>
@@ -3269,15 +3441,24 @@
                         <h4 style="padding: 20px 20px 10px 20px; border-bottom: 1px solid var(--border-color);">
                             Active Conversations
                         </h4>
-                        <div style="padding: 10px 15px 15px 15px;">
-                            <div style="padding: 10px 15px 10px 15px; position: relative;">
-                                <span
-                                    style="position: absolute; left: 25px; top: 50%; transform: translateY(-55%); color: var(--text-secondary); font-size: 14px;">🔍</span>
-                                <input type="text" id="chatSearchInput" placeholder="Search connections..."
-                                    onkeyup="loadChats()"
-                                    style="width: 100%; padding: 10px 15px 10px 35px; border-radius: var(--radius-md); background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-main); font-size: 14px;">
+                        
+                        <div class="search-bar-container" style="padding: 10px 15px 15px 15px;">
+                            <div class="input-with-icon">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                                
+                                <input type="text" 
+                                       id="chatSearchInput" 
+                                       class="form-control" 
+                                       placeholder="Start a chat with..." 
+                                       oninput="filterChatConnections(event)" 
+                                       autocomplete="off"
+                                       style="padding-left: 45px;">
                             </div>
                         </div>
+
                         <div id="chatsListContent"></div>
                     </div>
 
@@ -3307,7 +3488,7 @@
                                 title="Emoji">😀</button>
 
                             <textarea id="messageText" placeholder="Type a message..." required
-                                style="flex-grow: 1; height: 45px; border-radius: 22px; padding: 12px 20px; resize: none; background: rgba(255,255,255,0.05); border:none; color: white; font-family: inherit; overflow: hidden;"></textarea>
+                                style="flex-grow: 1; height: 45px; border-radius: 22px; padding: 12px 20px; resize: none; background: rgba(255,255,255,0.05); border:none; color: white; font-family: inherit; overflow: hidden; resize: none !important;" autocomplete="off"></textarea>
 
                             <button type="submit" class="btn btn-primary btn-circle" style="font-size: 18px;">➤</button>
                         </form>
@@ -3609,7 +3790,7 @@
             <form onsubmit="handleCreatePostSubmit(event)">
                 <div class="form-group">
                     <label>Title</label>
-                    <input type="text" id="communityPostTitle" required placeholder="What's on your mind?">
+                    <input type="text" id="communityPostTitle" required placeholder="What's on your mind?" autocomplete="off">
                 </div>
 
                 <div class="form-group" style="margin-bottom: 15px;">
@@ -3625,7 +3806,7 @@
                 <div class="form-group">
                     <label>Details</label>
                     <textarea id="communityPostBody" required placeholder="Share your thoughts..."
-                        style="min-height: 100px;"></textarea>
+                        style="min-height: 100px; resize: none;" autocomplete="off"></textarea>
                 </div>
 
                 <div class="form-group" style="margin-bottom:0;">
@@ -3644,8 +3825,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('createPostModal')" <button
-                        type="submit" class="btn btn-primary" id="submitPostBtn">Post</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('createPostModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitPostBtn">Post</button>
                 </div>
             </form>
         </div>
@@ -3851,10 +4032,11 @@
             const container = document.getElementById('pollOptionsContainer');
             const questionEl = document.getElementById('pollQuestionDisplay');
             const votesEl = document.getElementById('pollTotalVotes');
+            // 1. SELECT THE MAIN BUTTON
+            const pollBtn = document.querySelector('.daily-poll-style');
 
             container.innerHTML = '<p style="color:#888;">Loading...</p>';
 
-            // We use a fixed ID 'daily_poll' so there is only ever one active poll
             db.collection('system').doc('daily_poll').onSnapshot(doc => {
                 if (!doc.exists) {
                     questionEl.innerText = "No active poll today.";
@@ -3870,15 +4052,23 @@
 
                 // Render Options
                 let html = '';
-                const myVote = currentPollData.votes ? currentPollData.votes[currentUser.uid] : null; // Index of option I voted for
+                const myVote = currentPollData.votes ? currentPollData.votes[currentUser.uid] : undefined; 
+
+                // --- NEW: TOGGLE DULL STATE ---
+                if (myVote !== undefined) {
+                    // User has voted: Add class to make it dull
+                    pollBtn.classList.add('voted');
+                } else {
+                    // User hasn't voted: Ensure it's flashy
+                    pollBtn.classList.remove('voted');
+                }
+                // ------------------------------
 
                 currentPollData.options.forEach((opt, index) => {
                     const voteCount = currentPollData.counts ? (currentPollData.counts[index] || 0) : 0;
                     const percent = totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0;
                     
                     const isVotedClass = myVote === index ? 'voted' : '';
-                    
-                    // Only show percentages if user has voted OR is admin
                     const showResults = myVote !== undefined || (currentUser && ADMIN_UIDS.includes(currentUser.uid));
 
                     html += `
@@ -5340,25 +5530,32 @@
         }
 
         function handleUserSearch(event) {
-            event.preventDefault();
-            const term = document.getElementById('searchInput').value.toLowerCase().trim();
-            if (!term) return loadMentors();
-            const listEl = document.getElementById('searchResultsList');
-            listEl.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: var(--text-secondary);">Searching...</p>';
-            const end = term.replace(/.$/, c => String.fromCharCode(c.charCodeAt(0) + 1));
+    // 1. Prevent page refresh if "Enter" is pressed
+    if (event) event.preventDefault();
 
-            const usersSearchPromise = db.collection('users').where('name', '>=', term).where('name', '<', end).get();
-            const requestsPromise = db.collection('connection_requests').where('recipientId', '==', currentUser.uid).get();
-            const sentRequestsPromise = db.collection('connection_requests').where('senderId', '==', currentUser.uid).get();
+    // 2. Get the search term and make it lowercase (Case Insensitive)
+    const searchInput = document.getElementById('searchInput');
+    const term = searchInput.value.toLowerCase().trim();
+    
+    // 3. Get the list of cards currently on screen
+    const listEl = document.getElementById('searchResultsList');
+    const cards = listEl.getElementsByClassName('card');
 
-            Promise.all([usersSearchPromise, requestsPromise, sentRequestsPromise]).then(([userSnap, receivedReqSnap, sentReqSnap]) => {
-                const allRequests = [...receivedReqSnap.docs, ...sentReqSnap.docs];
-                renderUserResults(userSnap, allRequests);
-            }).catch(e => {
-                listEl.innerHTML = '<p style="color:var(--danger-color); text-align:center;">Failed to execute search. Check console.</p>';
-                console.error("Error in handleUserSearch:", e);
-            });
+    // 4. Loop through every card and toggle visibility (Real-Time)
+    for (let i = 0; i < cards.length; i++) {
+        const card = cards[i];
+        
+        // Get all text inside the card (Name, College, Role)
+        const text = card.textContent || card.innerText;
+
+        // Check if the text matches the search term
+        if (text.toLowerCase().indexOf(term) > -1) {
+            card.style.display = ""; // Show
+        } else {
+            card.style.display = "none"; // Hide
         }
+    }
+}
 
         function unfriend(otherId, reqId) {
             showConfirm(
@@ -5759,6 +5956,30 @@
                 listEl.innerHTML = '<p style="color:var(--danger-color)">Error loading chats.</p>';
             });
         }
+        // Helper: Extract dominant color from an image file object
+function getDominantColor(file) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 1;
+            canvas.height = 1;
+            
+            // Draw image resized to 1x1 pixel to get average color
+            ctx.drawImage(img, 0, 0, 1, 1);
+            const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+            
+            // Convert to Hex
+            const hex = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+            resolve(hex);
+        };
+        
+        img.onerror = () => resolve("#FF5722"); // Fallback color
+    });
+}
         // --- ADMIN: WIPE EVERYTHING ---
         async function adminWipeDB() {
             const code = prompt("Type 'CONFIRM' to delete ALL posts, chats, and users from the database.");
@@ -6050,6 +6271,7 @@
             unlockScroll(); // <--- CRITICAL: Unlocks the body
         };
         // --- SYNC PROFILE CHANGES TO OLD POSTS ---
+        // --- SYNC PROFILE CHANGES TO OLD POSTS ---
         async function syncUserProfileToContent() {
             if (!currentUser) return;
 
@@ -6060,7 +6282,9 @@
                 authorName: uData.name,
                 authorPic: uData.profilePic || "",
                 authorRole: uData.role || "Student",
-                authorYear: uData.year || ""
+                authorYear: uData.year || "",
+                // NEW: Sync the theme color too
+                authorColor: uData.themeColor || "#FF5722" 
             };
 
             console.log("Syncing profile to old posts...");
@@ -6077,10 +6301,6 @@
 
                 await batch.commit();
                 console.log("Old posts updated.");
-
-                // Note: Updating old COMMENTS in Firestore client-side is very expensive 
-                // (requires reading every post). Instead, we use the "Visual Override" 
-                // in Step 4 to fix comments visually instantly.
 
             } catch (e) {
                 console.error("Sync error:", e);
@@ -6140,6 +6360,10 @@
             document.getElementById('sortFilterModal').classList.remove('active');
             loadCommunity(); // Reloads posts with new filters applied
         }
+        function applyTheme(color) {
+    document.documentElement.style.setProperty('--primary-color', color);
+    // Add other variables if needed
+}
 
         function clearAllFilters() {
             // 1. Reset the global filter state
