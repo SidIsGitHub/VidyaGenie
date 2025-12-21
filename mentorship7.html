@@ -3174,7 +3174,8 @@
             <div id="connectionsModalList" style="max-height: 50vh; overflow-y: auto; padding-right: 5px;"></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary"
-                    onclick="document.getElementById('connectionsModal').classList.remove('active')">Close</button>
+                    onclick="closeModal('connectionsModal')">
+                </button>
             </div>
         </div>
     </div>
@@ -3225,7 +3226,7 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary"
-                        onclick="document.getElementById('createPostModal').classList.remove('active')">Cancel</button>
+                        onclick="closeModal('createPostModal')"
                     <button type="submit" class="btn btn-primary" id="submitPostBtn">Post</button>
                 </div>
             </form>
@@ -3271,7 +3272,7 @@
                 </div>
                 <div class="modal-footer" style="justify-content: space-between;">
                     <button type="button" class="btn btn-secondary"
-                        onclick="document.getElementById('postDetailModal').classList.remove('active')">Close</button>
+                        onclick="closeModal('postDetailModal')">Close</button>
                     <button type="submit" class="btn btn-primary">Comment</button>
                 </div>
             </form>
@@ -3370,7 +3371,7 @@
 
             <div class="modal-footer">
                 <button class="btn btn-secondary"
-                    onclick="document.getElementById('adminPanelModal').classList.remove('active')">Close Panel</button>
+                    onclick="closeModal('adminPanelModal')">Close Panel</button>
             </div>
         </div>
     </div>
@@ -5422,7 +5423,7 @@
                 header.style.alignItems = "center";
                 header.innerHTML = `
                     <span>Sort & Filter</span>
-                    <span class="close-modal-btn" onclick="document.getElementById('sortFilterModal').classList.remove('active')" style="font-size:24px; cursor:pointer; padding:0 10px;">&times;</span>
+                    <span class="close-modal-btn" onclick="closeModal('sortFilterModal')"style="font-size:24px; cursor:pointer; padding:0 10px;">&times;</span>
                 `;
             }
             // ------------------------
@@ -5431,9 +5432,13 @@
             renderFilterTags();
             updateFilterUI();
         }
-        window.closeModal = function (modalId) {
-            document.getElementById(modalId).classList.remove('active');
-            unlockScroll(); // <--- RESTORES SCROLLING
+        // --- GLOBAL MODAL CLOSER (FIXES SCROLL LOCK) ---
+        window.closeModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+            }
+            unlockScroll(); // <--- CRITICAL: Unlocks the body
         };
         // --- SYNC PROFILE CHANGES TO OLD POSTS ---
         async function syncUserProfileToContent() {
@@ -5676,6 +5681,7 @@
                 // Cleanup
                 const modal = document.getElementById('createPostModal');
                 if (modal) modal.classList.remove('active');
+                closeModal('createPostModal');
                 if (titleEl) titleEl.value = "";
                 if (bodyEl) bodyEl.value = "";
                 if (window.removePostImage) window.removePostImage();
@@ -6760,11 +6766,11 @@
     ">${label}</span>`;
         }
         // --- CLOSE MODALS ON OUTSIDE CLICK ---
+        // --- CLOSE MODALS ON OUTSIDE CLICK ---
         window.addEventListener('mousedown', function (e) {
-            // Checks if the element clicked is the dark overlay (class 'modal')
-            // and NOT the white box inside it.
             if (e.target.classList.contains('modal')) {
                 e.target.classList.remove('active');
+                unlockScroll(); // <--- Ensure this line exists!
             }
         });
     </script>
