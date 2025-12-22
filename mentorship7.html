@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -998,6 +999,39 @@
                 transform: scale(1);
             }
         }
+        /* --- HIDE SCROLLBARS FOR CHATS --- */
+
+/* Targets the main message window */
+#messagesContainer {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;     /* Firefox */
+}
+
+#messagesContainer::-webkit-scrollbar {
+    display: none;             /* Chrome, Safari and Opera */
+}
+
+/* Targets the list of active conversations on the left */
+#activeChatsList {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+#activeChatsList::-webkit-scrollbar {
+    display: none;
+}
+
+/* Optional: If you want to hide it globally for the whole app */
+ .auth-scroll-container, .modal-content, #chatMainWrapper {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.auth-scroll-container::-webkit-scrollbar, 
+.modal-content::-webkit-scrollbar, 
+#chatMainWrapper::-webkit-scrollbar {
+    display: none;
+}
+
 
         /* --- POLL OPTION STYLES --- */
         .poll-option-btn {
@@ -1555,6 +1589,18 @@
             /* Sweeps across on hover */
             transition: 0.7s ease-in-out;
         }
+        /* --- SEEN / READ RECEIPT --- */
+.seen-label {
+    font-size: 10px;
+    color: var(--text-secondary);
+    text-align: right;
+    margin-top: 2px;
+    margin-right: 5px;
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+    width: 100%;
+    display: block;
+}
 
         /* --- MOBILE OPTIMIZATION --- */
         @media (max-width: 600px) {
@@ -1729,6 +1775,7 @@
             transition: all 0.3s ease;
         }
 
+        /* Responsive Fix: On mobile, stick to top fully */
         @media (max-width: 600px) {
     .navbar {
         /* 1. Position: Fixed & Floating */
@@ -3285,95 +3332,62 @@
             filter: none !important;
         }
 
-        /* --- PRESTIGE GOAT ANIMATION v2 --- */
+        /* --- GOAT BADGE (PREMIUM REWARD) --- */
+        .goat-badge-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #FFD700, #FDB931, #ffd700);
+            /* Gold Gradient */
+            background-size: 200% auto;
+            color: #000;
+            font-weight: 800;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+            animation: goldShine 3s linear infinite;
+            margin-bottom: 8px;
+            border: 1px solid #fff;
+        }
 
-/* 1. The Badge (Hidden by default, pops in when Goated) */
-.goat-badge-container {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: linear-gradient(135deg, #FFD700, #FDB931, #ffd700);
-    background-size: 200% auto;
-    color: #000;
-    font-weight: 800;
-    font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border: 1px solid #fff;
-    margin-bottom: 8px;
-    
-    /* Hiding State */
-    opacity: 0;
-    transform: translateY(10px) scale(0.9);
-    height: 0;
-    overflow: hidden;
-    margin-top: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    border: none;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
+        /* The Shining Animation */
+        @keyframes goldShine {
+            to {
+                background-position: 200% center;
+            }
+        }
 
-/* 2. When Goated: Reveal Badge */
-.comment-card.is-goated .goat-badge-container {
-    color: #000000 !important;
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    height: auto; /* Let it grow */
-    padding: 6px 14px; /* Restore padding */
-    margin-bottom: 8px;
-    border: 1px solid #fff;
-    animation: goldShine 3s linear infinite; /* Shine effect */
-}
+        /* Sparkle/Pulse Effect on the Icon */
+        .goat-icon-svg {
+            width: 14px;
+            height: 14px;
+            animation: goatPulse 2s ease-in-out infinite alternate;
+        }
 
-/* 3. The Spinning Gold Border */
-.comment-card.is-goated {
-    border-color: transparent !important;
-    background-clip: padding-box; /* Important for the border trick */
-    box-shadow: 0 0 15px rgba(200, 170, 0, 0.3); /* Ambient Glow */
-}
+        @keyframes goatPulse {
+            0% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+            }
 
-.comment-card.is-goated::before {
-    content: '';
-    position: absolute;
-    top: 0; 
-    right: 0; 
-    bottom: 0; 
-    left: 0;
-    z-index: -1;
-    margin: -2px; /* Thickness of border */
-    border-radius: inherit; /* Match card radius */
-    
-    /* The Moving Gradient */
-    background: #caac02;
-    background-size: 400% 400%;
-    animation: borderRotate 3s ease infinite;
-}
+            100% {
+                transform: scale(1.15);
+                filter: drop-shadow(0 0 2px white);
+            }
+        }
 
-/* 4. Fix Z-Index so content sits on top of the border background */
-.comment-card {
-    background: var(--bg-card); /* Ensure background is opaque */
-    z-index: 1; 
-}
-
-@keyframes borderRotate {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-@keyframes goldShine {
-    to { background-position: 200% center; }
-}
-.comment-card.is-goated, 
-.comment-card.is-goated p, 
-.comment-card.is-goated div, 
-.comment-card.is-goated strong, 
-.comment-card.is-goated span {
-    color: #000000 !important;
-}
+        /* Highlight the whole comment card */
+        .comment-card.is-goated {
+            border: 1px solid #FFD700 !important;
+            background: linear-gradient(to bottom, rgba(255, 215, 0, 0.05), transparent) !important;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.15) !important;
+            order: -1;
+            /* FLEX TRICK: Forces it to the top automatically */
+        }
+        
     </style>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
@@ -5080,7 +5094,7 @@
                     transaction.update(postRef, { goatedCommentId: commentId });
                 }
             }).then(() => {
-                showToast("GOAT Status Updated!");
+                showToast("GOAT Status Updated! 🐐");
                 // Reload comments to see the change
                 loadComments(postId);
             }).catch(error => {
@@ -6813,71 +6827,71 @@
 
         // --- RECURSIVE THREAD RENDERER ---
         function renderThreadedComments(comments, container, postData) {
-            container.innerHTML = '';
+    container.innerHTML = '';
 
-            // 1. Organize into Parent/Child Map
-            const commentMap = {};
-            const roots = [];
+    const commentMap = {};
+    const roots = [];
 
-            comments.forEach(c => {
-                commentMap[c.id] = c;
-                c.children = []; // Init children array
-            });
+    comments.forEach(c => {
+        commentMap[c.id] = c;
+        c.children = [];
+    });
 
-            comments.forEach(c => {
-                if (c.parentId && commentMap[c.parentId]) {
-                    commentMap[c.parentId].children.push(c);
-                } else {
-                    roots.push(c);
-                }
-            });
+    comments.forEach(c => {
+        if (c.parentId && commentMap[c.parentId]) {
+            commentMap[c.parentId].children.push(c);
+        } else {
+            roots.push(c);
+        }
+    });
 
-            // 2. SORT: Move GOATed comment to the very top (Pinning)
-            roots.sort((a, b) => {
-                if (a.id === postData.goatedCommentId) return -1; // Move GOAT up
-                if (b.id === postData.goatedCommentId) return 1;
-                return 0; // Keep timestamp order for others
-            });
+    roots.sort((a, b) => {
+        if (a.id === postData.goatedCommentId) return -1;
+        if (b.id === postData.goatedCommentId) return 1;
+        return 0;
+    });
 
-            // 3. Recursive Render Function
-            function createCommentNode(comment, level = 0) {
-                const isGoated = (comment.id === postData.goatedCommentId);
-                const isPostAuthor = (currentUser && currentUser.uid === postData.authorId);
-                const isMentor = (comment.authorRole && comment.authorRole !== 'Student');
+    function createCommentNode(comment, level = 0) {
+        const isGoated = (comment.id === postData.goatedCommentId);
+        const isPostAuthor = (currentUser && currentUser.uid === postData.authorId);
+        
+        // Strict Mentor Check
+        const role = (comment.authorRole || "").toLowerCase();
+        const isMentor = role === 'mentor';
 
-                const wrapper = document.createElement('div');
-                // Add left margin for nesting
-                wrapper.style.marginLeft = level > 0 ? (level * 20) + 'px' : '0';
-                if (level > 0) wrapper.style.borderLeft = "2px solid var(--border-color)";
+        const wrapper = document.createElement('div');
+        wrapper.style.marginLeft = level > 0 ? (level * 20) + 'px' : '0';
+        if (level > 0) wrapper.style.borderLeft = "2px solid var(--border-color)";
 
-                // --- BADGE HTML ---
-                let badgeHTML = '';
-                if (isGoated) {
-                    badgeHTML = `
+        // Badge
+        let badgeHTML = '';
+        if (isGoated) {
+            badgeHTML = `
             <div class="goat-badge-container">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="goat-icon-svg">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="goat-icon-svg" style="width:14px; height:14px;">
                     <path d="M12,2L14.5,8H19.5L15.5,11L17,16.5L12,13.5L7,16.5L8.5,11L4.5,8H9.5L12,2Z"/> 
                 </svg>
-                <span>GOATed Answer</span>
+                <span>GOATED ANSWER</span>
             </div>`;
-                }
+        }
 
-                // --- GOAT BUTTON (Only for Post Author on Mentor comments) ---
-                let goatBtn = '';
-                if (isPostAuthor && isMentor && level === 0) { // Usually only top-level answers get GOATed
-                    goatBtn = `
-            <button onclick="toggleGoatStatus('${postData.id}', '${comment.id}')" 
+        // Goat Button
+        let goatBtn = '';
+        if (isPostAuthor && isMentor && level === 0) {
+            goatBtn = `
+            <button onclick="toggleGoatStatus('${postData.id}', '${comment.id}', '${role}')" 
                 class="btn btn-sm" 
                 style="margin-left:auto; font-size:10px; border:1px solid #FFD700; color:#FFD700; background:transparent;">
                 ${isGoated ? 'Remove GOAT' : '🏆 Mark GOAT'}
             </button>`;
-                }
+        }
 
-                wrapper.innerHTML = `
-            <div class="card comment-card ${isGoated ? 'is-goated' : ''}" style="margin-bottom:10px; padding:12px; position:relative;">
+        // HTML Structure
+        wrapper.innerHTML = `
+            <div id="card-${comment.id}" class="card comment-card ${isGoated ? 'is-goated' : ''}" style="margin-bottom:10px; padding:12px; position:relative;">
                 ${badgeHTML}
                 <div style="display:flex; gap:10px; align-items:start;">
-                    <img src="${comment.authorPic || 'default_avatar.png'}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
+                    <img src="${comment.authorPic || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
                     <div style="width:100%;">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <div>
@@ -6888,50 +6902,65 @@
                         </div>
                         <p style="margin:4px 0; font-size:14px; line-height:1.4;">${comment.text}</p>
                         
-                        <div style="display:flex; gap:10px; margin-top:5px;">
-                            <button onclick="openReplyBox('${postData.id}', '${comment.id}')" style="background:none; border:none; color:var(--text-secondary); font-size:11px; cursor:pointer;">Reply</button>
+                        <div style="display:flex; gap:12px; align-items:center; margin-top:5px;">
+                            
+                            <button class="btn btn-secondary" style="padding:2px 8px; font-size:11px; height:auto; min-height:0;" 
+                                onclick="handleCommentUpvote(event, '${postData.id}', '${comment.id}')">
+                                ↑ ${comment.upvotes || 0}
+                            </button>
+                            
+                            <span style="font-size:11px; color:#aaa; cursor:pointer; font-weight:600;" 
+                                onclick="openReplyBox('${postData.id}', '${comment.id}')">Reply</span>
+
+                            ${(currentUser && comment.authorId === currentUser.uid) ? `<span style="font-size:11px; color:#ff453a; cursor:pointer;" onclick="deleteComment('${postData.id}', '${comment.id}')">Delete</span>` : ''}
+                            
+                            ${comment.children.length > 0 ? `<span style="font-size:11px; color:var(--primary-color); cursor:pointer; margin-left:10px;" onclick="toggleChildren('${comment.id}')">▼ View Replies (${comment.children.length})</span>` : ''}
                         </div>
+
+                        <div id="reply-box-${comment.id}" class="reply-input-container"></div>
                     </div>
                 </div>
             </div>
-            <div id="reply-box-${comment.id}"></div>
+            <div id="children-${comment.id}" class="comment-children"></div>
         `;
 
-                container.appendChild(wrapper);
+        container.appendChild(wrapper);
 
-                // Render Children recursively
-                if (comment.children.length > 0) {
-                    comment.children.forEach(child => createCommentNode(child, level + 1));
-                }
-            }
-
-            // Run the renderer
-            roots.forEach(root => createCommentNode(root));
+        // Recursion
+        if (comment.children.length > 0) {
+            const childContainer = wrapper.querySelector(`#children-${comment.id}`);
+            comment.children.forEach(child => createCommentNode(child, level + 1));
         }
+    }
+
+    roots.forEach(root => createCommentNode(root));
+}
         /* --- REPLY LOGIC --- */
 
         // 1. Open/Close the Reply Input Box
         function openReplyBox(postId, commentId) {
-            const container = document.getElementById(`reply-box-${commentId}`);
-            if (!container) return;
+    const container = document.getElementById(`reply-box-${commentId}`);
+    if (!container) return;
 
-            // Toggle: If open, close it
-            if (container.innerHTML !== '') {
-                container.innerHTML = '';
-                return;
-            }
+    // CHECK VISIBILITY STATE
+    // If it has content/is visible, close it.
+    if (container.style.display === 'block' && container.innerHTML !== '') {
+        container.style.display = 'none';
+        container.innerHTML = ''; // Clear content
+        return;
+    }
 
-            // Render the Input Field
-            container.innerHTML = `
-        <div style="margin-top: 10px; margin-left: 20px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border-color);">
+    // OPEN IT
+    container.style.display = 'block'; // <--- THIS WAS MISSING
+    container.innerHTML = `
+        <div style="margin-top: 10px; margin-left: 20px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid var(--border-color);">
             <textarea id="reply-input-${commentId}" 
                       placeholder="Write a reply..." 
                       rows="2" 
-                      class="form-control" 
                       style="width:100%; resize:none; margin-bottom:10px; font-size:14px; background: transparent; color: var(--text-main); border: none; outline: none;"></textarea>
             
             <div style="display:flex; justify-content:flex-end; gap:10px;">
-                <button onclick="document.getElementById('reply-box-${commentId}').innerHTML=''" 
+                <button onclick="openReplyBox('${postId}', '${commentId}')" 
                         class="btn btn-secondary btn-sm" 
                         style="font-size: 11px; padding: 4px 10px;">Cancel</button>
                 <button onclick="submitReply('${postId}', '${commentId}')" 
@@ -6941,9 +6970,12 @@
         </div>
     `;
 
-            // Auto-focus the input
-            setTimeout(() => document.getElementById(`reply-input-${commentId}`).focus(), 100);
-        }
+    // Auto-focus
+    setTimeout(() => {
+        const input = document.getElementById(`reply-input-${commentId}`);
+        if(input) input.focus();
+    }, 50);
+}
 
         // 2. Submit the Reply to Firestore
         function submitReply(postId, parentId) {
@@ -7233,6 +7265,20 @@
             // Refresh Stats
             if (typeof updateProfileStats === 'function') updateProfileStats();
         }
+        /* --- MARK CHAT AS READ --- */
+function markChatAsRead(chatId) {
+    if (!currentUser) return;
+    
+    // Update the 'lastRead' map in the chat document
+    // We use merge: true logic via update
+    const updateData = {};
+    updateData[`lastRead.${currentUser.uid}`] = firebase.firestore.FieldValue.serverTimestamp();
+    
+    db.collection('chats').doc(chatId).update(updateData).catch(err => {
+        // If doc doesn't exist or other error (ignore silently)
+        console.log("Read receipt update skipped"); 
+    });
+}
         // --- MISSING FUNCTION FIX ---
         function updateProfileStats() {
             if (!currentUser) return;
@@ -7406,124 +7452,140 @@
 
         // 3. The Chat Function
         // --- 4. OPEN CHAT (With "Last Active" Header) ---
-        function openInlineChat(chatId, otherUserId, name) {
-            if (window.innerWidth <= 600) {
-                lockScroll();
-            }
-            if (msgUnsub) msgUnsub();
+        // --- GLOBAL VARS (Add this at the top with others) ---
+let chatMetaUnsub; 
 
-            document.getElementById('selectedChatId').value = chatId;
+/* --- OPEN CHAT (With Real-Time Seen Status) --- */
+function openInlineChat(chatId, otherUserId, name) {
+    if (window.innerWidth <= 600) lockScroll();
+    
+    // 1. Cleanup old listeners
+    if (msgUnsub) msgUnsub();
+    if (chatMetaUnsub) chatMetaUnsub();
 
-            // Trigger Mobile View
-            document.getElementById('chats').classList.add('mobile-chat-open');
-            if (window.innerWidth <= 600) {
-                document.querySelector('.tabs').style.display = 'none';
-            }
+    document.getElementById('selectedChatId').value = chatId;
 
-            // --- HEADER UPDATE START ---
-            const headerInfo = document.getElementById('chatHeaderInfo');
+    // 2. UI Setup
+    document.getElementById('chats').classList.add('mobile-chat-open');
+    if (window.innerWidth <= 600) document.querySelector('.tabs').style.display = 'none';
 
-            // 1. Set Initial Header with Placeholder (Initials)
-            // This ensures something shows up immediately while the real image loads
-            headerInfo.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <div id="headerAvatarStub" style="width: 38px; height: 38px; min-width: 38px; border-radius: 50%; background: #333; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; border: 1px solid var(--glass-border);">
-                        ${name.charAt(0).toUpperCase()}
-                    </div>
-                    <div style="line-height: 1.3;">
-                        <div style="font-size: 16px; font-weight: 700; color: var(--text-main);">${name}</div>
-                        <div id="headerStatus" style="font-size: 12px; color: var(--text-secondary);">Connecting...</div>
-                    </div>
-                </div>`;
-            // --- HEADER UPDATE END ---
+    // Header Setup
+    const headerInfo = document.getElementById('chatHeaderInfo');
+    const initial = name.charAt(0).toUpperCase();
+    
+    // Fetch profile for header image
+    db.collection('users').doc(otherUserId).get().then(doc => {
+        let picHtml = `<div style="width:38px; height:38px; border-radius:50%; background:#333; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:bold;">${initial}</div>`;
+        let statusText = "Connecting...";
+        let statusColor = "var(--text-secondary)";
 
-            document.getElementById('sendMessageForm').classList.remove('hidden');
-            const cont = document.getElementById('messagesContainer');
-            cont.innerHTML = '<p style="text-align:center; color:var(--text-secondary); margin-top:20px;">Loading...</p>';
-
-            // 1. Fetch User Data (Pic & Status)
-            let otherUserPic = "";
-            let otherUserInitial = name.charAt(0).toUpperCase();
-
-            db.collection('users').doc(otherUserId).get().then(doc => {
-                if (doc.exists) {
-                    const u = doc.data();
-                    otherUserPic = u.profilePic || "";
-
-                    // --- NEW: Update Header Avatar if image exists ---
-                    if (otherUserPic) {
-                        const stub = document.getElementById('headerAvatarStub');
-                        if (stub) {
-                            // Replace the placeholder div with an IMG tag
-                            stub.outerHTML = `<img src="${otherUserPic}" style="width: 38px; height: 38px; min-width: 38px; border-radius: 50%; object-fit: cover; border: 1px solid var(--glass-border);" loading="lazy">`;
-                        }
-                    }
-
-                    // Update Status Text
-                    const statusText = formatLastActive(u.lastSeen);
-                    const statusColor = statusText === 'Active now' ? '#30D158' : 'var(--text-secondary)';
-                    const statusEl = document.getElementById('headerStatus');
-                    if (statusEl) {
-                        statusEl.innerText = statusText;
-                        statusEl.style.color = statusColor;
-                    }
-                }
-
-                // 2. Start Message Listener
-                msgUnsub = db.collection('chats').doc(chatId).collection('messages')
-                    .orderBy('timestamp', 'asc')
-                    .onSnapshot(snap => {
-                        if (snap.empty) {
-                            cont.innerHTML = '<p style="text-align:center; color:var(--text-secondary); margin-top:20px;">Say hello! 👋</p>';
-                            return;
-                        }
-
-                        let html = '';
-                        snap.forEach(doc => {
-                            const m = doc.data();
-                            if (!currentUser) return;
-                            const me = m.senderId === currentUser.uid;
-
-                            // Content Logic
-                            let content = '';
-                            if (m.imageUrl) {
-                                if (m.mediaType === 'video') content = `<video src="${m.imageUrl}" controls class="chat-image" onclick="event.stopPropagation()"></video>`;
-                                else content = `<img src="${m.imageUrl}" class="chat-image" onclick="event.stopPropagation(); openLightbox(this.src)">`;
-                            } else {
-                                content = `<span>${m.text}</span>`;
-                            }
-
-                            // Avatar Logic (For Bubble Rows)
-                            let avatarHtml = '';
-                            if (!me) {
-                                if (otherUserPic) {
-                                    avatarHtml = `<img src="${otherUserPic}" class="chat-msg-avatar" loading="lazy">`;
-                                } else {
-                                    avatarHtml = `<div class="chat-msg-placeholder">${otherUserInitial}</div>`;
-                                }
-                            }
-
-                            let events = me ? `
-                                oncontextmenu="showContextMenu(event, 'message', '${chatId}', '${doc.id}')"
-                                ontouchstart="startLongPress(event, 'message', '${chatId}', '${doc.id}')"
-                                ontouchend="cancelLongPress()"
-                                ontouchmove="cancelLongPress()"
-                            ` : '';
-
-                            html += `
-                            <div class="chat-message-row ${me ? 'me' : 'them'}">
-                                ${avatarHtml}
-                                <div class="msg-bubble ${me ? 'msg-me' : 'msg-them'}" ${events} style="user-select: none;">
-                                    ${content}
-                                </div>
-                            </div>`;
-                        });
-
-                        cont.innerHTML = html;
-                        cont.scrollTop = cont.scrollHeight;
-                    });
-            });
+        if (doc.exists) {
+            const u = doc.data();
+            if (u.profilePic) picHtml = `<img src="${u.profilePic}" style="width:38px; height:38px; border-radius:50%; object-fit:cover;">`;
+            statusText = formatLastActive(u.lastSeen);
+            if (statusText === 'Active now') statusColor = '#30D158';
         }
+
+        headerInfo.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 12px;">
+                ${picHtml}
+                <div style="line-height: 1.3;">
+                    <div style="font-size: 16px; font-weight: 700; color: var(--text-main);">${name}</div>
+                    <div style="font-size: 12px; color: ${statusColor};">${statusText}</div>
+                </div>
+            </div>`;
+    });
+
+    document.getElementById('sendMessageForm').classList.remove('hidden');
+    const cont = document.getElementById('messagesContainer');
+    cont.innerHTML = ''; // Clear immediately
+
+    // 3. Mark as Read immediately
+    markChatAsRead(chatId);
+
+    // 4. MESSAGE LISTENER
+    let allMessages = [];
+    
+    msgUnsub = db.collection('chats').doc(chatId).collection('messages')
+        .orderBy('timestamp', 'asc')
+        .onSnapshot(snap => {
+            // Keep marking read as new messages arrive while open
+            if (!snap.empty) markChatAsRead(chatId);
+
+            allMessages = snap.docs.map(d => ({...d.data(), id: d.id}));
+            renderMessages(allMessages, cont, chatId);
+            cont.scrollTop = cont.scrollHeight;
+        });
+
+    // 5. METADATA LISTENER (Watches for "Seen" updates)
+    chatMetaUnsub = db.collection('chats').doc(chatId).onSnapshot(doc => {
+        if (!doc.exists) return;
+        const data = doc.data();
+        
+        // Check if other user has read messages
+        // 'lastRead' is a map: { userId: timestamp }
+        if (data.lastRead && data.lastRead[otherUserId]) {
+            updateSeenStatus(allMessages, data.lastRead[otherUserId], cont);
+        }
+    });
+}
+
+// --- HELPER: Render Messages ---
+function renderMessages(messages, container, chatId) {
+    let html = '';
+    messages.forEach(m => {
+        const me = m.senderId === currentUser.uid;
+        let content = m.imageUrl 
+            ? (m.mediaType === 'video' ? `<video src="${m.imageUrl}" controls class="chat-image"></video>` : `<img src="${m.imageUrl}" class="chat-image" onclick="openLightbox(this.src)">`)
+            : `<span>${m.text}</span>`;
+
+        // We add an ID to the last message sent by ME to inject the "Seen" label later
+        const msgIdAttr = `id="msg-${m.id}"`;
+
+        let events = me ? `oncontextmenu="showContextMenu(event, 'message', '${chatId}', '${m.id}')"` : '';
+
+        html += `
+        <div class="chat-message-row ${me ? 'me' : 'them'}" ${msgIdAttr}>
+            <div class="msg-bubble ${me ? 'msg-me' : 'msg-them'}" ${events}>
+                ${content}
+            </div>
+        </div>
+        <div id="seen-${m.id}" class="seen-placeholder" style="width:100%; display:none;"></div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+// --- HELPER: Update Seen Status Dynamically ---
+function updateSeenStatus(messages, otherUserReadTime, container) {
+    // 1. Clear all existing "Seen" labels
+    container.querySelectorAll('.seen-label').forEach(el => el.remove());
+
+    // 2. Find the LAST message sent by ME
+    const myMessages = messages.filter(m => m.senderId === currentUser.uid);
+    if (myMessages.length === 0) return;
+
+    const lastMyMsg = myMessages[myMessages.length - 1];
+    
+    // 3. Compare Timestamps
+    // Ensure both are valid Firestore timestamps or Dates
+    const msgTime = lastMyMsg.timestamp ? lastMyMsg.timestamp.toDate() : new Date();
+    const readTime = otherUserReadTime ? otherUserReadTime.toDate() : new Date(0); // Default to old if null
+
+    if (readTime >= msgTime) {
+        // 4. Inject "Seen" Label
+        const msgRow = document.getElementById(`msg-${lastMyMsg.id}`);
+        if (msgRow) {
+            // Check if label already exists to prevent dupes
+            if (!msgRow.nextElementSibling || !msgRow.nextElementSibling.classList.contains('seen-label')) {
+                const label = document.createElement('div');
+                label.className = 'seen-label';
+                label.innerText = 'Seen';
+                msgRow.after(label); // Insert after the message row
+            }
+        }
+    }
+}
         function closeChatView() {
             unlockScroll();
             document.getElementById('chats').classList.remove('mobile-chat-open');
