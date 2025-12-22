@@ -1,0 +1,686 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>VidyaGenie</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- DYNAMIC POLL INPUTS --- */
+        .poll-input-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .poll-input-row input {
+            flex: 1;
+            /* Input takes available space */
+            margin-bottom: 0 !important;
+            /* Reset default margin */
+        }
+
+        .btn-remove-opt {
+            background: rgba(255, 69, 58, 0.2);
+            color: #ff453a;
+            border: 1px solid #ff453a;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .btn-remove-opt:hover {
+            background: #ff453a;
+            color: white;
+        }
+
+        /* Ensure SVGs inside circles/buttons are centered and match theme */
+        .requests-icon-style svg,
+        .sort-btn-style svg {
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .sort-btn-style:hover svg {
+            transform: rotate(90deg) scale(1.1);
+            /* Subtle professional interaction */
+        }
+
+        .requests-icon-style:hover svg {
+            stroke: var(--text-main);
+        }
+
+        /* --- CHAT LAYOUT SYSTEM --- */
+        #chatMainWrapper {
+            display: flex;
+            gap: 20px;
+            height: 75vh;
+            /* Desktop Height */
+        }
+
+        #activeChatsList {
+            flex: 0 0 300px;
+            /* Fixed width on desktop */
+            overflow-y: auto;
+            border-right: 1px solid var(--border-color);
+        }
+
+        #messageView {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .chat-back-btn {
+            display: none;
+            /* Hidden on Desktop */
+            margin-right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+
+        /* --- MOBILE CHAT (Immersive Full Screen) --- */
+        @media (max-width: 600px) {
+
+            /* 1. Master List (Active Conversations) */
+            #chatMainWrapper {
+                display: block !important;
+                height: calc(100vh - 140px);
+                /* Normal height for the list */
+            }
+
+            #activeChatsList {
+                width: 100% !important;
+                height: 100% !important;
+                display: block !important;
+                border: none;
+            }
+
+            /* 2. Detail View (The Chat Room) - HIDDEN BY DEFAULT */
+            #messageView {
+                display: none !important;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100dvh;
+                /* Dynamic Height for mobile browsers */
+                background: #000;
+                /* Pure black background like IG */
+                z-index: 2000;
+                /* Sit ON TOP of bottom tabs */
+                border: none;
+                border-radius: 0;
+                flex-direction: column;
+            }
+
+            /* 3. WHEN CHAT IS OPEN (The "Instagram" State) */
+            #chats.mobile-chat-open #messageView {
+                display: flex !important;
+            }
+
+            /* Fix Header for Full Screen */
+            #chats.mobile-chat-open #chatHeader {
+                padding-top: 45px;
+                /* Space for Status Bar/Notch */
+                background: rgba(20, 20, 20, 0.98);
+                /* Slightly darker header */
+            }
+
+            /* Fix Message Container Size */
+            #chats.mobile-chat-open #messagesContainer {
+                flex: 1;
+                /* Grow to fill space */
+                background: #000;
+            }
+
+            /* Fix Input Area at Bottom */
+            #chats.mobile-chat-open #sendMessageForm {
+                padding-bottom: 20px;
+                /* Space for Home Indicator */
+                background: #111;
+            }
+
+            /* Show Back Button */
+            .chat-back-btn {
+                display: block !important;
+                padding: 10px;
+                margin-left: -10px;
+                /* Align to edge */
+            }
+        }
+
+        /* --- OTP INPUT STYLE --- */
+        #fpOtpInput {
+            font-family: monospace;
+            font-size: 24px !important;
+            letter-spacing: 8px;
+            color: var(--primary-color);
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--primary-color);
+        }
+
+        .profile-pic-wrapper-new {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 25px;
+            border-radius: 50%;
+            border: 4px solid var(--primary-color);
+            background: var(--bg-input);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-pic-large-new {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-initial-large-new {
+            font-size: 60px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+
+        /* The Preview Box on the Main Feed */
+        .top-comment-preview {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid var(--primary-color);
+            padding: 10px 15px;
+            margin-top: 10px;
+            border-radius: 0 8px 8px 0;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .top-comment-preview:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Thread Container */
+        .comment-thread-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        /* The Visual Thread Line (Reddit Style) */
+        .comment-thread-line {
+            position: absolute;
+            left: 20px;
+            /* Aligned with avatar center */
+            top: 45px;
+            bottom: 0;
+            width: 2px;
+            background: #333;
+            z-index: 0;
+        }
+
+        .comment-thread-line:hover {
+            background: var(--primary-color);
+            /* Highlight path on hover */
+        }
+
+        /* Indentation for Child Comments */
+        .comment-children {
+            margin-left: 35px;
+            /* Push children to the right */
+            /* border-left: 2px solid #333; Optional extra guide */
+            padding-left: 10px;
+            display: none;
+            /* Hidden by default (Dropdown style) */
+        }
+
+        .comment-children.open {
+            display: block;
+            animation: slideDown 0.2s ease-out;
+        }
+
+        /* Reply Input Box */
+        .reply-input-container {
+            margin-left: 40px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* --- POST OPTIONS MENU (3 DOTS) --- */
+        .post-options-wrapper {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 5;
+        }
+
+        .three-dots-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 20px;
+            font-weight: bold;
+            transition: background 0.2s;
+            user-select: none;
+        }
+
+        .three-dots-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .options-menu {
+            position: absolute;
+            right: 0;
+            top: 35px;
+            width: 140px;
+            background: #2a2a2a;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: none;
+            /* Hidden by default */
+            transform-origin: top right;
+        }
+
+        .options-menu.active {
+            display: block;
+            animation: menuPop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes menuPop {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .menu-item {
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .menu-item.danger {
+            color: #ff453a;
+            /* System Red */
+        }
+
+        .menu-item.danger:hover {
+            background: rgba(255, 69, 58, 0.15);
+        }
+
+        /* --- NEW POST AVATAR STYLE --- */
+        .post-avatar-small {
+            width: 80px;
+            height: 80px;
+            min-width: 80px;
+            /* Prevent squishing */
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+        }
+
+        /* --- PRETTY CHECKBOX (TOGGLE SWITCH) --- */
+        .anon-toggle-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #3a3a3c;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #BF5AF2;
+            /* Purple for Incognito */
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(22px);
+        }
+
+        /* --- TOAST NOTIFICATION (Custom Alert) --- */
+        /* --- TOAST NOTIFICATION (Custom Alert) --- */
+        #customToast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #1a1a1c;
+            color: #fff;
+            text-align: center;
+            border-radius: 50px;
+            padding: 16px;
+            position: fixed;
+            z-index: 10005;
+            left: 50%;
+            /* CHANGE: Move to top */
+            top: 30px;
+            bottom: auto;
+            transform: translateX(-50%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            opacity: 0;
+            /* CHANGE: Animate 'top' instead of 'bottom' */
+            transition: opacity 0.3s, top 0.3s;
+        }
+
+        #customToast.show {
+            visibility: visible;
+            opacity: 1;
+            /* CHANGE: Slide down slightly */
+            top: 50px;
+        }
+
+        /* --- ANONYMOUS SPECIFIC --- */
+        .anon-hidden {
+            display: none !important;
+        }
+
+        .profile-pic-anon {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: #333;
+            color: #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            font-weight: bold;
+            border: 4px dashed #666;
+            margin: 0 auto 25px;
+            box-shadow: none;
+        }
+
+        /* --- CONSISTENT SORT BUTTON STYLES --- */
+        .sort-btn-style {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 56px;
+            width: 56px;
+            min-width: 56px;
+            border-radius: 28px;
+            background-color: #BF5AF2;
+            /* Purple */
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(191, 90, 242, 0.4);
+            border: none;
+            overflow: hidden;
+            white-space: nowrap;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 0;
+            /* FIX: Force font inheritance from body */
+            font-family: inherit;
+        }
+
+        .sort-btn-style:hover {
+            width: 160px;
+            /* Adjusted width for "Sort / Filter" text */
+            background-color: white;
+            color: #BF5AF2;
+            padding-left: 5px;
+            padding-right: 20px;
+            transform: scale(1.05);
+        }
+
+        .sort-btn-text {
+            max-width: 0;
+            opacity: 0;
+            font-size: 15px;
+            font-weight: 700;
+            /* Bold to match Create Post */
+            margin-left: 0;
+            transition: all 0.5s ease;
+            transform: translateX(20px);
+            /* FIX: Ensure text is perfectly centered vertically */
+            line-height: 1;
+            display: inline-block;
+        }
+
+        .sort-btn-style:hover .sort-btn-text {
+            max-width: 120px;
+            opacity: 1;
+            margin-left: 10px;
+            transform: translateX(0);
+        }
+
+        /* --- ADD THIS NEW BLOCK --- */
+        .anon-exit-override:hover {
+            width: 260px !important;
+            /* Wider to fit "Exit Anonymous mode" */
+            background-color: #333 !important;
+            /* Dark grey background on hover */
+            color: white !important;
+            /* Force text to be White */
+        }
+
+        /* --- FILTER MODAL PILLS --- */
+        .filter-section-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin: 15px 0 8px 0;
+        }
+
+        .filter-pill {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            margin: 0 8px 8px 0;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        /* Fix alignment for icons inside existing pills */
+        .filter-pill {
+            display: inline-flex !important;
+            /* Force flex to align icon+text */
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            /* Space between icon and text */
+        }
+
+        /* Standardize icon size */
+        .filter-pill svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+            /* Matches text color (white or grey) */
+            transition: transform 0.2s;
+        }
+
+        /* Subtle pop on hover */
+        .filter-pill:hover svg {
+            transform: scale(1.1);
+        }
+
+        .filter-pill:hover {
+            background: #333;
+        }
+
+        .filter-pill.active {
+            border-color: var(--primary-color);
+            background: rgba(10, 132, 255, 0.15);
+            color: white;
+        }
+
+        /* Z-Index for the Tag Modal to sit above the Post Modal */
+        #tagSelectionModal {
+            z-index: 10001 !important;
+            background: rgba(0, 0, 0, 0.8);
+            /* Slightly darker backdrop */
+        }
+
+        /* --- TAG SELECTION MENU STYLES --- */
+        #tagSelectionModal .modal-content {
+            background: #1a1a1c;
+            color: white;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #tagListArea {
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        /* Individual Tag Row */
+        .tag-menu-item {
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #2a2a2a;
+            /* Visible Grey Background */
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .tag-menu-item:hover {
+            background: #333;
+            transform: translateX(5px);
+        }
+
+        /* Selected State */
+        .tag-menu-item.selected {
+            background: rgba(10, 132, 255, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        /* The Colored Dot */
+        .tag-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 12px;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Sub-Menu (Accordion Style for Council) */
+        .sub-tag-container {
+            margin-left: 20px;
+            margin-bottom: 10px;
+            border-left: 2px solid #444;
+            padding-left: 12px;
+            animation: slideDown 0.2s ease-out;
+        }
+
+        .sub-tag-item {
+            padding: 10px;
+            cursor: pointer;
+            color: #bbb;
+            font-size: 14px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .sub-tag-item:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sub-tag-item.selected {
+            color: #64b5f6;
+            /* Light Blue */
+            font-weight: bold;
+            background: rgba(10, 132, 255, 0.1);
+        }
+
+        @keyframes slideDown {
+            from {
+            
