@@ -1729,19 +1729,37 @@
             transition: all 0.3s ease;
         }
 
-        /* Responsive Fix: On mobile, stick to top fully */
         @media (max-width: 600px) {
-            .navbar {
-                top: 0;
-                margin: 0 0 20px 0;
-                border-radius: 0 0 20px 20px;
-                border-top: none;
-                border-left: none;
-                border-right: none;
-                background: rgba(20, 20, 20, 0.85);
-                /* Darker on mobile */
-            }
-        }
+    .navbar {
+        /* 1. Position: Fixed & Floating */
+        position: fixed !important;
+        top: 15px !important;          /* Push down from top */
+        left: 15px !important;         /* Push from left */
+        width: calc(100% - 30px) !important; /* Subtract left/right margins */
+        margin: 0 !important;
+
+        /* 2. Round All 4 Corners */
+        border-radius: 24px !important; 
+
+        /* 3. Visuals (Prestige Look) */
+        background: rgba(28, 28, 30, 0.95) !important; 
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        z-index: 5000;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5); /* Deep shadow for floating effect */
+        border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle premium border */
+        
+        /* 4. Spacing */
+        padding: 10px 20px;
+    }
+
+    /* 5. Push Content Down */
+    /* Increased padding-top so the first post isn't hidden behind the new floating bar */
+    .container {
+        padding-top: 110px !important; 
+        padding-bottom: 90px; 
+    }
+}
 
         /* --- BRAND TEXT --- */
         .navbar-brand {
@@ -3267,61 +3285,95 @@
             filter: none !important;
         }
 
-        /* --- GOAT BADGE (PREMIUM REWARD) --- */
-        .goat-badge-container {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: linear-gradient(135deg, #FFD700, #FDB931, #ffd700);
-            /* Gold Gradient */
-            background-size: 200% auto;
-            color: #000;
-            font-weight: 800;
-            font-size: 11px;
-            padding: 4px 10px;
-            border-radius: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
-            animation: goldShine 3s linear infinite;
-            margin-bottom: 8px;
-            border: 1px solid #fff;
-        }
+        /* --- PRESTIGE GOAT ANIMATION v2 --- */
 
-        /* The Shining Animation */
-        @keyframes goldShine {
-            to {
-                background-position: 200% center;
-            }
-        }
+/* 1. The Badge (Hidden by default, pops in when Goated) */
+.goat-badge-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #FFD700, #FDB931, #ffd700);
+    background-size: 200% auto;
+    color: #000;
+    font-weight: 800;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid #fff;
+    margin-bottom: 8px;
+    
+    /* Hiding State */
+    opacity: 0;
+    transform: translateY(10px) scale(0.9);
+    height: 0;
+    overflow: hidden;
+    margin-top: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border: none;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
 
-        /* Sparkle/Pulse Effect on the Icon */
-        .goat-icon-svg {
-            width: 14px;
-            height: 14px;
-            animation: goatPulse 2s ease-in-out infinite alternate;
-        }
+/* 2. When Goated: Reveal Badge */
+.comment-card.is-goated .goat-badge-container {
+    color: #000000 !important;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    height: auto; /* Let it grow */
+    padding: 6px 14px; /* Restore padding */
+    margin-bottom: 8px;
+    border: 1px solid #fff;
+    animation: goldShine 3s linear infinite; /* Shine effect */
+}
 
-        @keyframes goatPulse {
-            0% {
-                transform: scale(1);
-                filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
-            }
+/* 3. The Spinning Gold Border */
+.comment-card.is-goated {
+    border-color: transparent !important;
+    background-clip: padding-box; /* Important for the border trick */
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); /* Ambient Glow */
+}
 
-            100% {
-                transform: scale(1.15);
-                filter: drop-shadow(0 0 2px white);
-            }
-        }
+.comment-card.is-goated::before {
+    content: '';
+    position: absolute;
+    top: 0; 
+    right: 0; 
+    bottom: 0; 
+    left: 0;
+    z-index: -1;
+    margin: -2px; /* Thickness of border */
+    border-radius: inherit; /* Match card radius */
+    
+    /* The Moving Gradient */
+    background: #caac02;
+    background-size: 400% 400%;
+    animation: borderRotate 3s ease infinite;
+}
 
-        /* Highlight the whole comment card */
-        .comment-card.is-goated {
-            border: 1px solid #FFD700 !important;
-            background: linear-gradient(to bottom, rgba(255, 215, 0, 0.05), transparent) !important;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.15) !important;
-            order: -1;
-            /* FLEX TRICK: Forces it to the top automatically */
-        }
+/* 4. Fix Z-Index so content sits on top of the border background */
+.comment-card {
+    background: var(--bg-card); /* Ensure background is opaque */
+    z-index: 1; 
+}
+
+@keyframes borderRotate {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes goldShine {
+    to { background-position: 200% center; }
+}
+.comment-card.is-goated, 
+.comment-card.is-goated p, 
+.comment-card.is-goated div, 
+.comment-card.is-goated strong, 
+.comment-card.is-goated span {
+    color: #000000 !important;
+}
     </style>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
