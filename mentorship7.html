@@ -3332,7 +3332,7 @@
 .comment-card.is-goated {
     border-color: transparent !important;
     background-clip: padding-box; /* Important for the border trick */
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); /* Ambient Glow */
+    box-shadow: 0 0 15px rgba(200, 170, 0, 0.3); /* Ambient Glow */
 }
 
 .comment-card.is-goated::before {
@@ -5080,7 +5080,7 @@
                     transaction.update(postRef, { goatedCommentId: commentId });
                 }
             }).then(() => {
-                showToast("GOAT Status Updated! 🐐");
+                showToast("GOAT Status Updated!");
                 // Reload comments to see the change
                 loadComments(postId);
             }).catch(error => {
