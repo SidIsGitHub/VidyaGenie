@@ -7113,10 +7113,14 @@
                 });
         };
 
-        function applyFilters() {
-            document.getElementById('sortFilterModal').classList.remove('active');
-            loadCommunity(); // Reloads posts with new filters applied
-        }
+        /* --- FILTER APPLY FIX --- */
+function applyFilters() {
+    // 1. Close the modal properly (This triggers unlockScroll)
+    closeModal('sortFilterModal'); 
+    
+    // 2. Reload the feed with the new filters
+    loadCommunity(); 
+}
         function applyTheme(color) {
             document.documentElement.style.setProperty('--primary-color', color);
             // Add other variables if needed
