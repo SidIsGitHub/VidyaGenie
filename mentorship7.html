@@ -182,25 +182,50 @@
             width: 150px;
             height: 150px;
             margin: 0 auto 25px;
-            border-radius: 50%;
-            border: 4px solid var(--primary-color);
-            background: var(--bg-input);
-            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: transparent;
+            border: none;
+            /* REMOVED THE DOUBLE BORDER */
+            border-radius: 50%;
+            padding: 0;
+            overflow: visible;
+            /* Fix clipping issues */
         }
 
         .profile-pic-large-new {
-            width: 100%;
-            height: 100%;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
             object-fit: cover;
+
+            /* Blue Border for real users */
+            border: 4px solid var(--primary-color);
+            box-shadow: 0 10px 30px rgba(10, 132, 255, 0.2);
         }
 
         .profile-initial-large-new {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+
+            /* FIX: Solid Dark Grey Background */
+            background: #333 !important;
+            color: #ccc !important;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
             font-size: 60px;
             font-weight: bold;
-            color: var(--primary-color);
+
+            /* FIX: Neutral Grey Border */
+            border: 4px solid var(--border-color) !important;
+
+            /* FIX: Remove Glow */
+            box-shadow: none !important;
         }
 
 
@@ -2184,6 +2209,7 @@
 
             /* Premium Silver Gradient */
             background: linear-gradient(180deg, #FFFFFF 0%, #B0B0B0 100%);
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
@@ -2365,87 +2391,96 @@
         }
 
         /* --- MOBILE BOTTOM NAVIGATION (FIXED ALIGNMENT) --- */
-@media (max-width: 600px) {
-    .tabs {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        margin: 0;
-        border: none;
-        border-top: 1px solid var(--border-color);
-        background: rgba(28, 28, 30, 0.95);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        padding: 8px 0 25px 0; /* Padding for iPhone Home Indicator */
-        z-index: 1000;
-        display: flex;
-        justify-content: space-around;
-        gap: 0;
-    }
+        @media (max-width: 600px) {
+            .tabs {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                margin: 0;
+                border: none;
+                border-top: 1px solid var(--border-color);
+                background: rgba(28, 28, 30, 0.95);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                padding: 8px 0 25px 0;
+                /* Padding for iPhone Home Indicator */
+                z-index: 1000;
+                display: flex;
+                justify-content: space-around;
+                gap: 0;
+            }
 
-    .tab-button {
-        flex: 1;
-        display: flex !important;
-        flex-direction: column !important; /* Forces vertical stacking */
-        align-items: center !important;    /* Centers items horizontally */
-        justify-content: center !important; 
-        gap: 0 !important;
-        padding: 6px 0 !important;
-        background: transparent !important;
-        border-radius: 0;
-        box-shadow: none !important;
-        transition: all 0.2s ease;
-    }
+            .tab-button {
+                flex: 1;
+                display: flex !important;
+                flex-direction: column !important;
+                /* Forces vertical stacking */
+                align-items: center !important;
+                /* Centers items horizontally */
+                justify-content: center !important;
+                gap: 0 !important;
+                padding: 6px 0 !important;
+                background: transparent !important;
+                border-radius: 0;
+                box-shadow: none !important;
+                transition: all 0.2s ease;
+            }
 
-    /* Icon Container - Force Center */
-    .tab-button > div, 
-    .tab-button svg {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto; /* Auto margins to force horizontal centering */
-    }
+            /* Icon Container - Force Center */
+            .tab-button>div,
+            .tab-button svg {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto;
+                /* Auto margins to force horizontal centering */
+            }
 
-    .tab-button svg {
-        width: 24px;
-        height: 24px;
-        stroke: var(--text-secondary);
-        transition: transform 0.2s ease, stroke 0.2s ease;
-    }
+            .tab-button svg {
+                width: 24px;
+                height: 24px;
+                stroke: var(--text-secondary);
+                transition: transform 0.2s ease, stroke 0.2s ease;
+            }
 
-    /* The Text Label - Hidden by default, slides down when active */
-    .tab-label {
-        font-size: 10px !important;
-        font-weight: 600;
-        text-align: center;
-        width: 100%;
-        display: block;
-        line-height: 1;
-        
-        /* Animation Props */
-        max-height: 0;
-        opacity: 0;
-        overflow: hidden;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        transform: translateY(5px); /* Start slightly lower */
-    }
+            /* The Text Label - Hidden by default, slides down when active */
+            .tab-label {
+                font-size: 10px !important;
+                font-weight: 600;
+                text-align: center;
+                width: 100%;
+                display: block;
+                line-height: 1;
 
-    /* ACTIVE STATE */
-    .tab-button.active svg {
-        stroke: var(--primary-color) !important;
-        transform: translateY(-2px); /* Icon moves up slightly */
-    }
+                /* Animation Props */
+                max-height: 0;
+                opacity: 0;
+                overflow: hidden;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                transform: translateY(5px);
+                /* Start slightly lower */
+            }
 
-    .tab-button.active .tab-label {
-        max-height: 15px; /* Reveal text space */
-        opacity: 1;
-        transform: translateY(0); /* Slide into place */
-        margin-top: 4px !important; /* Space between icon and text */
-        color: var(--primary-color);
-    }
-}
+            /* ACTIVE STATE */
+            .tab-button.active svg {
+                stroke: var(--primary-color) !important;
+                transform: translateY(-2px);
+                /* Icon moves up slightly */
+            }
+
+            .tab-button.active .tab-label {
+                max-height: 15px;
+                /* Reveal text space */
+                opacity: 1;
+                transform: translateY(0);
+                /* Slide into place */
+                margin-top: 4px !important;
+                /* Space between icon and text */
+                color: var(--primary-color);
+            }
+        }
 
         .tab-button:hover {
             color: var(--text-main);
@@ -3173,18 +3208,30 @@
 
         .stats-grid-new {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
+            /* CHANGE: Force 3 equal columns always, instead of auto-fitting */
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            /* Slightly tighter gap */
             margin: 30px 0;
         }
 
+        /* Ensure content inside doesn't break the layout */
         .stat-card-new {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 16px;
-            padding: 20px;
+            padding: 15px 5px;
+            /* Reduced side padding to fit text */
             text-align: center;
             transition: all 0.3s;
+
+            /* NEW: Flex column ensures content centers nicely */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-width: 0;
+            /* Critical for grid children to shrink properly */
         }
 
         .stat-card-new:hover {
@@ -3193,19 +3240,21 @@
             transform: translateY(-4px);
         }
 
-        .stat-number-new {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 8px;
-        }
+        @media (max-width: 600px) {
+            .stat-label-new {
+                font-size: 10px !important;
+                /* Smaller label on mobile */
+                white-space: nowrap;
+                /* Prevent wrapping */
+                overflow: hidden;
+                text-overflow: ellipsis;
+                width: 100%;
+            }
 
-        .stat-label-new {
-            font-size: 12px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.5px;
+            .stat-number-new {
+                font-size: 22px !important;
+                /* Slightly smaller number */
+            }
         }
 
         .section-title-new {
@@ -3880,7 +3929,6 @@
                                         the public won't.</div>
                                 </div>
                             </div>
-
                             <div class="form-group"><label>Full Name</label><input type="text" id="regName" required>
                             </div>
                             <div class="form-group"><label>College Email</label><input type="email" id="regEmail"
@@ -3913,7 +3961,7 @@
                     </div>
                     <div class="form-group">
                         <label>Current Year</label>
-                        <select id="regYear" required
+                        <select id="regYear" required onchange="validateRoleOptions()"
                             style="width: 100%; padding: 14px; background: var(--bg-input); border: 1px solid var(--border-color); color: white; border-radius: 12px;">
                             <option value="" disabled selected>Select Year</option>
                             <option value="FE">First Year (FE)</option>
@@ -3922,8 +3970,24 @@
                             <option value="BE">Fourth Year (BE)</option>
                         </select>
                     </div>
-                    <div class="form-group"><label>College / University</label><input type="text" id="regCollege"
-                            required></div>
+                    <div class="form-group">
+                                <label>I am a...</label>
+                                <select id="regRole" required
+                                    style="width: 100%; padding: 14px; background: var(--bg-input); border: 1px solid var(--border-color); color: white; border-radius: 12px; font-family: inherit;">
+                                    <option value="student" selected>Student</option>
+                                    <option value="mentor">Mentor</option>
+                                </select>
+                            </div>
+                    <div class="form-group">
+                        <label>College / University</label>
+                        <select id="regCollege" required
+                            style="width: 100%; padding: 14px; background: var(--bg-input); border: 1px solid var(--border-color); color: white; border-radius: 12px; font-family: inherit;">
+                            <option value="" disabled selected>Select College</option>
+                            <option value="VIT">Vidyalankar Institute of Technology</option>
+                            <option value="VSIT">Vidyalankar School of Information Technology</option>
+                            <option value="VP">Vidyalankar Polytechnic</option>
+                        </select>
+                    </div>
 
                     <div class="form-group">
                         <label>Profile Picture (Optional)</label>
@@ -4292,7 +4356,7 @@
 
                     <!-- SKILLS SECTION -->
                     <div>
-                        <h2 class="section-title-new">💡 Skills & Expertise</h2>
+                        <h2 class="section-title-new">Skills & Expertise</h2>
                         <div id="skillsContainer" class="skills-container-new">
                             <div class="empty-state-new">No skills added yet. Click Edit Profile to add your expertise.
                             </div>
@@ -4301,7 +4365,7 @@
 
                     <!-- ABOUT SECTION -->
                     <div class="about-section-new">
-                        <h2 class="section-title-new">📋 Profile Information</h2>
+                        <h2 class="section-title-new">Profile Information</h2>
                         <div class="info-row-new">
                             <span class="info-label-new">College</span>
                             <span class="info-value-new" id="infoCollege">Not specified</span>
@@ -4324,7 +4388,6 @@
                     <div class="action-buttons-new">
                         <button class="btn-new btn-primary-new" onclick="toggleEditMode()">Edit Profile</button>
                         <button class="btn-new btn-secondary-new" onclick="shareProfile()">Share Profile</button>
-                        <button class="btn-new btn-danger-new" onclick="deleteAccount()">Delete Account</button>
                     </div>
 
                     <!-- EDIT MODE FORM (Hidden by default) -->
@@ -4381,10 +4444,19 @@
                         </div>
                     </div>
 
-                    <!-- LOGOUT SECTION -->
                     <div
-                        style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; justify-content: center;">
-                        <button class="btn-new btn-secondary-new" onclick="window.location.reload()">Log Out</button>
+                        style="margin-top: 40px; padding-top: 25px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; gap: 15px;">
+
+                        <button class="btn-new btn-secondary-new" onclick="window.location.reload()"
+                            style="width: 100%; max-width: 250px;">
+                            Log Out
+                        </button>
+
+                        <button class="btn-new btn-danger-new" onclick="deleteAccount()"
+                            style="width: 100%; max-width: 250px; font-size: 12px; opacity: 0.8;">
+                            Delete Account
+                        </button>
+
                     </div>
                 </div>
             </div>
@@ -4416,7 +4488,7 @@
             <div style="margin-bottom: 20px;">
                 <span style="font-size: 40px; display: block; animation: flameFlicker 1s infinite alternate;">🔥</span>
                 <h2
-                    style="font-size: 24px; font-weight: 800; background: linear-gradient(to right, #FF9F0A, #FF375F); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-top: 10px;">
+                    style="font-size: 24px; font-weight: 800; background: linear-gradient(to right, #FF9F0A, #FF375F); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-top: 10px;">
                     DAILY POLL
                 </h2>
             </div>
@@ -5387,70 +5459,86 @@
         }
 
         function handleRegister(e) {
-            e.preventDefault();
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerText;
+    e.preventDefault();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerText;
 
-            submitBtn.disabled = true;
-            submitBtn.innerText = "Creating Account...";
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Creating Account...";
 
-            // 1. Get Values
-            const isAnon = document.getElementById('regAnon').checked;
-            const name = document.getElementById('regName').value.trim();
-            const email = document.getElementById('regEmail').value.trim().toLowerCase();
-            const password = document.getElementById('regPass').value; // Store raw password
-            const year = document.getElementById('regYear').value;
-            const college = document.getElementById('regCollege').value;
-            const role = "student";
+    // 1. Get Values
+    const isAnon = document.getElementById('regAnon').checked;
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim().toLowerCase();
+    const password = document.getElementById('regPass').value; 
+    const age = document.getElementById('regAge').value;
+    const gender = document.getElementById('regGender').value;
+    const year = document.getElementById('regYear').value;
+    const college = document.getElementById('regCollege').value;
+    
+    // --- NEW: CAPTURE SELECTED ROLE ---
+    const role = document.getElementById('regRole').value; 
+    // ----------------------------------
 
-            if (!password || password.length < 6) {
-                alert("Password must be at least 6 characters.");
-                submitBtn.disabled = false;
+    if (!password || password.length < 6) {
+        alert("Password must be at least 6 characters.");
+        submitBtn.disabled = false;
+        submitBtn.innerText = originalText;
+        return;
+    }
+
+    const performRegistration = (base64Pic) => {
+        const newUserId = "user_" + Date.now();
+
+        // Collect Work Experience (if any)
+        const workExpInputs = document.querySelectorAll('.exp-input');
+        const expertise = [];
+        workExpInputs.forEach(input => {
+            if(input.value.trim()) expertise.push(input.value.trim());
+        });
+
+        const newUser = {
+            userId: newUserId,
+            name: name,
+            email: email,
+            role: role, // <--- SAVES 'student' OR 'mentor'
+            year: year,
+            college: college,
+            age: age,
+            gender: gender,
+            profilePic: base64Pic || "",
+            expertise: expertise, // Save work experience
+            isVerified: false,
+            score: 0, // Initialize score
+            createdAt: new Date(),
+            password: password 
+        };
+
+        // 2. Save to Firestore
+        db.collection('users').doc(newUserId).set(newUser)
+            .then(() => {
+                if (typeof showToast === 'function') showToast("Account created!");
+                // 3. Log them in immediately
+                simulateLogin(newUserId, isAnon);
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error: " + err.message);
                 submitBtn.innerText = originalText;
-                return;
-            }
+                submitBtn.disabled = false;
+            });
+    };
 
-            const performRegistration = (base64Pic) => {
-                const newUserId = "user_" + Date.now();
-
-                const newUser = {
-                    userId: newUserId,
-                    name: name,
-                    email: email,
-                    year: year,
-                    role: role,
-                    college: college,
-                    profilePic: base64Pic || "",
-                    isVerified: false,
-                    createdAt: new Date(),
-                    password: password // CRITICAL: Saving password to DB for verification
-                };
-
-                // 2. Save to Firestore
-                db.collection('users').doc(newUserId).set(newUser)
-                    .then(() => {
-                        if (typeof showToast === 'function') showToast("Account created!");
-                        // 3. Log them in immediately
-                        simulateLogin(newUserId, isAnon);
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        alert("Error: " + err.message);
-                        submitBtn.innerText = originalText;
-                        submitBtn.disabled = false;
-                    });
-            };
-
-            // 4. Handle File Upload
-            const fileInput = document.getElementById('regFile');
-            if (fileInput.files.length > 0) {
-                const reader = new FileReader();
-                reader.onload = function (e) { performRegistration(e.target.result); };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                performRegistration(null);
-            }
-        }
+    // 4. Handle File Upload
+    const fileInput = document.getElementById('regFile');
+    if (fileInput.files.length > 0) {
+        const reader = new FileReader();
+        reader.onload = function (e) { performRegistration(e.target.result); };
+        reader.readAsDataURL(fileInput.files[0]);
+    } else {
+        performRegistration(null);
+    }
+}
         /* --- TOGGLE PASSWORD VISIBILITY --- */
         function togglePasswordVisibility(inputId, iconDiv) {
             const input = document.getElementById(inputId);
@@ -8845,6 +8933,33 @@
 
             return "Just now";
         }
+        function validateRoleOptions() {
+    const yearSelect = document.getElementById('regYear');
+    const roleSelect = document.getElementById('regRole');
+    
+    if (!yearSelect || !roleSelect) return;
+
+    const selectedYear = yearSelect.value;
+    const mentorOption = roleSelect.querySelector('option[value="mentor"]');
+
+    // Logic: If FE is selected, Disable Mentor
+    if (selectedYear === 'FE') {
+        mentorOption.disabled = true;
+        mentorOption.innerText = "Mentor (Available for SE+)"; // Helpful text
+        
+        // If they had already selected Mentor, force them back to Student
+        if (roleSelect.value === 'mentor') {
+            roleSelect.value = 'student';
+            // Optional: Alert the user
+            if(typeof showToast === 'function') showToast("Mentorship is available from Second Year onwards.");
+            else alert("First Year students cannot be mentors yet.");
+        }
+    } else {
+        // Re-enable for SE, TE, BE
+        mentorOption.disabled = false;
+        mentorOption.innerText = "Mentor";
+    }
+}
         function getYearBadgeHtml(yearCode) {
             if (!yearCode) return '';
 
