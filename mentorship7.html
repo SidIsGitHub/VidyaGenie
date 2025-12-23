@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -1420,6 +1421,35 @@
                 box-shadow: 0 0 10px rgba(255, 69, 58, 0.1);
             }
         }
+        /* Define the keyframes */
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Base class for items */
+.animate-item {
+    animation: slideUpFade 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    opacity: 0; /* Start hidden */
+}
+
+/* Stagger delays for up to 10 items */
+.animate-item:nth-child(1) { animation-delay: 0.05s; }
+.animate-item:nth-child(2) { animation-delay: 0.1s; }
+.animate-item:nth-child(3) { animation-delay: 0.15s; }
+.animate-item:nth-child(4) { animation-delay: 0.2s; }
+.animate-item:nth-child(5) { animation-delay: 0.25s; }
+.animate-item:nth-child(6) { animation-delay: 0.3s; }
+.animate-item:nth-child(7) { animation-delay: 0.35s; }
+.animate-item:nth-child(8) { animation-delay: 0.4s; }
+.animate-item:nth-child(9) { animation-delay: 0.45s; }
+.animate-item:nth-child(10) { animation-delay: 0.5s; }
 
         /* COMPLETED POLL (Voted) */
         .poll-card.completed-poll {
@@ -2502,6 +2532,7 @@
         .tab-content.active {
             display: block;
         }
+        
 
         /* --- MOBILE TOUCH FIXES --- */
         * {
@@ -2509,10 +2540,7 @@
             /* Removes blue box on touch */
         }
 
-        /* Optional: Improve scroll smoothness on iOS */
-        body {
-            -webkit-overflow-scrolling: touch;
-        }
+        
 
         /* Ensure buttons don't select text on double tap */
         .btn,
@@ -4855,62 +4883,55 @@
         }
 
         function loadActivePoll() {
-            const container = document.getElementById('pollOptionsContainer');
-            const questionEl = document.getElementById('pollQuestionDisplay');
-            const votesEl = document.getElementById('pollTotalVotes');
+    const container = document.getElementById('pollOptionsContainer');
+    const questionEl = document.getElementById('pollQuestionDisplay');
+    const votesEl = document.getElementById('pollTotalVotes');
+    const pollBtn = document.querySelector('.daily-poll-style'); 
 
-            // Select the Home Screen Button
-            const pollBtn = document.querySelector('.daily-poll-style');
+    if (container) container.innerHTML = '<p style="color:#888;">Loading...</p>';
 
-            if (container) container.innerHTML = '<p style="color:#888;">Loading...</p>';
+    if (pollUnsub) pollUnsub(); // Clear old listener
 
-            // 1. CLEAR OLD LISTENER (Fixes memory leaks)
-            if (pollUnsub) pollUnsub();
+    pollUnsub = db.collection('system').doc('daily_poll').onSnapshot(doc => {
+        if (!doc.exists) {
+            if (questionEl) questionEl.innerText = "No active poll today.";
+            if (container) container.innerHTML = "";
+            currentPollData = null; // Reset if doc deleted
+            return;
+        }
 
-            pollUnsub = db.collection('system').doc('daily_poll').onSnapshot(doc => {
-                if (!doc.exists) {
-                    if (questionEl) questionEl.innerText = "No active poll today.";
-                    if (container) container.innerHTML = "";
-                    return;
-                }
+        const data = doc.data();
+        
+        // 🚨 CRITICAL FIX: Update the global variable
+        currentPollData = data; 
 
-                const data = doc.data();
+        // 2. CHECK VOTE STATUS (For Button Glow)
+        let hasVoted = false;
+        if (data.votes && data.votes[currentUser.uid] !== undefined) hasVoted = true;
+        else if (data.voters && data.voters.includes(currentUser.uid)) hasVoted = true;
 
-                // 2. CHECK VOTE STATUS (For Button Glow)
-                // Check if user ID is in the 'votes' map OR 'voters' array
-                let hasVoted = false;
-                if (data.votes && data.votes[currentUser.uid] !== undefined) hasVoted = true;
-                else if (data.voters && data.voters.includes(currentUser.uid)) hasVoted = true;
+        if (pollBtn) {
+            if (hasVoted) pollBtn.classList.add('voted');
+            else pollBtn.classList.remove('voted');
+        }
 
-                // UPDATE HOME BUTTON IMMEDIATELY
-                if (pollBtn) {
-                    if (hasVoted) {
-                        pollBtn.classList.add('voted'); // Remove Glow (Dull)
-                    } else {
-                        pollBtn.classList.remove('voted'); // Add Glow (Shiny)
-                    }
-                }
+        // 3. RENDER MODAL CONTENT
+        if (!questionEl || !container) return; 
 
-                // 3. RENDER MODAL CONTENT (Only if elements exist)
-                if (!questionEl || !container) return;
+        questionEl.innerText = data.question;
+        const totalVotes = data.totalVotes || 0;
+        if (votesEl) votesEl.innerText = `${totalVotes} Votes`;
 
-                questionEl.innerText = data.question;
-                const totalVotes = data.totalVotes || 0;
-                if (votesEl) votesEl.innerText = `${totalVotes} Votes`;
+        let html = '';
+        const myVoteIndex = data.votes ? data.votes[currentUser.uid] : undefined;
+        const showResults = hasVoted || (currentUser && typeof ADMIN_UIDS !== 'undefined' && ADMIN_UIDS.includes(currentUser.uid));
 
-                let html = '';
-                // Get the specific option the user voted for (if any)
-                const myVoteIndex = data.votes ? data.votes[currentUser.uid] : undefined;
+        data.options.forEach((opt, index) => {
+            const voteCount = data.counts ? (data.counts[index] || 0) : 0;
+            const percent = totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0;
+            const isSelected = myVoteIndex === index ? 'voted' : '';
 
-                const showResults = hasVoted || (currentUser && typeof ADMIN_UIDS !== 'undefined' && ADMIN_UIDS.includes(currentUser.uid));
-
-                data.options.forEach((opt, index) => {
-                    const voteCount = data.counts ? (data.counts[index] || 0) : 0;
-                    const percent = totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0;
-
-                    const isSelected = myVoteIndex === index ? 'voted' : '';
-
-                    html += `
+            html += `
             <div class="poll-option-btn ${isSelected}" onclick="submitVote(${index})" style="${hasVoted ? 'pointer-events:none;' : ''}">
                 <div class="poll-fill-bar" style="width: ${showResults ? percent : 0}%"></div>
                 <div class="poll-text-wrapper">
@@ -4918,49 +4939,60 @@
                     ${showResults ? `<span>${percent}%</span>` : ''}
                 </div>
             </div>`;
-                });
+        });
 
-                container.innerHTML = html;
-            });
-        }
+        container.innerHTML = html;
+    });
+}
 
         function submitVote(optionIndex) {
-            if (!currentUser) return showToast("Please login to vote.");
+    if (!currentUser) return showToast("Please login to vote.");
 
-            // Optimistic check: prevent double clicks visually, DB rules handles logic
-            if (currentPollData.votes && currentPollData.votes[currentUser.uid] !== undefined) {
-                return showToast("You already voted today!");
-            }
+    // 1. SAFETY CHECK: Ensure poll data exists
+    if (!currentPollData) {
+        console.error("Poll data not loaded yet.");
+        return showToast("Poll is loading, please wait...");
+    }
 
-            const pollRef = db.collection('system').doc('daily_poll');
+    // 2. SAFETY CHECK: Ensure 'votes' object exists (Initialize if missing)
+    const votesMap = currentPollData.votes || {}; 
 
-            // 1. Register who voted for what
-            const voteKey = `votes.${currentUser.uid}`;
+    // 3. Optimistic check using safe variable
+    if (votesMap[currentUser.uid] !== undefined) {
+        return showToast("You already voted today!");
+    }
 
-            db.runTransaction(async (t) => {
-                const doc = await t.get(pollRef);
-                const data = doc.data();
+    const pollRef = db.collection('system').doc('daily_poll');
 
-                if (data.votes && data.votes[currentUser.uid] !== undefined) {
-                    throw "Already voted";
-                }
+    db.runTransaction(async (t) => {
+        const doc = await t.get(pollRef);
+        if (!doc.exists) throw "Poll does not exist";
 
-                const newCounts = data.counts || new Array(data.options.length).fill(0);
-                newCounts[optionIndex] = (newCounts[optionIndex] || 0) + 1;
+        const data = doc.data();
+        const safeVotes = data.votes || {}; // Double safety inside transaction
 
-                t.update(pollRef, {
-                    [`votes.${currentUser.uid}`]: optionIndex,
-                    counts: newCounts,
-                    totalVotes: firebase.firestore.FieldValue.increment(1)
-                });
-            }).then(() => {
-                showToast("Vote cast!");
-            }).catch(e => {
-                if (e === "Already voted") showToast("You already voted.");
-                else console.error(e);
-            });
+        if (safeVotes[currentUser.uid] !== undefined) {
+            throw "Already voted";
         }
 
+        const newCounts = data.counts || new Array(data.options.length).fill(0);
+        newCounts[optionIndex] = (newCounts[optionIndex] || 0) + 1;
+
+        t.update(pollRef, {
+            [`votes.${currentUser.uid}`]: optionIndex,
+            counts: newCounts,
+            totalVotes: firebase.firestore.FieldValue.increment(1)
+        });
+    }).then(() => {
+        showToast("Vote cast!");
+    }).catch(e => {
+        if (e === "Already voted") showToast("You already voted.");
+        else {
+            console.error(e);
+            showToast("Error processing vote.");
+        }
+    });
+}
         // --- ADMIN ONLY FUNCTIONS ---
 
         // --- ADMIN ONLY FUNCTIONS ---
@@ -6621,7 +6653,7 @@
                 }
 
                 html += `
-                <div class="card">
+                <div class="card animate-item">
                     <div class="card-content-wrapper">
                         <img src="${profileSrc}" 
                              loading="lazy" 
@@ -6821,100 +6853,135 @@
         // --- LOAD CHATS (Clean UI - Search Connections + Active Conversations) ---
         // --- 3. LOAD CHATS (With Green Dot & Search) ---
         function loadChats() {
-            const listEl = document.getElementById('chatsListContent');
-            const searchTerm = document.getElementById('chatSearchInput').value.toLowerCase().trim();
+    const listEl = document.getElementById('chatsListContent');
+    const searchTerm = document.getElementById('chatSearchInput').value.toLowerCase().trim();
 
-            if (!searchTerm) listEl.innerHTML = '<p style="color:var(--text-secondary); padding:15px;">Loading...</p>';
+    if (!searchTerm) listEl.innerHTML = '<p style="color:var(--text-secondary); padding:15px;">Loading...</p>';
 
-            const sentPromise = db.collection('connection_requests').where('senderId', '==', currentUser.uid).where('status', '==', 'accepted').get();
-            const receivedPromise = db.collection('connection_requests').where('recipientId', '==', currentUser.uid).where('status', '==', 'accepted').get();
-            const chatsPromise = db.collection('chats').where('participants', 'array-contains', currentUser.uid).get();
+    const sentPromise = db.collection('connection_requests').where('senderId', '==', currentUser.uid).where('status', '==', 'accepted').get();
+    const receivedPromise = db.collection('connection_requests').where('recipientId', '==', currentUser.uid).where('status', '==', 'accepted').get();
+    const chatsPromise = db.collection('chats').where('participants', 'array-contains', currentUser.uid).get();
 
-            Promise.all([sentPromise, receivedPromise, chatsPromise]).then(async ([sentSnap, recSnap, chatsSnap]) => {
-                const chatMap = {};
-                chatsSnap.forEach(doc => {
-                    const data = doc.data();
-                    const otherId = data.participants.find(id => id !== currentUser.uid);
-                    chatMap[otherId] = { ...data, id: doc.id };
-                });
+    Promise.all([sentPromise, receivedPromise, chatsPromise]).then(async ([sentSnap, recSnap, chatsSnap]) => {
+        const chatMap = {};
+        
+        // 1. Process Chats & Extract Time for Sorting
+        chatsSnap.forEach(doc => {
+            const data = doc.data();
+            const otherId = data.participants.find(id => id !== currentUser.uid);
+            
+            // Get Sort Time (Handle Firestore Timestamp or Date)
+            let sortTime = 0;
+            if (data.updatedAt && data.updatedAt.toDate) {
+                sortTime = data.updatedAt.toDate().getTime();
+            } else if (data.updatedAt) {
+                sortTime = new Date(data.updatedAt).getTime();
+            }
 
-                const connectedUserIds = new Set();
-                sentSnap.forEach(doc => connectedUserIds.add(doc.data().recipientId));
-                recSnap.forEach(doc => connectedUserIds.add(doc.data().senderId));
+            chatMap[otherId] = { 
+                ...data, 
+                id: doc.id,
+                _sortTime: sortTime // Store for sorting
+            };
+        });
 
-                const renderPromises = Array.from(connectedUserIds).map(async (otherId) => {
-                    let otherUser = null;
-                    try {
-                        const uDoc = await db.collection('users').doc(otherId).get();
-                        if (uDoc.exists) otherUser = uDoc.data();
-                    } catch (e) { }
+        // 2. Collect All Connections
+        const connectedUserIds = new Set();
+        sentSnap.forEach(doc => connectedUserIds.add(doc.data().recipientId));
+        recSnap.forEach(doc => connectedUserIds.add(doc.data().senderId));
 
-                    // FIX: If user not found, just return empty string
-                    if (!otherUser) return '';
+        // 3. Create a Sortable Array
+        let conversationList = Array.from(connectedUserIds).map(otherId => {
+            const chat = chatMap[otherId];
+            return {
+                otherId: otherId,
+                // If chat exists, use its time. If new connection (no chat), use 0 (bottom).
+                time: chat ? chat._sortTime : 0 
+            };
+        });
 
-                    const name = (otherUser.name || 'User').toLowerCase();
-                    if (searchTerm && !name.includes(searchTerm)) return '';
+        // 4. SORT: Descending Order (Newest First) [Instagram Style Bubble Up]
+        conversationList.sort((a, b) => b.time - a.time);
 
-                    const displayName = otherUser.name.charAt(0).toUpperCase() + otherUser.name.slice(1);
-                    const role = (otherUser.role || '').toUpperCase();
+        // 5. Render in Sorted Order
+        const renderPromises = conversationList.map(async (item) => {
+            const otherId = item.otherId;
+            
+            let otherUser = null;
+            try {
+                const uDoc = await db.collection('users').doc(otherId).get();
+                if (uDoc.exists) otherUser = uDoc.data();
+            } catch (e) { }
 
-                    // STATUS DOT
-                    let statusColor = '#636366';
-                    if (otherUser.lastSeen) {
-                        const diffMins = (new Date() - otherUser.lastSeen.toDate()) / 60000;
-                        if (diffMins < 5) statusColor = '#30D158';
-                    }
+            if (!otherUser) return '';
 
-                    let avatarContent = otherUser.profilePic
-                        ? `<img src="${otherUser.profilePic}" loading="lazy" style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:1px solid var(--border-color);">`
-                        : `<div style="width:45px; height:45px; border-radius:50%; background:black; color:white; display:flex; align-items:center; justify-content:center; border:1px solid var(--border-color); font-weight:bold; font-size:18px;">${displayName.charAt(0)}</div>`;
+            const name = (otherUser.name || 'User').toLowerCase();
+            if (searchTerm && !name.includes(searchTerm)) return '';
 
-                    const avatarHtml = `
+            const displayName = otherUser.name.charAt(0).toUpperCase() + otherUser.name.slice(1);
+            const role = (otherUser.role || '').toUpperCase();
+
+            // Status Dot
+            let statusColor = '#636366';
+            if (otherUser.lastSeen) {
+                const diffMins = (new Date() - otherUser.lastSeen.toDate()) / 60000;
+                if (diffMins < 5) statusColor = '#30D158';
+            }
+
+            let avatarContent = otherUser.profilePic
+                ? `<img src="${otherUser.profilePic}" loading="lazy" style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:1px solid var(--border-color);">`
+                : `<div style="width:45px; height:45px; border-radius:50%; background:black; color:white; display:flex; align-items:center; justify-content:center; border:1px solid var(--border-color); font-weight:bold; font-size:18px;">${displayName.charAt(0)}</div>`;
+
+            const avatarHtml = `
             <div style="position: relative; flex-shrink: 0;">
                 ${avatarContent}
                 <div style="position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; background: ${statusColor}; border: 2px solid var(--bg-card); border-radius: 50%;"></div>
             </div>`;
 
-                    const existingChat = chatMap[otherId];
+            const existingChat = chatMap[otherId];
+            const hasMessage = existingChat && existingChat.lastMessage && existingChat.lastMessage.trim() !== "";
+            const lastMsg = hasMessage ? existingChat.lastMessage : 'Start a conversation';
+            const msgColor = hasMessage ? 'var(--text-secondary)' : 'var(--primary-color)';
+            const chatId = existingChat ? existingChat.id : [currentUser.uid, otherId].sort().join('_');
 
-                    // --- THE FIX: LOGIC FOR "START A CONVERSATION" ---
-                    // Check if chat exists AND has a non-empty message
-                    const hasMessage = existingChat && existingChat.lastMessage && existingChat.lastMessage.trim() !== "";
+            // Unread Check
+            const myReadTime = (existingChat && existingChat.lastRead && existingChat.lastRead[currentUser.uid]) 
+                               ? existingChat.lastRead[currentUser.uid].toDate() 
+                               : new Date(0);
+            const lastUpdate = existingChat && existingChat.updatedAt ? existingChat.updatedAt.toDate() : new Date(0);
+            const isUnread = hasMessage && (lastUpdate > myReadTime) && (existingChat.lastSenderId !== currentUser.uid);
 
-                    const lastMsg = hasMessage ? existingChat.lastMessage : 'Start a conversation';
-
-                    // If it's a placeholder, use Primary Color (or italic). If real message, use secondary (grey).
-                    const msgColor = hasMessage ? 'var(--text-secondary)' : 'var(--primary-color)';
-
-                    const chatId = existingChat ? existingChat.id : [currentUser.uid, otherId].sort().join('_');
-
-                    return `
-            <div class="card chat-item" onclick="openInlineChat('${chatId}', '${otherId}', '${displayName}')" 
-                 style="cursor:pointer; padding: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 12px; user-select: none;"
+            return `
+            <div class="card chat-item animate-item" onclick="openInlineChat('${chatId}', '${otherId}', '${displayName}')" 
+                 style="cursor:pointer; padding: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 12px; user-select: none; border-left: ${isUnread ? '3px solid var(--primary-color)' : 'none'};"
                  oncontextmenu="showContextMenu(event, 'chat', '${chatId}')"
                  ontouchstart="startLongPress(event, 'chat', '${chatId}')"
                  ontouchend="cancelLongPress()"
                  ontouchmove="cancelLongPress()">
+
                 ${avatarHtml}
                 <div style="flex: 1; min-width: 0;">
-                    <div style="font-weight: 600; font-size: 15px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        ${displayName} <span style="font-size: 11px; color: var(--text-secondary);">(${role})</span>
+                    <div style="display:flex; justify-content:space-between;">
+                        <div style="font-weight: 600; font-size: 15px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${displayName} <span style="font-size: 11px; color: var(--text-secondary);">(${role})</span>
+                        </div>
+                        ${isUnread ? '<span style="width:8px; height:8px; background:var(--primary-color); border-radius:50%;"></span>' : ''}
                     </div>
                     <small style="color: ${msgColor}; display: block; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                         ${lastMsg}
                     </small>
                 </div>
             </div>`;
-                });
+        });
 
-                const renderedItems = await Promise.all(renderPromises);
-                listEl.innerHTML = renderedItems.join('') || '<p style="color:var(--text-secondary); padding:15px;">No connections found.</p>';
+        const renderedItems = await Promise.all(renderPromises);
+        listEl.innerHTML = renderedItems.join('') || '<p style="color:var(--text-secondary); padding:15px;">No connections found.</p>';
 
-            }).catch(e => {
-                console.error(e);
-                listEl.innerHTML = '<p style="color:var(--danger-color)">Error loading chats.</p>';
-            });
-        }
+    }).catch(e => {
+        console.error(e);
+        listEl.innerHTML = '<p style="color:var(--danger-color)">Error loading chats.</p>';
+    });
+}
         // Helper: Extract dominant color from an image file object
         function getDominantColor(file) {
             return new Promise((resolve) => {
@@ -7186,7 +7253,7 @@
 
                     // Combine them into the wrapper card
                     return `
-            <div id="post-card-${p.id}" class="card" style="position: relative;">
+            <div id="post-card-${p.id}" class="card animate-item" style="position: relative;">
                 ${isReportedByMe ? wallHtml : ''} 
                 ${contentHtml}
             </div>`;
@@ -8410,105 +8477,126 @@ function applyExploreFilters() {
         let chatMetaUnsub;
 
         /* --- OPEN CHAT (With Real-Time Seen Status) --- */
-        function openInlineChat(chatId, otherUserId, name) {
-            if (window.innerWidth <= 600) lockScroll();
+        /* --- OPEN CHAT (With Profile Pics) --- */
+function openInlineChat(chatId, otherUserId, name) {
+    if (window.innerWidth <= 600) lockScroll();
 
-            // 1. Cleanup old listeners
-            if (msgUnsub) msgUnsub();
-            if (chatMetaUnsub) chatMetaUnsub();
+    // 1. Cleanup
+    if (msgUnsub) msgUnsub();
+    if (chatMetaUnsub) chatMetaUnsub();
 
-            document.getElementById('selectedChatId').value = chatId;
+    document.getElementById('selectedChatId').value = chatId;
 
-            // 2. UI Setup
-            document.getElementById('chats').classList.add('mobile-chat-open');
-            if (window.innerWidth <= 600) document.querySelector('.tabs').style.display = 'none';
+    // 2. UI Setup
+    document.getElementById('chats').classList.add('mobile-chat-open');
+    if (window.innerWidth <= 600) document.querySelector('.tabs').style.display = 'none';
 
-            // Header Setup
-            const headerInfo = document.getElementById('chatHeaderInfo');
-            const initial = name.charAt(0).toUpperCase();
+    const headerInfo = document.getElementById('chatHeaderInfo');
+    const initial = name.charAt(0).toUpperCase();
+    
+    // --- NEW: Store messages and pic to handle async loading ---
+    let currentChatPartnerPic = null; 
+    let currentMessages = []; 
+    const cont = document.getElementById('messagesContainer');
 
-            // Fetch profile for header image
-            db.collection('users').doc(otherUserId).get().then(doc => {
-                let picHtml = `<div style="width:38px; height:38px; border-radius:50%; background:#333; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:bold;">${initial}</div>`;
-                let statusText = "Connecting...";
-                let statusColor = "var(--text-secondary)";
+    // 3. Fetch User Data (Header + Pic for messages)
+    db.collection('users').doc(otherUserId).get().then(doc => {
+        let picHtml = `<div style="width:38px; height:38px; border-radius:50%; background:#333; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:bold;">${initial}</div>`;
+        let statusText = "Connecting...";
+        let statusColor = "var(--text-secondary)";
 
-                if (doc.exists) {
-                    const u = doc.data();
-                    if (u.profilePic) picHtml = `<img src="${u.profilePic}" style="width:38px; height:38px; border-radius:50%; object-fit:cover;">`;
-                    statusText = formatLastActive(u.lastSeen);
-                    if (statusText === 'Active now') statusColor = '#30D158';
-                }
+        if (doc.exists) {
+            const u = doc.data();
+            
+            // SAVE PIC FOR MESSAGES
+            currentChatPartnerPic = u.profilePic; 
 
-                headerInfo.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 12px;">
-                ${picHtml}
-                <div style="line-height: 1.3;">
-                    <div style="font-size: 16px; font-weight: 700; color: var(--text-main);">${name}</div>
-                    <div style="font-size: 12px; color: ${statusColor};">${statusText}</div>
-                </div>
-            </div>`;
-            });
-
-            document.getElementById('sendMessageForm').classList.remove('hidden');
-            const cont = document.getElementById('messagesContainer');
-            cont.innerHTML = ''; // Clear immediately
-
-            // 3. Mark as Read immediately
-            markChatAsRead(chatId);
-
-            // 4. MESSAGE LISTENER
-            let allMessages = [];
-
-            msgUnsub = db.collection('chats').doc(chatId).collection('messages')
-                .orderBy('timestamp', 'asc')
-                .onSnapshot(snap => {
-                    // Keep marking read as new messages arrive while open
-                    if (!snap.empty) markChatAsRead(chatId);
-
-                    allMessages = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-                    renderMessages(allMessages, cont, chatId);
-                    cont.scrollTop = cont.scrollHeight;
-                });
-
-            // 5. METADATA LISTENER (Watches for "Seen" updates)
-            chatMetaUnsub = db.collection('chats').doc(chatId).onSnapshot(doc => {
-                if (!doc.exists) return;
-                const data = doc.data();
-
-                // Check if other user has read messages
-                // 'lastRead' is a map: { userId: timestamp }
-                if (data.lastRead && data.lastRead[otherUserId]) {
-                    updateSeenStatus(allMessages, data.lastRead[otherUserId], cont);
-                }
-            });
+            if (u.profilePic) picHtml = `<img src="${u.profilePic}" style="width:38px; height:38px; border-radius:50%; object-fit:cover;">`;
+            statusText = formatLastActive(u.lastSeen);
+            if (statusText === 'Active now') statusColor = '#30D158';
+            
+            // Re-render messages now that we have the pic
+            if (currentMessages.length > 0) {
+                renderMessages(currentMessages, cont, chatId, currentChatPartnerPic);
+            }
         }
 
+        headerInfo.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px;">
+            ${picHtml}
+            <div style="line-height: 1.3;">
+                <div style="font-size: 16px; font-weight: 700; color: var(--text-main);">${name}</div>
+                <div style="font-size: 12px; color: ${statusColor};">${statusText}</div>
+            </div>
+        </div>`;
+    });
+
+    document.getElementById('sendMessageForm').classList.remove('hidden');
+    cont.innerHTML = ''; 
+
+    markChatAsRead(chatId);
+
+    // 4. MESSAGE LISTENER
+    msgUnsub = db.collection('chats').doc(chatId).collection('messages')
+        .orderBy('timestamp', 'asc')
+        .onSnapshot(snap => {
+            if (!snap.empty) markChatAsRead(chatId);
+
+            currentMessages = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+            
+            // Pass the pic variable here
+            renderMessages(currentMessages, cont, chatId, currentChatPartnerPic);
+            
+            cont.scrollTop = cont.scrollHeight;
+        });
+
+    // 5. SEEN STATUS LISTENER
+    chatMetaUnsub = db.collection('chats').doc(chatId).onSnapshot(doc => {
+        if (!doc.exists) return;
+        const data = doc.data();
+        if (data.lastRead && data.lastRead[otherUserId]) {
+            updateSeenStatus(currentMessages, data.lastRead[otherUserId], cont);
+        }
+    });
+}
+
         // --- HELPER: Render Messages ---
-        function renderMessages(messages, container, chatId) {
-            let html = '';
-            messages.forEach(m => {
-                const me = m.senderId === currentUser.uid;
-                let content = m.imageUrl
-                    ? (m.mediaType === 'video' ? `<video src="${m.imageUrl}" controls class="chat-image"></video>` : `<img src="${m.imageUrl}" class="chat-image" onclick="openLightbox(this.src)">`)
-                    : `<span>${m.text}</span>`;
+        /* --- RENDER MESSAGES (With Avatars) --- */
+function renderMessages(messages, container, chatId, otherPic) {
+    let html = '';
+    
+    // Helper to generate avatar HTML
+    const getAvatar = (name) => {
+        if (otherPic) return `<img src="${otherPic}" class="chat-msg-avatar">`;
+        // Fallback placeholder
+        return `<div class="chat-msg-placeholder" style="width:28px; height:28px; font-size:10px;">${name ? name.charAt(0) : '?'}</div>`;
+    };
 
-                // We add an ID to the last message sent by ME to inject the "Seen" label later
-                const msgIdAttr = `id="msg-${m.id}"`;
+    messages.forEach(m => {
+        const me = m.senderId === currentUser.uid;
+        
+        let content = m.imageUrl
+            ? (m.mediaType === 'video' ? `<video src="${m.imageUrl}" controls class="chat-image"></video>` : `<img src="${m.imageUrl}" class="chat-image" onclick="openLightbox(this.src)">`)
+            : `<span>${m.text}</span>`;
 
-                let events = me ? `oncontextmenu="showContextMenu(event, 'message', '${chatId}', '${m.id}')"` : '';
+        const msgIdAttr = `id="msg-${m.id}"`;
+        let events = me ? `oncontextmenu="showContextMenu(event, 'message', '${chatId}', '${m.id}')"` : '';
 
-                html += `
+        // Insert Avatar ONLY for 'them'
+        const avatarHtml = !me ? getAvatar("User") : '';
+
+        html += `
         <div class="chat-message-row ${me ? 'me' : 'them'}" ${msgIdAttr}>
+            ${avatarHtml}
             <div class="msg-bubble ${me ? 'msg-me' : 'msg-them'}" ${events}>
                 ${content}
             </div>
         </div>
         <div id="seen-${m.id}" class="seen-placeholder" style="width:100%; display:none;"></div>
         `;
-            });
-            container.innerHTML = html;
-        }
+    });
+    container.innerHTML = html;
+}
 
         // --- HELPER: Update Seen Status Dynamically ---
         function updateSeenStatus(messages, otherUserReadTime, container) {
