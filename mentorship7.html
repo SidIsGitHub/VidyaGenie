@@ -9,7 +9,7 @@
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VidyaGenie</title>
+    <title>V-SYNC</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* --- DYNAMIC POLL INPUTS --- */
@@ -1374,6 +1374,35 @@
             background: linear-gradient(90deg, rgba(255, 87, 34, 0.3), rgba(255, 55, 95, 0.3));
         }
 
+        /* POLL HIGHLIGHT (Only for Unvoted) */
+        .poll-card.active-poll {
+            border: 1px solid var(--primary-color) !important;
+            box-shadow: 0 0 15px rgba(255, 69, 58, 0.15);
+            /* Soft Red Glow */
+            animation: pollPulse 3s infinite;
+        }
+
+        @keyframes pollPulse {
+            0% {
+                box-shadow: 0 0 10px rgba(255, 69, 58, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 0 20px rgba(255, 69, 58, 0.3);
+            }
+
+            100% {
+                box-shadow: 0 0 10px rgba(255, 69, 58, 0.1);
+            }
+        }
+
+        /* COMPLETED POLL (Voted) */
+        .poll-card.completed-poll {
+            border: 1px solid var(--border-color) !important;
+            box-shadow: none !important;
+            opacity: 0.9;
+        }
+
         /* --- THREADED COMMENT PREVIEWS --- */
         .preview-comments-container {
             margin-top: 15px;
@@ -2335,83 +2364,88 @@
             font-weight: 600;
         }
 
-        /* --- MOBILE BOTTOM NAVIGATION (The "Real App" Feel) --- */
-        @media (max-width: 600px) {
-            .tabs {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                width: 100%;
-                max-width: 100%;
+        /* --- MOBILE BOTTOM NAVIGATION (FIXED ALIGNMENT) --- */
+@media (max-width: 600px) {
+    .tabs {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        margin: 0;
+        border: none;
+        border-top: 1px solid var(--border-color);
+        background: rgba(28, 28, 30, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 8px 0 25px 0; /* Padding for iPhone Home Indicator */
+        z-index: 1000;
+        display: flex;
+        justify-content: space-around;
+        gap: 0;
+    }
 
-                margin: 0;
-                border-radius: 0;
-                border: none;
-                border-top: 1px solid var(--border-color);
+    .tab-button {
+        flex: 1;
+        display: flex !important;
+        flex-direction: column !important; /* Forces vertical stacking */
+        align-items: center !important;    /* Centers items horizontally */
+        justify-content: center !important; 
+        gap: 0 !important;
+        padding: 6px 0 !important;
+        background: transparent !important;
+        border-radius: 0;
+        box-shadow: none !important;
+        transition: all 0.2s ease;
+    }
 
-                background: rgba(28, 28, 30, 0.95);
-                /* Glassy dark background */
-                backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
+    /* Icon Container - Force Center */
+    .tab-button > div, 
+    .tab-button svg {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto; /* Auto margins to force horizontal centering */
+    }
 
-                padding: 10px 0 25px 0;
-                /* Extra padding for iPhone Home Indicator */
-                z-index: 1000;
-                /* Sit above everything */
-                gap: 0;
-                justify-content: space-around;
-            }
+    .tab-button svg {
+        width: 24px;
+        height: 24px;
+        stroke: var(--text-secondary);
+        transition: transform 0.2s ease, stroke 0.2s ease;
+    }
 
-            .tab-button {
-                flex-direction: column;
-                gap: 0;
-                /* Reset gap */
-                padding: 10px 0;
-                background: transparent !important;
-                transition: all 0.3s var(--transition-bounce);
-            }
+    /* The Text Label - Hidden by default, slides down when active */
+    .tab-label {
+        font-size: 10px !important;
+        font-weight: 600;
+        text-align: center;
+        width: 100%;
+        display: block;
+        line-height: 1;
+        
+        /* Animation Props */
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translateY(5px); /* Start slightly lower */
+    }
 
-            .tab-label {
-                font-size: 10px;
-                font-weight: 700;
-                max-height: 0;
-                opacity: 0;
-                overflow: hidden;
-                transition: all 0.3s var(--transition-bounce);
-                transform: translateY(10px);
-            }
+    /* ACTIVE STATE */
+    .tab-button.active svg {
+        stroke: var(--primary-color) !important;
+        transform: translateY(-2px); /* Icon moves up slightly */
+    }
 
-            .tab-button.active .tab-label {
-                max-height: 20px;
-                opacity: 1;
-                transform: translateY(4px);
-                /* Moves text slightly below icon */
-                margin-top: 2px;
-            }
-
-            /* Icon size adjustment for mobile */
-            .tab-button svg {
-                width: 24px;
-                height: 24px;
-                stroke: var(--text-secondary);
-                transition: all 0.3s var(--transition-bounce);
-            }
-
-            .tab-button.active svg {
-                stroke: var(--primary-color) !important;
-                transform: translateY(-2px);
-                /* Slight lift effect */
-            }
-
-            /* Make sure content doesn't get hidden behind the bar */
-            .container {
-                padding-bottom: 90px;
-            }
-
-            /* Hide the navbar on scroll (Optional: makes it feel cleaner) */
-            /* .navbar { position: static; } */
-        }
+    .tab-button.active .tab-label {
+        max-height: 15px; /* Reveal text space */
+        opacity: 1;
+        transform: translateY(0); /* Slide into place */
+        margin-top: 4px !important; /* Space between icon and text */
+        color: var(--primary-color);
+    }
+}
 
         .tab-button:hover {
             color: var(--text-main);
@@ -3780,7 +3814,7 @@
         style="max-width: 900px; margin: 60px auto; padding: 40px; background: var(--bg-card); border-radius: 24px; border: 1px solid var(--border-color);">
         <h2
             style="margin-bottom: 20px; font-size: 32px; background: var(--primary-color);background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; text-align: center;">
-            VidyaGenie Portal</h2>
+            V-SYNC Portal</h2>
 
         <div style="display: flex; gap: 40px; align-items: flex-start; text-align: left;">
 
@@ -3943,7 +3977,7 @@
         <div class="container">
             <div class="navbar">
                 <div class="navbar-brand">
-                    <h1>VidyaGenie</h1>
+                    <h1>V-SYNC</h1>
                     <p id="userInfo"></p>
                 </div>
                 <div class="navbar-right">
@@ -4050,7 +4084,7 @@
                 <div id="leaderboard" class="tab-content">
                     <div class="card"
                         style="margin-bottom: 20px; text-align:center; padding:20px; background: linear-gradient(135deg, #1C1C1E, #2C2C2E);">
-                        <h2 style="font-size:20px; color:var(--text-main); margin-bottom:5px;">🏆 Top Mentors of the
+                        <h2 style="font-size:20px; color:var(--text-main); margin-bottom:5px;"> Top Mentors of the
                             month</h2>
                         <p style="font-size:12px; color:var(--text-secondary);">
                             <span style="color:var(--primary-color); font-weight:bold;">+1</span> per Upvote
@@ -4364,7 +4398,7 @@
             <div class="modal-header">My Connections</div>
             <div id="connectionsModalList" style="max-height: 50vh; overflow-y: auto; padding-right: 5px;"></div>
             <div class="modal-footer" style="flex-direction: column; gap: 10px;">
-                <button class="btn btn-secondary" style="width: 100%;" onclick="closeModal('adminPanelModal')">Close
+                <button class="btn btn-secondary" style="width: 100%;" onclick="closeModal('connectionsModal')">Close
                     Panel</button>
 
                 <button id="btnResetScores" class="btn btn-danger"
@@ -4624,8 +4658,13 @@
                 style="flex: 1; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 12px; margin-top: 10px;">
             </div>
 
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('adminPanelModal')">Close Panel</button>
+            <div class="modal-footer" style="flex-direction: column; gap: 10px;">
+                <button class="btn btn-secondary" style="width: 100%;" onclick="closeModal('adminPanelModal')">Close
+                    Panel</button>
+
+                <button id="btnResetScores" class="btn btn-danger" ...>
+                    ...
+                </button>
             </div>
         </div>
     </div>
@@ -4669,72 +4708,93 @@
 
         let currentPollData = null;
 
+        let pollUnsub; // Global variable to stop duplicate listeners
+
         function openDailyPoll() {
             lockScroll();
             const modal = document.getElementById('dailyPollModal');
-            modal.classList.add('active');
+            if (modal) modal.classList.add('active');
 
             // Check Admin Status
-            if (currentUser && ADMIN_UIDS.includes(currentUser.uid)) {
-                document.getElementById('btnEditPoll').style.display = 'block';
-            } else {
-                document.getElementById('btnEditPoll').style.display = 'none';
+            const editBtn = document.getElementById('btnEditPoll');
+            if (editBtn) {
+                if (currentUser && typeof ADMIN_UIDS !== 'undefined' && ADMIN_UIDS.includes(currentUser.uid)) {
+                    editBtn.style.display = 'block';
+                } else {
+                    editBtn.style.display = 'none';
+                }
             }
 
-            loadActivePoll();
+            // Ensure listener is running (in case it wasn't started on login)
+            if (!pollUnsub) {
+                loadActivePoll();
+            }
         }
 
         function loadActivePoll() {
             const container = document.getElementById('pollOptionsContainer');
             const questionEl = document.getElementById('pollQuestionDisplay');
             const votesEl = document.getElementById('pollTotalVotes');
-            // 1. SELECT THE MAIN BUTTON
+
+            // Select the Home Screen Button
             const pollBtn = document.querySelector('.daily-poll-style');
 
-            container.innerHTML = '<p style="color:#888;">Loading...</p>';
+            if (container) container.innerHTML = '<p style="color:#888;">Loading...</p>';
 
-            db.collection('system').doc('daily_poll').onSnapshot(doc => {
+            // 1. CLEAR OLD LISTENER (Fixes memory leaks)
+            if (pollUnsub) pollUnsub();
+
+            pollUnsub = db.collection('system').doc('daily_poll').onSnapshot(doc => {
                 if (!doc.exists) {
-                    questionEl.innerText = "No active poll today.";
-                    container.innerHTML = "";
+                    if (questionEl) questionEl.innerText = "No active poll today.";
+                    if (container) container.innerHTML = "";
                     return;
                 }
 
-                currentPollData = doc.data();
-                questionEl.innerText = currentPollData.question;
+                const data = doc.data();
 
-                const totalVotes = currentPollData.totalVotes || 0;
-                votesEl.innerText = `${totalVotes} Votes`;
+                // 2. CHECK VOTE STATUS (For Button Glow)
+                // Check if user ID is in the 'votes' map OR 'voters' array
+                let hasVoted = false;
+                if (data.votes && data.votes[currentUser.uid] !== undefined) hasVoted = true;
+                else if (data.voters && data.voters.includes(currentUser.uid)) hasVoted = true;
 
-                // Render Options
-                let html = '';
-                const myVote = currentPollData.votes ? currentPollData.votes[currentUser.uid] : undefined;
-
-                // --- NEW: TOGGLE DULL STATE ---
-                if (myVote !== undefined) {
-                    // User has voted: Add class to make it dull
-                    pollBtn.classList.add('voted');
-                } else {
-                    // User hasn't voted: Ensure it's flashy
-                    pollBtn.classList.remove('voted');
+                // UPDATE HOME BUTTON IMMEDIATELY
+                if (pollBtn) {
+                    if (hasVoted) {
+                        pollBtn.classList.add('voted'); // Remove Glow (Dull)
+                    } else {
+                        pollBtn.classList.remove('voted'); // Add Glow (Shiny)
+                    }
                 }
-                // ------------------------------
 
-                currentPollData.options.forEach((opt, index) => {
-                    const voteCount = currentPollData.counts ? (currentPollData.counts[index] || 0) : 0;
+                // 3. RENDER MODAL CONTENT (Only if elements exist)
+                if (!questionEl || !container) return;
+
+                questionEl.innerText = data.question;
+                const totalVotes = data.totalVotes || 0;
+                if (votesEl) votesEl.innerText = `${totalVotes} Votes`;
+
+                let html = '';
+                // Get the specific option the user voted for (if any)
+                const myVoteIndex = data.votes ? data.votes[currentUser.uid] : undefined;
+
+                const showResults = hasVoted || (currentUser && typeof ADMIN_UIDS !== 'undefined' && ADMIN_UIDS.includes(currentUser.uid));
+
+                data.options.forEach((opt, index) => {
+                    const voteCount = data.counts ? (data.counts[index] || 0) : 0;
                     const percent = totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0;
 
-                    const isVotedClass = myVote === index ? 'voted' : '';
-                    const showResults = myVote !== undefined || (currentUser && ADMIN_UIDS.includes(currentUser.uid));
+                    const isSelected = myVoteIndex === index ? 'voted' : '';
 
                     html += `
-                    <div class="poll-option-btn ${isVotedClass}" onclick="submitVote(${index})">
-                        <div class="poll-fill-bar" style="width: ${showResults ? percent : 0}%"></div>
-                        <div class="poll-text-wrapper">
-                            <span>${opt}</span>
-                            ${showResults ? `<span>${percent}%</span>` : ''}
-                        </div>
-                    </div>`;
+            <div class="poll-option-btn ${isSelected}" onclick="submitVote(${index})" style="${hasVoted ? 'pointer-events:none;' : ''}">
+                <div class="poll-fill-bar" style="width: ${showResults ? percent : 0}%"></div>
+                <div class="poll-text-wrapper">
+                    <span>${opt}</span>
+                    ${showResults ? `<span>${percent}%</span>` : ''}
+                </div>
+            </div>`;
                 });
 
                 container.innerHTML = html;
@@ -5207,6 +5267,7 @@
                     navRight.children[0].children[0].classList.remove('hidden');
                     navRight.children[0].children[1].classList.remove('hidden');
 
+                    loadActivePoll();
                     initMessageBadgeListener();
                     updateUserInfo();
                     loadDevUsers();
@@ -6449,7 +6510,7 @@
                     recipientName: targetName,
                     status: 'pending',
                     subject: 'General Connection',
-                    message: "I'd like to connect with you on VidyaGenie!",
+                    message: "I'd like to connect with you on V-SYNC!",
                     createdAt: new Date()
                 });
             }).then(() => {
@@ -6618,7 +6679,7 @@
                         if (uDoc.exists) otherUser = uDoc.data();
                     } catch (e) { }
 
-                    // FIX: If user not found, just return empty string (don't look for MOCK_USERS)
+                    // FIX: If user not found, just return empty string
                     if (!otherUser) return '';
 
                     const name = (otherUser.name || 'User').toLowerCase();
@@ -6634,40 +6695,46 @@
                         if (diffMins < 5) statusColor = '#30D158';
                     }
 
-                    // Inside loadChats function...
                     let avatarContent = otherUser.profilePic
-                        // FIXED: Removed extra semicolons and fixed quote placement
                         ? `<img src="${otherUser.profilePic}" loading="lazy" style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:1px solid var(--border-color);">`
                         : `<div style="width:45px; height:45px; border-radius:50%; background:black; color:white; display:flex; align-items:center; justify-content:center; border:1px solid var(--border-color); font-weight:bold; font-size:18px;">${displayName.charAt(0)}</div>`;
 
                     const avatarHtml = `
-                    <div style="position: relative; flex-shrink: 0;">
-                        ${avatarContent}
-                        <div style="position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; background: ${statusColor}; border: 2px solid var(--bg-card); border-radius: 50%;"></div>
-                    </div>`;
+            <div style="position: relative; flex-shrink: 0;">
+                ${avatarContent}
+                <div style="position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; background: ${statusColor}; border: 2px solid var(--bg-card); border-radius: 50%;"></div>
+            </div>`;
 
                     const existingChat = chatMap[otherId];
-                    const lastMsg = existingChat ? (existingChat.lastMessage || 'Sent media') : 'Start a conversation';
-                    const msgColor = existingChat ? 'var(--text-secondary)' : 'var(--primary-color)';
+
+                    // --- THE FIX: LOGIC FOR "START A CONVERSATION" ---
+                    // Check if chat exists AND has a non-empty message
+                    const hasMessage = existingChat && existingChat.lastMessage && existingChat.lastMessage.trim() !== "";
+
+                    const lastMsg = hasMessage ? existingChat.lastMessage : 'Start a conversation';
+
+                    // If it's a placeholder, use Primary Color (or italic). If real message, use secondary (grey).
+                    const msgColor = hasMessage ? 'var(--text-secondary)' : 'var(--primary-color)';
+
                     const chatId = existingChat ? existingChat.id : [currentUser.uid, otherId].sort().join('_');
 
                     return `
-                    <div class="card chat-item" onclick="openInlineChat('${chatId}', '${otherId}', '${displayName}')" 
-                         style="cursor:pointer; padding: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 12px; user-select: none;"
-                         oncontextmenu="showContextMenu(event, 'chat', '${chatId}')"
-                         ontouchstart="startLongPress(event, 'chat', '${chatId}')"
-                         ontouchend="cancelLongPress()"
-                         ontouchmove="cancelLongPress()">
-                        ${avatarHtml}
-                        <div style="flex: 1; min-width: 0;">
-                            <div style="font-weight: 600; font-size: 15px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                ${displayName} <span style="font-size: 11px; color: var(--text-secondary);">(${role})</span>
-                            </div>
-                            <small style="color: ${msgColor}; display: block; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                ${lastMsg}
-                            </small>
-                        </div>
-                    </div>`;
+            <div class="card chat-item" onclick="openInlineChat('${chatId}', '${otherId}', '${displayName}')" 
+                 style="cursor:pointer; padding: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 12px; user-select: none;"
+                 oncontextmenu="showContextMenu(event, 'chat', '${chatId}')"
+                 ontouchstart="startLongPress(event, 'chat', '${chatId}')"
+                 ontouchend="cancelLongPress()"
+                 ontouchmove="cancelLongPress()">
+                ${avatarHtml}
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-weight: 600; font-size: 15px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${displayName} <span style="font-size: 11px; color: var(--text-secondary);">(${role})</span>
+                    </div>
+                    <small style="color: ${msgColor}; display: block; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${lastMsg}
+                    </small>
+                </div>
+            </div>`;
                 });
 
                 const renderedItems = await Promise.all(renderPromises);
@@ -7029,6 +7096,7 @@
         };
         // --- SYNC PROFILE CHANGES TO OLD POSTS ---
         // --- SYNC PROFILE CHANGES TO OLD POSTS ---
+        /* --- FIXED SYNC FUNCTION (Protects Anonymous Posts) --- */
         async function syncUserProfileToContent() {
             if (!currentUser) return;
 
@@ -7040,24 +7108,35 @@
                 authorPic: uData.profilePic || "",
                 authorRole: uData.role || "Student",
                 authorYear: uData.year || "",
-                // NEW: Sync the theme color too
                 authorColor: uData.themeColor || "#FF5722"
             };
 
-            console.log("Syncing profile to old posts...");
+            console.log("Syncing profile...");
 
             try {
-                // 1. Find all my posts
                 const postsSnap = await db.collection('posts').where('authorId', '==', currentUser.uid).get();
-
-                // 2. Batch update them (batches allow 500 ops at once)
                 const batch = db.batch();
+                let updateCount = 0;
+
                 postsSnap.forEach(doc => {
+                    const p = doc.data();
+
+                    // 🚨 SECURITY CHECK: 
+                    // If the post was made by "Guest" (Anonymous) or explicitly flagged, DO NOT update it with real name.
+                    if (p.authorRole === 'Guest' || p.isAnonymous === true) {
+                        return; // Skip this post
+                    }
+
                     batch.update(doc.ref, updates);
+                    updateCount++;
                 });
 
-                await batch.commit();
-                console.log("Old posts updated.");
+                if (updateCount > 0) {
+                    await batch.commit();
+                    console.log(`Updated ${updateCount} public posts.`);
+                } else {
+                    console.log("No public posts to update.");
+                }
 
             } catch (e) {
                 console.error("Sync error:", e);
@@ -7114,13 +7193,13 @@
         };
 
         /* --- FILTER APPLY FIX --- */
-function applyFilters() {
-    // 1. Close the modal properly (This triggers unlockScroll)
-    closeModal('sortFilterModal'); 
-    
-    // 2. Reload the feed with the new filters
-    loadCommunity(); 
-}
+        function applyFilters() {
+            // 1. Close the modal properly (This triggers unlockScroll)
+            closeModal('sortFilterModal');
+
+            // 2. Reload the feed with the new filters
+            loadCommunity();
+        }
         function applyTheme(color) {
             document.documentElement.style.setProperty('--primary-color', color);
             // Add other variables if needed
@@ -7299,23 +7378,29 @@ function applyFilters() {
                 const isAnon = window.currentUserData.isAnonymousSession;
                 const currentYear = isAnon ? window.currentUserData.realYear : window.currentUserData.year;
 
+                // Inside handleCreatePostSubmit...
+
                 await db.collection('posts').add({
                     title: title,
                     body: body,
                     tags: finalTags,
-                    imageUrl: fileUrl, // Now stores a short URL (e.g. https://firebasestorage...)
+                    imageUrl: fileUrl,
                     mediaType: mediaType,
 
                     authorId: window.currentUser.uid,
+
+                    // LOGIC: If Anon, use "Anonymous" / "Guest". If Public, use real data.
                     authorName: isAnon ? "Anonymous" : (window.currentUserData.name || "Anonymous"),
                     authorRole: isAnon ? "Guest" : (window.currentUserData.role || "Student"),
-                    authorYear: currentYear || "",
                     authorPic: isAnon ? "" : (window.currentUserData.profilePic || ""),
 
+                    // 🚨 NEW SAFETY FLAG
+                    isAnonymous: isAnon,
+
+                    authorYear: currentYear || "",
                     upvotes: 0,
                     upvoters: [],
                     createdAt: new Date(),
-                    // Initialize empty fields to prevent errors later
                     linkUrl: "",
                     reportCount: 0,
                     reports: []
@@ -8008,7 +8093,7 @@ function applyFilters() {
             if (navigator.share) {
                 navigator.share({
                     title: document.getElementById('profileName').textContent,
-                    text: `Check out my profile on VidyaGenie`,
+                    text: `Check out my profile on V-SYNC`,
                     url: url
                 });
             } else {
