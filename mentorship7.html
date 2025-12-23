@@ -4120,18 +4120,31 @@
             </div>
 
             <div id="mentors" class="tab-content">
-                <div class="card" style="margin-bottom: 30px; border: 1px solid var(--border-color);">
-                    <div class="card-header" style="color: var(--text-main);">Search Users</div>
-                    <div class="card-body">
-                        <form id="userSearchForm" onsubmit="handleUserSearch(event)">
-                            <div class="form-group" style="display: flex; gap: 10px; margin-bottom: 0;">
-                                <input type="text" id="searchInput" placeholder="Search by Name" style="flex-grow: 1;"
-                                    oninput="handleUserSearch(event)">
-                                <button type="submit" class="btn btn-primary">Search</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                <div class="card" style="margin-bottom: 20px; border: 1px solid var(--border-color); padding: 15px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <span style="font-size:16px; font-weight:700; color:var(--text-main);">Find Connections</span>
+        
+        <button class="btn btn-secondary" onclick="openExploreSortModal()" 
+            style="padding: 6px 12px; font-size: 12px; display: flex; align-items: center; gap: 6px; border-radius: 20px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line>
+                <line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line>
+                <line x1="2" y1="14" x2="6" y2="14"></line><line x1="10" y1="8" x2="14" y2="8"></line>
+                <line x1="18" y1="16" x2="22" y2="16"></line>
+            </svg>
+            Filter
+        </button>
+    </div>
+
+    <form id="userSearchForm" onsubmit="handleUserSearch(event)" style="display:flex; gap:10px;">
+        <input type="text" id="searchInput" placeholder="Search by Name..." 
+            style="flex-grow: 1; padding: 10px 15px; border-radius: 12px;"
+            oninput="handleUserSearch(event)">
+    </form>
+</div>
+
+<div id="searchResultsList" class="grid"></div>
                 <div id="searchResultsList" class="grid"></div>
             </div>
             <div id="leaderboard" class="tab-content">
@@ -4275,6 +4288,44 @@
 
                 <div id="communityPostsList" style="margin-top: 20px; padding: 0 5px;"></div>
             </div>
+            <div id="exploreFilterModal" class="modal" style="z-index: 10002;">
+    <div class="modal-content" style="max-width: 400px; max-height: 85vh; display: flex; flex-direction: column;">
+        <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Filter Connections</span>
+            <span class="close-modal-btn" onclick="closeModal('exploreFilterModal')" style="font-size:24px; cursor:pointer; padding:0 10px;">&times;</span>
+        </div>
+
+        <div style="flex: 1; overflow-y: auto; padding-right: 5px;">
+            
+            <div class="filter-section-title">By Role</div>
+            <div style="display: flex; flex-wrap: wrap;">
+                <div class="filter-pill" id="expRole_student" onclick="toggleExploreFilter('roles', 'student')">Student</div>
+                <div class="filter-pill" id="expRole_mentor" onclick="toggleExploreFilter('roles', 'mentor')">Mentor</div>
+            </div>
+
+            <div class="filter-section-title">By Year</div>
+            <div style="display: flex; flex-wrap: wrap;">
+                <div class="filter-pill" id="expYear_FE" onclick="toggleExploreFilter('years', 'FE')">FE</div>
+                <div class="filter-pill" id="expYear_SE" onclick="toggleExploreFilter('years', 'SE')">SE</div>
+                <div class="filter-pill" id="expYear_TE" onclick="toggleExploreFilter('years', 'TE')">TE</div>
+                <div class="filter-pill" id="expYear_BE" onclick="toggleExploreFilter('years', 'BE')">BE</div>
+            </div>
+
+            <div class="filter-section-title">By College</div>
+            <div style="display: flex; flex-wrap: wrap;">
+                <div class="filter-pill" id="expCol_VIT" onclick="toggleExploreFilter('colleges', 'VIT')">VIT</div>
+                <div class="filter-pill" id="expCol_VSIT" onclick="toggleExploreFilter('colleges', 'VSIT')">VSIT</div>
+                <div class="filter-pill" id="expCol_VP" onclick="toggleExploreFilter('colleges', 'VP')">VP</div>
+            </div>
+
+        </div>
+
+        <div class="modal-footer" style="margin-top:15px; border-top:1px solid #333; padding-top:15px;">
+            <button class="btn btn-secondary" onclick="clearExploreFilters()">Clear All</button>
+            <button class="btn btn-primary" onclick="applyExploreFilters()">Apply Filters</button>
+        </div>
+    </div>
+</div>
 
             <div id="sortFilterModal" class="modal" style="z-index: 10002;">
                 <div class="modal-content"
@@ -6385,20 +6436,51 @@
 
         // --- EXPLORE & SEARCH ---
         function loadMentors() {
-            const listEl = document.getElementById('searchResultsList');
-            listEl.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: var(--text-secondary);">Loading available connections...</p>';
-            const usersPromise = db.collection('users').get();
-            const requestsPromise = db.collection('connection_requests').where('recipientId', '==', currentUser.uid).get();
-            const sentRequestsPromise = db.collection('connection_requests').where('senderId', '==', currentUser.uid).get();
+    const listEl = document.getElementById('searchResultsList');
+    listEl.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; color: var(--text-secondary);">Loading connections...</p>';
+    
+    const usersPromise = db.collection('users').get();
+    const requestsPromise = db.collection('connection_requests').where('recipientId', '==', currentUser.uid).get();
+    const sentRequestsPromise = db.collection('connection_requests').where('senderId', '==', currentUser.uid).get();
 
-            Promise.all([usersPromise, requestsPromise, sentRequestsPromise]).then(([userSnap, receivedReqSnap, sentReqSnap]) => {
-                const allRequests = [...receivedReqSnap.docs, ...sentReqSnap.docs];
-                renderUserResults(userSnap, allRequests);
-            }).catch(e => {
-                listEl.innerHTML = '<p style="color:var(--danger-color); text-align:center;">Failed to load connections. Check console (Index required).</p>';
-                console.error("Error in loadMentors:", e);
+    Promise.all([usersPromise, requestsPromise, sentRequestsPromise]).then(([userSnap, receivedReqSnap, sentReqSnap]) => {
+        const allRequests = [...receivedReqSnap.docs, ...sentReqSnap.docs];
+        
+        // --- 1. FILTER LOGIC START ---
+        // Convert snapshot to array of docs
+        let filteredDocs = userSnap.docs;
+
+        // A. Filter by Role
+        if (window.exploreFilters.roles.length > 0) {
+            filteredDocs = filteredDocs.filter(doc => {
+                const r = (doc.data().role || 'student').toLowerCase();
+                return window.exploreFilters.roles.includes(r);
             });
         }
+
+        // B. Filter by Year
+        if (window.exploreFilters.years.length > 0) {
+            filteredDocs = filteredDocs.filter(doc => {
+                const y = doc.data().year;
+                return window.exploreFilters.years.includes(y);
+            });
+        }
+
+        // C. Filter by College
+        if (window.exploreFilters.colleges.length > 0) {
+            filteredDocs = filteredDocs.filter(doc => {
+                const c = doc.data().college;
+                return window.exploreFilters.colleges.includes(c);
+            });
+        }
+        // --- FILTER LOGIC END ---
+
+        renderUserResults(filteredDocs, allRequests); // Pass ARRAY, not snapshot
+    }).catch(e => {
+        listEl.innerHTML = '<p style="color:var(--danger-color); text-align:center;">Failed to load.</p>';
+        console.error("Error in loadMentors:", e);
+    });
+}
 
         function handleUserSearch(event) {
             // 1. Prevent page refresh if "Enter" is pressed
@@ -6924,32 +7006,43 @@
 
 
         function handleSendMessage(e) {
-            // ... existing code ...
-            if (!text) return;
+    // 1. CRITICAL: Stop the page from reloading immediately
+    if (e) e.preventDefault(); 
 
-            // 1. Add Message
-            db.collection('chats').doc(chatId).collection('messages').add({
-                text,
-                senderId: currentUser.uid,
-                timestamp: new Date()
-            });
+    // 2. Get Data
+    const input = document.getElementById('messageText');
+    const text = input.value.trim();
+    const chatId = document.getElementById('selectedChatId').value;
 
-            // 2. Update Chat Metadata (ADD lastSenderId)
-            db.collection('chats').doc(chatId).update({
-                lastMessage: text,
-                updatedAt: new Date(),
-                lastSenderId: currentUser.uid // <--- ADD THIS LINE
-            });
+    // 3. Validation Checks
+    if (!text) return; // Don't send empty messages
+    if (!chatId) {
+        console.error("No chat ID selected");
+        return;
+    }
+    if (!currentUser) {
+        console.error("User not logged in");
+        return;
+    }
 
-            document.getElementById('messageText').value = '';
-        }
+    // 4. Send Message to Firestore
+    db.collection('chats').doc(chatId).collection('messages').add({
+        text: text,
+        senderId: currentUser.uid,
+        timestamp: new Date()
+    }).catch(err => console.error("Error sending msg:", err));
 
-        // --- GLOBAL FILTER STATE ---
-        window.activeFilters = {
-            sortBy: 'latest', // 'latest' or 'upvotes'
-            years: [],        // ['FE', 'TE'] etc
-            tags: []          // ['Sports', 'Technical'] etc
-        };
+    // 5. Update Chat Metadata (Last Message & Sender)
+    db.collection('chats').doc(chatId).update({
+        lastMessage: text,
+        updatedAt: new Date(),
+        lastSenderId: currentUser.uid 
+    }).catch(err => console.error("Error updating chat:", err));
+
+    // 6. Clear Input
+    input.value = '';
+    input.focus(); // Keep keyboard open
+}
 
         // --- 1. LOAD COMMUNITY (Now respects filters) ---
         /* --- LOAD COMMUNITY (With Report Wall Logic) --- */
@@ -7361,6 +7454,60 @@
             window.activeFilters.sortBy = type;
             updateFilterUI();
         }
+        /* --- EXPLORE / MENTOR FILTER LOGIC --- */
+window.exploreFilters = {
+    roles: [],
+    years: [],
+    colleges: []
+};
+
+function openExploreSortModal() {
+    lockScroll();
+    const modal = document.getElementById('exploreFilterModal');
+    modal.classList.add('active');
+    updateExploreFilterUI();
+}
+
+function toggleExploreFilter(category, value) {
+    const list = window.exploreFilters[category];
+    const index = list.indexOf(value);
+
+    if (index > -1) list.splice(index, 1); // Remove
+    else list.push(value); // Add
+
+    updateExploreFilterUI();
+}
+
+function updateExploreFilterUI() {
+    // 1. Roles
+    ['student', 'mentor'].forEach(r => {
+        const btn = document.getElementById(`expRole_${r}`);
+        if(btn) btn.className = `filter-pill ${window.exploreFilters.roles.includes(r) ? 'active' : ''}`;
+    });
+
+    // 2. Years
+    ['FE', 'SE', 'TE', 'BE'].forEach(y => {
+        const btn = document.getElementById(`expYear_${y}`);
+        if(btn) btn.className = `filter-pill ${window.exploreFilters.years.includes(y) ? 'active' : ''}`;
+    });
+
+    // 3. Colleges
+    ['VIT', 'VSIT', 'VP'].forEach(c => {
+        const btn = document.getElementById(`expCol_${c}`);
+        if(btn) btn.className = `filter-pill ${window.exploreFilters.colleges.includes(c) ? 'active' : ''}`;
+    });
+}
+
+function clearExploreFilters() {
+    window.exploreFilters = { roles: [], years: [], colleges: [] };
+    updateExploreFilterUI();
+    loadMentors(); // Reload list
+}
+
+function applyExploreFilters() {
+    closeModal('exploreFilterModal');
+    loadMentors(); // Trigger reload with new filters
+}
 
         function toggleFilter(type, value) {
             const list = type === 'year' ? window.activeFilters.years : window.activeFilters.tags;
